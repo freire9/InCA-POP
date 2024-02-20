@@ -25,6 +25,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    user-select: none;
   }
   span{
     font-size: x-large;

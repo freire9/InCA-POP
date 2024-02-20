@@ -2,6 +2,14 @@
 	<a href="/">Home</a>
 </nav>
 
+<svelte:head>
+	<style>
+		body {
+			margin: 0;
+		}
+	</style>
+</svelte:head>
+
 <script>
 	import Balloon from '../../components/Balloon.svelte';;
 	import { onMount } from 'svelte';
@@ -11,7 +19,7 @@
 	let maxBalloons = 8; //variable
 	let minSpeed = 0.2;
 	let maxSpeed = 0.5;
-	let selectedDirection = 'right-left'; // default direction
+	let selectedDirection = 'left-right'; // default direction
   
 	function addBalloon() {
 		if (balloons.length >= maxBalloons) return;
@@ -28,12 +36,12 @@
 	}
 
 	function addInitialBalloons() {
-		while (balloons.length < maxBalloons) {console.log(balloons.length)
+		while (balloons.length < maxBalloons) {
 			const id = balloonIdCounter++;
 			const color = getRandomColor();
 			const size = 80;
-			const x = (Math.random() * window.innerWidth) - size;
-			const y = getRandomYPosition() - size;
+			const x = getRandomXPosition(size);
+			const y = getRandomYPosition(size);
 			const speed = getRandomSpeed();
 			const direction = selectedDirection;
 			const balloon = { id, color, x, y, speed, direction, size};
@@ -54,27 +62,23 @@
   	}
   
 	function getRandomColor() {
-		return '#' + Math.floor(Math.random()*16777215).toString(16);
+		const red = Math.floor(Math.random() * 256);
+		const green = Math.floor(Math.random() * 256);
+		const blue = Math.floor(Math.random() * 256);
+
+		return `rgb(${red}, ${green}, ${blue})`;
 	}
   
-	function getRandomYPosition() {
-		return Math.random() * window.innerHeight;
+	function getRandomYPosition(size) {
+		const navBarHeight = 0.07; // in styles.css. TODO: refactor modularity
+		const minPosition = navBarHeight;
+		const maxPosition = window.innerHeight * (1 - navBarHeight) - size
+		return Math.random() * (maxPosition - minPosition) + minPosition;
 	}
 
-	function verifyYOverflow(yPosition, size){
-		if(yPosition >= window.innerHeight) return window.innerHeight - size;
-		if(yPosition <= 0) return 0;	
-		return yPosition;
-	}
-
-	function verifyXOverflow(xPosition, size){
-		if(xPosition >= window.innerWidth) return window.innerWidth - size;
-		if(xPosition <= 0) return 0;
-		return xPosition;
-	}
-
-	function getRandomXPosition() {
-		return Math.random() * window.innerWidth;
+	function getRandomXPosition(size) {
+		const maxPosition = window.innerWidth - size;
+		return Math.random() * maxPosition;
 	}
 
 	function getRandomSpeed() {
@@ -84,13 +88,13 @@
 	  function getInitialPosition(direction, size) {
 		switch (direction) {
 		case 'left-right':
-			return { x: 0, y: getRandomYPosition() };
+			return { x: 0, y: getRandomYPosition(size) };
 		case 'right-left':
-			return { x: window.innerWidth, y: getRandomYPosition() };
+			return { x: window.innerWidth, y: getRandomYPosition(size) };
 		case 'top-bottom':
-			return { x: getRandomXPosition(), y: 0 };
+			return { x: getRandomXPosition(size), y: 0 };
 		case 'bottom-top':
-			return { x: getRandomXPosition(), y: window.innerHeight };
+			return { x: getRandomXPosition(size), y: window.innerHeight };
 		default:
 			return { x: 0, y: 0 };
 		}
@@ -118,7 +122,6 @@
 			
 		balloons = balloons.filter(balloon => {
 			if (balloon.direction === 'left-right' || balloon.direction === 'right-left') {
-				console.log(balloon)
 			return balloon.x <= window.innerWidth && balloon.x >= 0;
 			} else {
 			return balloon.y <= window.innerHeight && balloon.y >= 0;
@@ -148,8 +151,13 @@
   <style>
 	main {
 	  position: relative;
-	  height: 100vh;
+	  height: calc(100vh - var(--nav-bar-height));
 	  overflow: hidden;
+	  background-color: lightblue;
+	}
+	nav {
+		background-color: red;
+		height: var(--nav-bar-height);
 	}
   </style>
   
