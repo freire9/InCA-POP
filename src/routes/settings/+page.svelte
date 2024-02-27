@@ -1,8 +1,17 @@
 <script>
-	import {subjectName} from '../../stores.js';
-    import {bubbleSpeed} from '../../stores.js';
-    import {bubbleSize} from '../../stores.js';
-    import {gameModes} from '../../stores.js';
+    import { 
+        balloonSizeOptions, 
+        subjectName,
+        balloonSpeed,
+        balloonSpeedOptions,
+        balloonSize,
+        availableModes,
+        maxBalloonsQuantity,
+        balloonRandomColor,
+        balloonColor,
+        gameBackgroundColor,
+        balloonLetterColor,
+    } from '../../stores.js';
 </script>
 
 <nav>
@@ -17,39 +26,55 @@
         <input bind:value={$subjectName}/>
     </label>
     <label>
-        Bubble Speed:
-        <select bind:value={$bubbleSpeed}>
-            <option value="slow">Slow</option>
-            <option value="normal">Normal</option>
-            <option value="fast">Fast</option>
+        Max balloons quantity on screen:
+        <input type="number" min="1" bind:value={$maxBalloonsQuantity}/>
+    </label>
+    <label>
+        Balloon Speed:
+        <select bind:value={$balloonSpeed}>
+            {#each Object.keys(balloonSpeedOptions) as speedOptionKey}
+                <option value={balloonSpeedOptions[speedOptionKey]}>
+                    {speedOptionKey.charAt(0).toUpperCase() + speedOptionKey.slice(1).toLowerCase()}
+                </option>
+            {/each}
         </select>
     </label>
     <label>
-        Bubble size:
-        <select bind:value={$bubbleSize}>
-            <option value="small">Small</option>
-            <option value="normal">Normal</option>
-            <option value="big">Big</option>
+        Balloon size:
+        <select bind:value={$balloonSize}>
+            {#each Object.keys(balloonSizeOptions) as sizeOptionKey}
+                <option value={balloonSizeOptions[sizeOptionKey]}>
+                    {sizeOptionKey.charAt(0).toUpperCase() + sizeOptionKey.slice(1).toLowerCase()}
+                </option>
+            {/each}
         </select>
     </label>
+    <label>
+        Randomize balloons colors?
+        <input type="checkbox" bind:checked={$balloonRandomColor}>
+    </label>
+    {#if !$balloonRandomColor}
+        <label>
+            Balloon color:
+            <input type="color" bind:value={$balloonColor}>
+        </label>
+    {/if}
+    <label>
+        Game background color:
+        <input type="color" bind:value={$gameBackgroundColor}>
+    </label>
+    <label>
+        Balloon letter color:
+        <input type="color" bind:value={$balloonLetterColor}>
+    </label>
     <div class="flex-column">
-        Game Modes (trajectory of the bubbles):
-        <label class="flex-label">
-            Left to right:
-            <input type="checkbox" bind:checked={$gameModes.leftToRight}>
-        </label>
-        <label class="flex-label">
-            Right to left:
-            <input type="checkbox" bind:checked={$gameModes.rightToLeft}>
-        </label>
-        <label class="flex-label">
-            Top to bottom:
-            <input type="checkbox" bind:checked={$gameModes.topToBottom}>
-        </label>
-        <label class="flex-label">
-            Bottom to top:
-            <input type="checkbox" bind:checked={$gameModes.bottomToTop}>
-        </label>
+        Game Modes (trajectory of the balloon) availables in main menu:
+        {#each Object.keys($availableModes) as mode}
+            <label class="flex-label">
+                {$availableModes[mode].label}:
+                <input type="checkbox" bind:checked={$availableModes[mode].enabled}>
+            </label>
+        {/each}
     </div>
 </div>
 
