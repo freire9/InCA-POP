@@ -1,6 +1,8 @@
 <script>
-    import { gameDirection } from "../stores";
-    import { availableModes } from "../stores";
+    import { 
+        gameDirection,
+        availableModes,
+    } from "../stores";
     import { goto } from "$app/navigation";
 
     function startGame(mode){
