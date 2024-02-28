@@ -13,7 +13,7 @@
 <script>
 	import Balloon from '../../components/Balloon.svelte';;
 	import { onMount } from 'svelte';
-	
+
 	//settings stores
 	import { 
 		maxBalloonsQuantity,
@@ -23,22 +23,31 @@
 		balloonRandomColor,
 		balloonColor,
 		gameBackgroundColor,
+		fluidTransitions,
+		enableBalloonRangeColor,
+		balloonInterpolatedColors,
 	} from '../../stores.js';
 
 	let balloons = [];
 	let balloonIdCounter = 1;
 	let navBarHeight;
+	let balloonKnotHeightPercent;
   
 	function addBalloon() {
 		if (balloons.length >= $maxBalloonsQuantity) return;
 
 		const id = balloonIdCounter++;
-		const color = $balloonRandomColor ? getRandomColor() : $balloonColor;
+		let randomIndex = Math.floor(Math.random() * $balloonInterpolatedColors.length);
+		const color = $balloonRandomColor ?
+			getRandomColor() :
+			($enableBalloonRangeColor ? $balloonInterpolatedColors[randomIndex] : $balloonColor);
 		const { x, y } = getInitialPosition($gameDirection, $balloonSize);
 		const speed = getRandomSpeed();
 		const size = $balloonSize;
 		const direction = $gameDirection;
-		const balloon = { id, color, x, y, speed, direction, size};
+		const rotation = Math.random() * 20 - 10;
+		const isSpecial = Math.random() > 0.7;
+		const balloon = { id, color, x, y, speed, direction, size, rotation, isSpecial};
 	
 		balloons = [...balloons, balloon];
 	}
@@ -46,14 +55,18 @@
 	function addInitialBalloons() {
 		while (balloons.length < $maxBalloonsQuantity) {
 			const id = balloonIdCounter++;
-			const color = $balloonRandomColor ? getRandomColor() : $balloonColor;
+			let randomIndex = Math.floor(Math.random() * $balloonInterpolatedColors.length);
+			const color = $balloonRandomColor ?
+				getRandomColor() :
+				($enableBalloonRangeColor ? $balloonInterpolatedColors[randomIndex] : $balloonColor);
 			const x = getRandomXPosition($balloonSize);
 			const y = getRandomYPosition($balloonSize);
 			const speed = getRandomSpeed();
 			const size = $balloonSize;
 			const direction = $gameDirection;
-			const balloon = { id, color, x, y, speed, direction, size};
-
+			const rotation = Math.random() * 20 - 10;
+			const isSpecial = Math.random() > 0.7;
+			const balloon = { id, color, x, y, speed, direction, size, rotation, isSpecial};
 
 			balloons = [...balloons, balloon];
 		}
@@ -98,13 +111,13 @@
 	  function getInitialPosition(direction, size) {
 		switch (direction) {
 		case 'leftToRight':
-			return { x: 0, y: getRandomYPosition(size) };
+			return { x: 0 - size.width, y: getRandomYPosition(size) };
 		case 'rightToLeft':
-			return { x: window.innerWidth - size.width, y: getRandomYPosition(size) };
+			return { x: window.innerWidth, y: getRandomYPosition(size) };
 		case 'topToBottom':
-			return { x: getRandomXPosition(size), y: 0 };
+			return { x: getRandomXPosition(size), y: 0 - size.height - (size.height * balloonKnotHeightPercent)};
 		case 'bottomToTop':
-			return { x: getRandomXPosition(size), y: window.innerHeight * (1 - navBarHeight) - size.height};
+			return { x: getRandomXPosition(size), y: window.innerHeight * (1 - navBarHeight)};
 		default:
 			return { x: 0, y: 0 };
 		}
@@ -114,16 +127,25 @@
 	  function moveBalloons() {
 		balloons = balloons.map(balloon => {
 			const speed = balloon.speed;
+			const enableMoveDesviation = Math.random() > 0.6;
+			const enableRotDesviation = enableMoveDesviation;
+
+			//FOR TRANSITION-CLICK BUG FIREFOX transition: transform 0.3s ease;
+			const axisDesviation = $fluidTransitions ? Math.random() * 2 - 1 : Math.random() * 0.3 - 0.15;
+			const angleDesviation = $fluidTransitions ? Math.random() * 1 - 0.5 : Math.random() * 0.5 - 0.25;
+			const horizontalDesviation = enableMoveDesviation ? axisDesviation : 0;
+			const verticalDesviation = enableMoveDesviation ? axisDesviation : 0;
+			const rotDesviation = enableRotDesviation ? angleDesviation : 0;
 
 			switch (balloon.direction) {
 			case 'leftToRight':
-				return { ...balloon, x: balloon.x + speed };
+				return { ...balloon, x: balloon.x + speed, y: balloon.y + verticalDesviation, rotation: balloon.rotation + rotDesviation };
 			case 'rightToLeft':
-				return { ...balloon, x: balloon.x - speed };
+				return { ...balloon, x: balloon.x - speed, y: balloon.y + verticalDesviation, rotation: balloon.rotation + rotDesviation };
 			case 'topToBottom':
-				return { ...balloon, y: balloon.y + speed };
+				return { ...balloon, y: balloon.y + speed, x: balloon.x + horizontalDesviation, rotation: balloon.rotation + rotDesviation };
 			case 'bottomToTop':
-				return { ...balloon, y: balloon.y - speed };
+				return { ...balloon, y: balloon.y - speed, x: balloon.x + horizontalDesviation, rotation: balloon.rotation + rotDesviation };
 			default:
 				return balloon;
         	}
@@ -132,9 +154,9 @@
 			
 		balloons = balloons.filter(balloon => {
 			if (balloon.direction === 'leftToRight' || balloon.direction === 'rightToLeft') {
-			return balloon.x <= window.innerWidth && balloon.x >= 0;
+			return balloon.x <= window.innerWidth && balloon.x >= 0 - balloon.size.width;
 			} else {
-			return balloon.y <= window.innerHeight && balloon.y >= 0;
+			return balloon.y <= window.innerHeight && balloon.y >= 0 - balloon.size.height - (balloon.size.height * balloonKnotHeightPercent);
 			}
 		});
 		
@@ -149,6 +171,8 @@
 		//in vh
 		navBarHeight = getComputedStyle(root).getPropertyValue('--nav-bar-height');
 		navBarHeight = parseFloat(navBarHeight)/100
+		balloonKnotHeightPercent = getComputedStyle(root).getPropertyValue('--balloon-knot-height');
+		balloonKnotHeightPercent = parseFloat(balloonKnotHeightPercent)/100;
 
 		addInitialBalloons()
 

@@ -11,7 +11,66 @@
         balloonColor,
         gameBackgroundColor,
         balloonLetterColor,
+        fluidTransitions,
+        enableCustomLetter,
+        enableBalloonRangeColor,
+        balloonRangeColor1,
+        balloonRangeColor2,
+        balloonRangeColorDefinition,
+        balloonInterpolatedColors,
+        updateInterpolatedColors,
     } from '../../stores.js';
+    import { debounce } from 'lodash';
+    import { onMount } from 'svelte';
+
+    onMount(() => {
+        if($balloonInterpolatedColors.length == 0){
+            const colors = calculateInterpolatedColors($balloonRangeColorDefinition, $balloonRangeColor1, $balloonRangeColor2);
+            updateInterpolatedColors(colors);
+        }
+    });
+
+    const handleColorChange = debounce(() => {
+        // Logic for interpolating colors and updating the store
+        const colors = calculateInterpolatedColors($balloonRangeColorDefinition, $balloonRangeColor1, $balloonRangeColor2);
+        updateInterpolatedColors(colors);
+    }, 500);
+
+    // Function to calculate intermediate colors
+    function calculateInterpolatedColors(steps, color1, color2) {
+        const colors = [];
+
+        for (let i = 0; i <= steps; i++) {
+        const ratio = i / steps;
+        const interpolatedColor = interpolateColor(color1, color2, ratio);
+        colors.push(interpolatedColor);
+        }
+
+        balloonInterpolatedColors.set(colors);
+        return colors;
+  }
+
+    // Function for interpolating between two colors in RGB space
+    function interpolateColor(color1, color2, ratio) {
+        const hexToRgb = hex => ({
+        r: parseInt(hex.slice(1, 3), 16),
+        g: parseInt(hex.slice(3, 5), 16),
+        b: parseInt(hex.slice(5, 7), 16),
+        });
+
+        const rgbToHex = rgb => `#${Math.round(rgb.r).toString(16).padStart(2, '0')}${Math.round(rgb.g).toString(16).padStart(2, '0')}${Math.round(rgb.b).toString(16).padStart(2, '0')}`;
+
+        const rgb1 = hexToRgb(color1);
+        const rgb2 = hexToRgb(color2);
+
+        const rgb = {
+        r: rgb1.r + (rgb2.r - rgb1.r) * ratio,
+        g: rgb1.g + (rgb2.g - rgb1.g) * ratio,
+        b: rgb1.b + (rgb2.b - rgb1.b) * ratio,
+        };
+
+        return rgbToHex(rgb);
+  }
 </script>
 
 <nav>
@@ -55,8 +114,27 @@
     </label>
     {#if !$balloonRandomColor}
         <label>
-            Balloon color:
-            <input type="color" bind:value={$balloonColor}>
+            Enable range color?
+            <input type="checkbox" bind:checked={$enableBalloonRangeColor}>
+        </label>
+        <label>
+            {#if !$enableBalloonRangeColor}
+                Balloon color:
+                <input type="color" bind:value={$balloonColor}>
+            {:else}
+                Color 1:
+                <input type="color" bind:value={$balloonRangeColor1} on:input={handleColorChange} />
+                Color 2:
+                <input type="color" bind:value={$balloonRangeColor2} on:input={handleColorChange} />
+                Definition:
+                <input type="number" bind:value={$balloonRangeColorDefinition} on:input={handleColorChange}>
+                <br>
+                <div class="color-box">
+                    {#each $balloonInterpolatedColors as color (color)}
+                      <div class="color-square" style="background-color: {color}"></div>
+                    {/each}
+                </div>
+            {/if}
         </label>
     {/if}
     <label>
@@ -64,9 +142,15 @@
         <input type="color" bind:value={$gameBackgroundColor}>
     </label>
     <label>
-        Balloon letter color:
-        <input type="color" bind:value={$balloonLetterColor}>
+        Enable balloon custom letter color:
+        <input type="checkbox" bind:checked={$enableCustomLetter}>
     </label>
+    {#if $enableCustomLetter}
+        <label>
+            Balloon letter color:
+            <input type="color" bind:value={$balloonLetterColor}>
+        </label>
+    {/if}
     <div class="flex-column">
         Game Modes (trajectory of the balloon) availables in main menu:
         {#each Object.keys($availableModes) as mode}
@@ -76,6 +160,10 @@
             </label>
         {/each}
     </div>
+    <label>
+        Enable fluid transitions (Firefox presents bugs at clicks):
+        <input type="checkbox" bind:checked={$fluidTransitions}>
+    </label>
 </div>
 
 <style>
@@ -89,5 +177,14 @@
     }
     label{
         margin-top: 25px;
+    }
+    .color-box {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    .color-square {
+        width: 50px;
+        height: 50px;
+        margin: 5px;
     }
 </style>
