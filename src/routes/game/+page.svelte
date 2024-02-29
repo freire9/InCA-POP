@@ -192,10 +192,18 @@
 	  position: relative;
 	  height: calc(100vh - var(--nav-bar-height));
 	  overflow: hidden;
+	  -moz-user-select: none;
+	  -webkit-user-select: none;
+	  -ms-user-select: none;
+	  user-select: none;
 	}
 	nav {
 		background-color: red;
 		height: var(--nav-bar-height);
+		-moz-user-select: none;
+  		-webkit-user-select: none;
+  		-ms-user-select: none;
+  		user-select: none;
 	}
   </style>
   
