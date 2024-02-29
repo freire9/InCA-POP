@@ -77,7 +77,7 @@
     user-select: none;
   }
   span{
-    -webkit-text-stroke: 0.5px black;
+    -webkit-text-stroke: 0.7px black;
     user-select: none;
     -moz-user-select: none;
     -webkit-user-select: none;
@@ -96,7 +96,7 @@
 >
   {#if balloon.isSpecial}
     <span
-    style="-webkit-text-fill-color: {$enableCustomLetter ? $balloonLetterColor : balloon.color};"
+    style="-webkit-text-fill-color: {$enableCustomLetter ? $balloonLetterColor : 'transparent'};"
     style:font-size='{balloon.size.height * 0.7}px'>
     P
     </span>
