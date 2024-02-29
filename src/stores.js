@@ -8,9 +8,9 @@ export const balloonSpeedOptions = {
 }
 export const balloonSpeed = writable(balloonSpeedOptions.NORMAL);
 export const balloonSizeOptions = {
-    SMALL: {width: 40, height: 40},
-    NORMAL: {width: 80, height: 80},
-    BIG: {width: 120, height: 120},
+    SMALL: {width: 40, height: 50},
+    NORMAL: {width: 80, height: 100},
+    BIG: {width: 120, height: 145},
 }
 export const balloonSize = writable(balloonSizeOptions.NORMAL);
 export const availableModes = writable({
@@ -23,6 +23,13 @@ export const availableModes = writable({
 export const gameDirection = writable('leftToRight');
 export const maxBalloonsQuantity = writable('8');
 export const balloonRandomColor = writable(true);
+export const enableBalloonRangeColor = writable(false);
+export const balloonRangeColor1 = writable('#ff0000');
+export const balloonRangeColor2 = writable('#00ff00');
+export const balloonRangeColorDefinition = writable(10);
+export const balloonInterpolatedColors = writable([]);
 export const balloonColor = writable('#ff0000');
 export const gameBackgroundColor = writable('#add8e6');
+export const enableCustomLetter = writable(false);
 export const balloonLetterColor = writable('#000000');
+export const fluidTransitions = writable(true);

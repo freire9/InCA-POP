@@ -11,7 +11,31 @@
         balloonColor,
         gameBackgroundColor,
         balloonLetterColor,
+        fluidTransitions,
+        enableCustomLetter,
+        enableBalloonRangeColor,
+        balloonRangeColor1,
+        balloonRangeColor2,
+        balloonRangeColorDefinition,
+        balloonInterpolatedColors,
     } from '../../stores.js';
+    import { debounce } from 'lodash';
+    import { onMount } from 'svelte';
+    import { calculateInterpolatedColors } from '$lib/utils.js'
+
+    // Logic for interpolating colors and updating the store
+    function setInterpolatedColors(){
+        const colors = calculateInterpolatedColors($balloonRangeColorDefinition, $balloonRangeColor1, $balloonRangeColor2);
+        balloonInterpolatedColors.set(colors);
+    }
+
+    onMount(() => {
+        if($balloonInterpolatedColors.length == 0){
+            setInterpolatedColors();
+        }
+    });
+
+    const handleColorChange = debounce(setInterpolatedColors, 500);
 </script>
 
 <nav>
@@ -55,8 +79,27 @@
     </label>
     {#if !$balloonRandomColor}
         <label>
-            Balloon color:
-            <input type="color" bind:value={$balloonColor}>
+            Enable range color?
+            <input type="checkbox" bind:checked={$enableBalloonRangeColor}>
+        </label>
+        <label>
+            {#if !$enableBalloonRangeColor}
+                Balloon color:
+                <input type="color" bind:value={$balloonColor}>
+            {:else}
+                Color 1:
+                <input type="color" bind:value={$balloonRangeColor1} on:input={handleColorChange} />
+                Color 2:
+                <input type="color" bind:value={$balloonRangeColor2} on:input={handleColorChange} />
+                Definition:
+                <input type="number" bind:value={$balloonRangeColorDefinition} on:input={handleColorChange}>
+                <br>
+                <div class="color-box">
+                    {#each $balloonInterpolatedColors as color (color)}
+                      <div class="color-square" style="background-color: {color}"></div>
+                    {/each}
+                </div>
+            {/if}
         </label>
     {/if}
     <label>
@@ -64,9 +107,15 @@
         <input type="color" bind:value={$gameBackgroundColor}>
     </label>
     <label>
-        Balloon letter color:
-        <input type="color" bind:value={$balloonLetterColor}>
+        Enable balloon custom letter color:
+        <input type="checkbox" bind:checked={$enableCustomLetter}>
     </label>
+    {#if $enableCustomLetter}
+        <label>
+            Balloon letter color:
+            <input type="color" bind:value={$balloonLetterColor}>
+        </label>
+    {/if}
     <div class="flex-column">
         Game Modes (trajectory of the balloon) availables in main menu:
         {#each Object.keys($availableModes) as mode}
@@ -76,6 +125,10 @@
             </label>
         {/each}
     </div>
+    <label>
+        Enable fluid transitions (Firefox presents bugs at clicks):
+        <input type="checkbox" bind:checked={$fluidTransitions}>
+    </label>
 </div>
 
 <style>
@@ -89,5 +142,14 @@
     }
     label{
         margin-top: 25px;
+    }
+    .color-box {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    .color-square {
+        width: 50px;
+        height: 50px;
+        margin: 5px;
     }
 </style>
