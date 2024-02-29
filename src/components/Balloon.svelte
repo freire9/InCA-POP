@@ -37,19 +37,18 @@
     align-items: center;
     filter: brightness(1.2);
     border-radius: 100% / 80% 80% 120% 120%;
-    background: radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.5), transparent 70%);
-    /* background: radial-gradient(circle at 25% 25%, #fff7 12%, #0000 12.5%),radial-gradient(circle at 12% 40%, #fff7 5%, #0000 5.5%),#c47; */
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    /* border: 0.1vmin solid; */
     -moz-user-select: none;
     -webkit-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    background: radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.5), transparent 70%);
+    /* background: radial-gradient(circle at 25% 25%, #fff7 12%, #0000 12.5%),radial-gradient(circle at 12% 40%, #fff7 5%, #0000 5.5%),#c47; */
+    /* border: 0.1vmin solid; */
   }
   .balloon::before {
     content: '';
     position: absolute;
-    /* border: 0.1vmin solid; */
     width: 15%;
     height: var(--balloon-knot-height);
     left: 50%;
@@ -62,6 +61,7 @@
     -webkit-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    /* border: 0.1vmin solid; */
   }
   .string {
     position: absolute;
@@ -78,7 +78,6 @@
   }
   span{
     -webkit-text-stroke: 0.7px black;
-    user-select: none;
     -moz-user-select: none;
     -webkit-user-select: none;
     -ms-user-select: none;
