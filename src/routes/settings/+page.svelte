@@ -18,10 +18,18 @@
         balloonRangeColor2,
         balloonRangeColorDefinition,
         balloonInterpolatedColors,
+        instructorName,
+        mainMenuRandomColors,
     } from '../../stores.js';
     import { debounce } from 'lodash';
     import { onMount } from 'svelte';
     import { calculateInterpolatedColors } from '$lib/utils.js'
+    import {
+        ActionButton,
+        Fa,
+        NumberInput,
+    } from 'inca-utils';
+	import { goto } from '$app/navigation';
 
     // Logic for interpolating colors and updating the store
     function setInterpolatedColors(){
@@ -39,22 +47,26 @@
 </script>
 
 <nav>
-	<a href="/">Home</a>
+    <ActionButton mode="exit" on:click={() => goto('/')}/>
 </nav>
 
-<h1>Settings</h1>
-<p>This is the settings page.</p>
-<div class="settings-form flex-column">
-    <label>
-        Subject name:
-        <input bind:value={$subjectName}/>
-    </label>
-    <label>
-        Max balloons quantity on screen:
-        <input type="number" min="1" bind:value={$maxBalloonsQuantity}/>
-    </label>
-    <label>
-        Balloon Speed:
+<main>
+    <h1>Settings</h1>
+    <div class="settings-form flex-column">
+        <h2>Profile</h2>
+
+        <label>Subject's name:</label>
+        <input type='text' bind:value={$subjectName}/>
+
+        <label>Instructor's name:</label>
+        <input type="text" bind:value={$instructorName}>
+
+        <h2>Game settings</h2>
+
+        <label>Max balloons quantity on screen:</label>
+        <NumberInput min=1 max=100 bind:value={$maxBalloonsQuantity}/>
+
+        <label>Balloon Speed:</label>
         <select bind:value={$balloonSpeed}>
             {#each Object.keys(balloonSpeedOptions) as speedOptionKey}
                 <option value={balloonSpeedOptions[speedOptionKey]}>
@@ -62,9 +74,8 @@
                 </option>
             {/each}
         </select>
-    </label>
-    <label>
-        Balloon size:
+
+        <label>Balloon size:</label>
         <select bind:value={$balloonSize}>
             {#each Object.keys(balloonSizeOptions) as sizeOptionKey}
                 <option value={balloonSizeOptions[sizeOptionKey]}>
@@ -72,70 +83,99 @@
                 </option>
             {/each}
         </select>
-    </label>
-    <label>
-        Randomize balloons colors?
-        <input type="checkbox" bind:checked={$balloonRandomColor}>
-    </label>
-    {#if !$balloonRandomColor}
-        <label>
-            Enable range color?
-            <input type="checkbox" bind:checked={$enableBalloonRangeColor}>
-        </label>
-        <label>
+
+        <div class="checkbox-flex">
+            <label>Randomize balloons colors?</label>
+            <input type="checkbox" bind:checked={$balloonRandomColor}>
+        </div>
+
+        {#if !$balloonRandomColor}
+            <div class="checkbox-flex">
+                <label>Enable range color?</label>
+                <input type="checkbox" bind:checked={$enableBalloonRangeColor}>
+            </div>
+
             {#if !$enableBalloonRangeColor}
-                Balloon color:
-                <input type="color" bind:value={$balloonColor}>
+                <div class="checkbox-flex">
+                    <label>Balloon color:</label>
+                    <input type="color" bind:value={$balloonColor}>
+                </div>
             {:else}
-                Color 1:
-                <input type="color" bind:value={$balloonRangeColor1} on:input={handleColorChange} />
-                Color 2:
-                <input type="color" bind:value={$balloonRangeColor2} on:input={handleColorChange} />
-                Definition:
-                <input type="number" bind:value={$balloonRangeColorDefinition} on:input={handleColorChange}>
+                <div class="checkbox-flex">
+                    <label>Color 1:</label>
+                    <input type="color" bind:value={$balloonRangeColor1} on:input={handleColorChange} />
+                </div>
+
+                <div class="checkbox-flex">
+                    <label>Color 2:</label>
+                    <input type="color" bind:value={$balloonRangeColor2} on:input={handleColorChange} />
+                </div>
+
+                <div class="checkbox-flex">
+                    <label>Definition:</label>
+                    <NumberInput min=1 max=100 bind:value={$balloonRangeColorDefinition} on:change={handleColorChange} />
+                </div>
                 <br>
                 <div class="color-box">
                     {#each $balloonInterpolatedColors as color (color)}
-                      <div class="color-square" style="background-color: {color}"></div>
+                        <div class="color-square" style="background-color: {color}"></div>
                     {/each}
                 </div>
             {/if}
-        </label>
-    {/if}
-    <label>
-        Game background color:
-        <input type="color" bind:value={$gameBackgroundColor}>
-    </label>
-    <label>
-        Enable balloon custom letter color:
-        <input type="checkbox" bind:checked={$enableCustomLetter}>
-    </label>
-    {#if $enableCustomLetter}
-        <label>
-            Balloon letter color:
-            <input type="color" bind:value={$balloonLetterColor}>
-        </label>
-    {/if}
-    <div class="flex-column">
-        Game Modes (trajectory of the balloon) availables in main menu:
-        {#each Object.keys($availableModes) as mode}
-            <label class="flex-label">
-                {$availableModes[mode].label}:
-                <input type="checkbox" bind:checked={$availableModes[mode].enabled}>
-            </label>
-        {/each}
+        {/if}
+
+        <div class="checkbox-flex">
+            <label>Game background color:</label>
+            <input type="color" bind:value={$gameBackgroundColor}>
+        </div>
+
+        <div class="checkbox-flex">
+            <label>Enable balloon custom letter color:</label>
+            <input type="checkbox" bind:checked={$enableCustomLetter}>
+        </div>
+
+        {#if $enableCustomLetter}
+            <div class="checkbox-flex">
+                <label>Balloon letter color:</label>
+                <input type="color" bind:value={$balloonLetterColor}>
+            </div>
+        {/if}
+
+        <h2>Main menu</h2>
+        <label>Game Modes to display (Direction of balloons):</label>
+        <div class="flex-column">
+            {#each Object.keys($availableModes) as mode}
+                <div class="checkbox-flex">
+                    <label class="flex-label">{$availableModes[mode].label}:</label>
+                    <input type="checkbox" bind:checked={$availableModes[mode].enabled}>
+
+                    {#if !$mainMenuRandomColors}
+                        <div class="checkbox-flex">
+                            <label>Color:</label>
+                            <input type="color" bind:value={$availableModes[mode].color}>
+                        </div>
+                    {/if}
+                </div>
+            {/each}
+
+            <div class="checkbox-flex">
+                <label>Enable random colors in mode representations:</label>
+                <input type="checkbox" bind:checked={$mainMenuRandomColors}>
+            </div>
+        </div>
+
+        <h2>Browser settings</h2>
+        <div class="checkbox-flex">
+            <label>Enable fluid transitions (Firefox presents bugs at clicks):</label>
+            <input type="checkbox" bind:checked={$fluidTransitions}>
+        </div>
     </div>
-    <label>
-        Enable fluid transitions (Firefox presents bugs at clicks):
-        <input type="checkbox" bind:checked={$fluidTransitions}>
-    </label>
-</div>
+</main>
 
 <style>
     .flex-column{
         display: flex;
         flex-direction: column;
-        margin-top: 25px;
     }
     .flex-label{
         margin-left: 35px;
@@ -151,5 +191,15 @@
         width: 50px;
         height: 50px;
         margin: 5px;
+    }
+    main{
+        padding: 0 2rem;
+        width: 48rem;
+        margin: auto;
+    }
+    .checkbox-flex{
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
     }
 </style>
