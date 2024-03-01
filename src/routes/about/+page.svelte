@@ -1,6 +1,20 @@
-<nav>
-	<a href="/">Home</a>
-</nav>
+<script>
+    import { goto } from "$app/navigation";
+    import { ActionButton } from "inca-utils";
+</script>
 
-<h1>About</h1>
-<p>This is the about page.</p>
+<style>
+    main{
+        padding: 0 2rem;
+        width: 48rem;
+        margin: auto;
+    }
+</style>
+
+<nav>
+    <ActionButton mode="exit" on:click={() => goto('/')}/>
+</nav>
+<main>
+    <h1>About InCA-POP!</h1>
+    <p>This is the about page.</p>
+</main>

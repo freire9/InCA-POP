@@ -1,7 +1,10 @@
 <script>
     import Balloon from '../../components/Balloon.svelte';;
     import { onMount } from 'svelte';
-
+    import { ActionButton, Fa } from 'inca-utils';
+    import { faGear, faExpand} from '@fortawesome/free-solid-svg-icons';
+    import { getRandomColor } from '$lib/utils';
+    import { goto } from '$app/navigation';
     //settings stores
     import { 
         maxBalloonsQuantity,
@@ -15,6 +18,7 @@
         enableBalloonRangeColor,
         balloonInterpolatedColors,
     } from '../../stores.js';
+
 
     let balloons = [];
     let balloonIdCounter = 1;
@@ -69,14 +73,6 @@
         //here logs can be managed to a csv or a db
         const clickedBalloonId = event.detail.id;
         destroyBalloon(clickedBalloonId);
-    }
-
-    function getRandomColor() {
-        const red = Math.floor(Math.random() * 256);
-        const green = Math.floor(Math.random() * 256);
-        const blue = Math.floor(Math.random() * 256);
-
-        return `rgb(${red}, ${green}, ${blue})`;
     }
 
     function getRandomYPosition(size) {
@@ -153,7 +149,6 @@
 
         requestAnimationFrame(moveBalloons);
     }
-
     onMount(() => {
         const root = document.documentElement;
         //in vh
@@ -196,7 +191,7 @@
 </svelte:head>
 
 <nav class="not-selectable">
-    <a href="/">Home</a>
+    <ActionButton mode="exit" on:click={() => goto('/')} --width='var(--nav-bar-height)'/>
 </nav>
 
 <main class="not-selectable" style:background-color = {$gameBackgroundColor}>
