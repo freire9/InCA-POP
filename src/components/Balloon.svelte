@@ -1,5 +1,5 @@
 <script>
-    import { onDestroy } from 'svelte';
+    import { onDestroy, onMount} from 'svelte';
     import { createEventDispatcher } from 'svelte'
     import { 
         balloonLetterColor,
@@ -16,10 +16,20 @@
         dispatch('balloonDestroyed', { id: balloon.id });
     });
 
+    let speech;
+    onMount(async () => {
+        ({speech} = await import('inca-utils/api'));
+        // Set defaults
+        $speech.speeches['correct'] ??='Correct';
+        console.log($speech.speeches['correct'])
+    })
+
     function playPopSound(){
-        const sound = balloon.isSpecial ? popCorrectSound : popSound;
+        // const sound = balloon.isSpecial ? popCorrectSound : popSound;
+        const sound = popSound;
         sound.currentTime = 0;
         sound.play();
+        balloon.isSpecial ? speech.play('correct') : '';
     }
 
     function handleClick() {
