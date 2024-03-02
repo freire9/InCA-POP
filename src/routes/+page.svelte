@@ -5,6 +5,7 @@
     import { TrainerButton, Fa } from 'inca-utils';
     import { faGear, faExpand, faInfo, faLeftLong, faRightLong, faUpLong, faDownLong } from '@fortawesome/free-solid-svg-icons';
     import { getRandomColor } from "$lib/utils";
+    import StaticBalloon from "../components/StaticBalloon.svelte";
 
     let theme, fullscreen;
     onMount(async () => {
@@ -26,17 +27,16 @@
 
 <style>
     main{
-        display: flex;
-        flex-direction: column;
         height: 100vh;
-        justify-content: center;
-        align-items: center;
     }
     header{
-        margin-bottom: 20px;
         display: flex;
-        justify-content: space-evenly;
+        justify-content: space-between;
         width: 100%;
+        padding: 1vh;
+        font-size: 3vh;
+        height: 30%;
+        align-items: center;
     }
     nav{
         display: flex;
@@ -45,8 +45,10 @@
     .game-modes {
         display: flex;
         align-items: center;
-        gap: 50px;
-  }
+        height: 70%;
+        padding: 0.5rem;
+        justify-content: space-evenly;
+}
 </style>
 
 <main class="not-selectable">
@@ -67,14 +69,10 @@
     <div class="game-modes">
         {#each Object.keys($availableModes) as mode}
             {#if $availableModes[mode].enabled}
-                <div class="static-balloon" on:click={() => startGame(mode)} style:--bg-balloon={$mainMenuRandomColors ? getRandomColor() : $availableModes[mode].color}>
-                    <span class="balloon-span">
-                        <Fa icon={icons[$availableModes[mode].icon]}/>
-                    </span>
-                    <div class="static-string"/>
+                <div on:click={() => startGame(mode)}>
+                    <StaticBalloon icon={icons[$availableModes[mode].icon]} --bg-pseudo={$mainMenuRandomColors ? getRandomColor() : $availableModes[mode].color} />
                 </div>
             {/if}
-            
         {/each}
     </div>
 </main>
