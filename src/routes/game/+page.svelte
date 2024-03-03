@@ -140,7 +140,7 @@
             if (balloon.direction === 'leftToRight' || balloon.direction === 'rightToLeft') {
             return balloon.x <= window.innerWidth && balloon.x >= 0 - balloon.size.width;
             } else {
-            return balloon.y <= window.innerHeight && balloon.y >= 0 - balloon.size.height - (balloon.size.height * balloonKnotHeightPercent);
+            return balloon.y <= window.innerHeight * (1 - navBarHeight) && balloon.y >= 0 - balloon.size.height - (balloon.size.height * balloonKnotHeightPercent);
             }
         });
         
@@ -201,12 +201,12 @@
 </svelte:head>
 
 <nav class="not-selectable">
-    <ActionButton mode="exit" on:click={() => goto('/')} --width='var(--nav-bar-height)'/>
+    <ActionButton mode="exit" on:click={() => goto('/')} --width='calc(var(--nav-bar-height) * 0.99)'/>
 </nav>
 
 <main class="not-selectable" style:background-color = {$gameBackgroundColor}>
     {#each balloons as balloon (balloon.id)}
-        <Balloon {balloon} on:balloonClicked={handleClick} onDestroy={() => destroyBalloon(balloon.id)} />
+        <Balloon {balloon} on:balloonClicked={handleClick} />
     {/each}
 </main>
   

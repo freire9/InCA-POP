@@ -12,6 +12,10 @@
         ({fullscreen} = await import('inca-utils/api'));
     })
 
+    function handleClick(event){
+        startGame(event.detail);
+    }
+
     function startGame(mode){
         gameDirection.set(mode);
         goto('/game');
@@ -87,9 +91,11 @@
     <div class="game-modes">
         {#each Object.keys($availableModes) as mode}
             {#if $availableModes[mode].enabled}
-                <button on:click={() => startGame(mode)}>
-                    <StaticBalloon icon={icons[$availableModes[mode].icon]} --bg-pseudo={$mainMenuRandomColors ? getRandomColor() : $availableModes[mode].color} />
-                </button>
+                <StaticBalloon 
+                    on:modeClicked={handleClick}
+                    mode={mode}
+                    icon={icons[$availableModes[mode].icon]} --bg-pseudo={$mainMenuRandomColors ? getRandomColor() : $availableModes[mode].color} 
+                />
             {/if}
         {/each}
     </div>

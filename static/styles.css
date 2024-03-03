@@ -11,3 +11,7 @@
 body::backdrop{
     background: unset;
 }
+
+button:focus{
+    outline: 2px solid blue;
+}

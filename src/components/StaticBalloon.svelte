@@ -1,6 +1,13 @@
 <script>
     import { Fa } from 'inca-utils';
+    import { createEventDispatcher } from 'svelte'
     export let icon;
+    export let mode;
+    const dispatch = createEventDispatcher();
+
+    function handleClick(){
+        dispatch('modeClicked', mode);
+    }
 </script>
 
 <style>
@@ -68,11 +75,15 @@
     .balloon span{
         font-size: calc(var(--balloon-width) * 0.5);
     }
+    button:focus,
+    button:focus::before{
+        outline: 2px solid blue;
+    }
 </style>
 
-<div class="balloon not-selectable">
+<button class="balloon not-selectable" on:click={handleClick}>
     <span class="not-selectable">
         <Fa icon={icon}/>
     </span>
   <div class="string not-selectable" style:transform='translateX(-50%)'></div>
-</div>
+</button>

@@ -1,5 +1,4 @@
 <script>
-    import { onDestroy } from 'svelte';
     import { createEventDispatcher } from 'svelte'
     import { 
         balloonLetterColor,
@@ -11,10 +10,6 @@
     const dispatch = createEventDispatcher();
     const popSound = new Audio('/sounds/balloon-pop.mp3');
     const popCorrectSound = new Audio('/sounds/pop-correct.mp3');
-
-    onDestroy(() => {
-        dispatch('balloonDestroyed', { id: balloon.id });
-    });
 
     function playPopSound(){
         const sound = balloon.isSpecial ? popCorrectSound : popSound;
@@ -69,9 +64,13 @@
     span{
         -webkit-text-stroke: 0.7px black;
     }
+    button:focus,
+    button:focus::before{
+        outline: 2px solid blue;
+    }
 </style>
 
-<div id= "{balloon.id}" class="balloon not-selectable" on:click={handleClick}
+<button id= "{balloon.id}" class="balloon not-selectable" on:click={handleClick}
   style:transform = 'translate({balloon.x}px, {balloon.y}px) rotate({balloon.rotation}deg)'
   style:background-color = '{balloon.color}'
   style:width = '{balloon.size.width}px'
@@ -89,4 +88,4 @@
     </span>
   {/if}
   <div class="string not-selectable" style:transform='translateX(-50%) rotate({10+balloon.rotation}deg)'></div>
-</div>
+</button>
