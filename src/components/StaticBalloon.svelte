@@ -75,8 +75,8 @@
     .balloon span{
         font-size: calc(var(--balloon-width) * 0.5);
     }
-    button:focus,
-    button:focus::before{
+    button:focus-visible,
+    button:focus-visible::before{
         outline: 2px solid blue;
     }
 </style>

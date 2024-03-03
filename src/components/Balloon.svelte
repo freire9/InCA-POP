@@ -64,8 +64,8 @@
     span{
         -webkit-text-stroke: 0.7px black;
     }
-    button:focus,
-    button:focus::before{
+    button:focus-visible,
+    button:focus-visible::before{
         outline: 2px solid blue;
     }
 </style>
