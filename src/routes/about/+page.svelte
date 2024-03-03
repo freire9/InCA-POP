@@ -6,8 +6,6 @@
 <style>
     main{
         padding: 0 2rem;
-        width: 48rem;
-        margin: auto;
     }
 </style>
 

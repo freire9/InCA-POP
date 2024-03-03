@@ -193,8 +193,6 @@
     }
     main{
         padding: 2rem;
-        width: 48rem;
-        margin: auto;
     }
     .checkbox-flex{
         display: flex;
