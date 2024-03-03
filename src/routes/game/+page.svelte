@@ -1,10 +1,10 @@
 <script>
     import Balloon from '../../components/Balloon.svelte';;
     import { onMount } from 'svelte';
-    import { ActionButton, Fa } from 'inca-utils';
-    import { faGear, faExpand} from '@fortawesome/free-solid-svg-icons';
+    import { ActionButton } from 'inca-utils';
     import { getRandomColor } from '$lib/utils';
     import { goto } from '$app/navigation';
+    
     //settings stores
     import { 
         maxBalloonsQuantity,
@@ -179,6 +179,16 @@
     nav {
         background-color: red;
         height: var(--nav-bar-height);
+    }
+    @media (max-width: 600px) {
+        :root{
+            --nav-bar-height: 15vh;
+        }
+    }
+    @media (min-width: 1024px){
+        :root{
+            --nav-bar-height: 20vh;
+        }
     }
 </style>
   

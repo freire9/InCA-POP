@@ -4,6 +4,27 @@
 </script>
 
 <style>
+    @media (max-width: 600px) {
+        .balloon{
+            --balloon-width: 80px;
+            width: var(--balloon-width);
+            height: 100px;
+        }
+    }
+    @media (min-width: 600px) and (max-width: 1024px) {
+        .balloon{
+            --balloon-width: 120px;
+            width: var(--balloon-width);
+            height: 150px;
+        }
+    }
+    @media (min-width: 1024px){
+        .balloon{
+            --balloon-width: 200px;
+            width: var(--balloon-width);
+            height: 250px;
+        }
+    }
     .balloon {
         cursor: pointer;
         position: relative;
@@ -15,8 +36,7 @@
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         background: radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.5), transparent 70%);
         background-color: var(--bg-pseudo);
-        width: 20vw;
-        height: 50vh;
+        border: 0.4vmin solid;
     }
     .balloon::before {
         content: '';
@@ -33,6 +53,7 @@
         -webkit-user-select: none;
         -ms-user-select: none;
         user-select: none;
+        border: 0.4vmin solid;
     }
     .string {
         position: absolute;
@@ -44,16 +65,14 @@
         border-bottom-left-radius: 50%;
         transform: 'translateX(--50%)';
     }
+    .balloon span{
+        font-size: calc(var(--balloon-width) * 0.5);
+    }
 </style>
 
-<div class="balloon not-selectable"
->
-    <span
-    class="not-selectable"
-    style="-webkit-text-fill-color: black"
-    style:font-size='{100 * 0.7}px'
-    >
-    <Fa icon={icon}/>
+<div class="balloon not-selectable">
+    <span class="not-selectable">
+        <Fa icon={icon}/>
     </span>
   <div class="string not-selectable" style:transform='translateX(-50%)'></div>
 </div>

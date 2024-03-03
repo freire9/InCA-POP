@@ -7,9 +7,9 @@
     import { getRandomColor } from "$lib/utils";
     import StaticBalloon from "../components/StaticBalloon.svelte";
 
-    let theme, fullscreen;
+    let fullscreen;
     onMount(async () => {
-        ({fullscreen, theme} = await import('inca-utils/api'));
+        ({fullscreen} = await import('inca-utils/api'));
     })
 
     function startGame(mode){
@@ -26,15 +26,29 @@
 </script>
 
 <style>
+    @media (max-width: 600px) {
+        header{
+            font-size: 10px;
+        }
+    }
+    @media (min-width: 600px) and (max-width: 1024px) {
+        header{
+            font-size: 15px;
+        }
+    }
+    @media (min-width: 1024px){
+        header{
+            font-size: 20px;
+        }
+    }
     main{
         height: 100vh;
+        overflow: hidden;
     }
     header{
         display: flex;
-        justify-content: space-between;
         width: 100%;
-        padding: 1vh;
-        font-size: 3vh;
+        padding: 0.5rem;
         height: 30%;
         align-items: center;
     }
@@ -48,7 +62,11 @@
         height: 70%;
         padding: 0.5rem;
         justify-content: space-evenly;
-}
+    }
+    h1 {
+        flex-grow: 1;
+        text-align: center;
+    }
 </style>
 
 <main class="not-selectable">
@@ -69,9 +87,9 @@
     <div class="game-modes">
         {#each Object.keys($availableModes) as mode}
             {#if $availableModes[mode].enabled}
-                <div on:click={() => startGame(mode)}>
+                <button on:click={() => startGame(mode)}>
                     <StaticBalloon icon={icons[$availableModes[mode].icon]} --bg-pseudo={$mainMenuRandomColors ? getRandomColor() : $availableModes[mode].color} />
-                </div>
+                </button>
             {/if}
         {/each}
     </div>
