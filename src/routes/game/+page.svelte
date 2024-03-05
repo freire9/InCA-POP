@@ -22,7 +22,6 @@
 
     let balloons = [];
     let balloonIdCounter = 1;
-    let navBarHeight;
     let balloonKnotHeightPercent;
 
     function addBalloon() {
@@ -76,9 +75,8 @@
     }
 
     function getRandomYPosition(size) {
-        const minPosition = navBarHeight;
-        //navBarHeight in vh, i.e window.innerHeight * (1 - navBarHeight) give the available percent of usable screen
-        const maxPosition = window.innerHeight * (1 - navBarHeight) - size.height;
+        const minPosition = 0;
+        const maxPosition = window.innerHeight - size.height;
 
         return Math.random() * (maxPosition - minPosition) + minPosition;
     }
@@ -101,7 +99,7 @@
             case 'topToBottom':
                 return { x: getRandomXPosition(size), y: 0 - size.height - (size.height * balloonKnotHeightPercent)};
             case 'bottomToTop':
-                return { x: getRandomXPosition(size), y: window.innerHeight * (1 - navBarHeight)};
+                return { x: getRandomXPosition(size), y: window.innerHeight};
             default:
                 return { x: 0, y: 0 };
         }
@@ -138,9 +136,9 @@
             
         balloons = balloons.filter(balloon => {
             if (balloon.direction === 'leftToRight' || balloon.direction === 'rightToLeft') {
-            return balloon.x <= window.innerWidth && balloon.x >= 0 - balloon.size.width;
+            return balloon.x <= window.innerWidth + balloon.size.width && balloon.x >= 0 - balloon.size.width * 2;
             } else {
-            return balloon.y <= window.innerHeight * (1 - navBarHeight) && balloon.y >= 0 - balloon.size.height - (balloon.size.height * balloonKnotHeightPercent);
+            return balloon.y <= window.innerHeight + balloon.size.height && balloon.y >= 0 - (balloon.size.height - (balloon.size.height * balloonKnotHeightPercent)) * 2;
             }
         });
         
@@ -151,9 +149,7 @@
     }
     onMount(() => {
         const root = document.documentElement;
-        //in vh
-        navBarHeight = getComputedStyle(root).getPropertyValue('--nav-bar-height');
-        navBarHeight = parseFloat(navBarHeight)/100
+
         balloonKnotHeightPercent = getComputedStyle(root).getPropertyValue('--balloon-knot-height');
         balloonKnotHeightPercent = parseFloat(balloonKnotHeightPercent)/100;
 
@@ -173,12 +169,8 @@
 <style>
     main {
         position: relative;
-        height: calc(100vh - var(--nav-bar-height));
+        height: 100vh;
         overflow: hidden;
-    }
-    nav {
-        background-color: red;
-        height: var(--nav-bar-height);
     }
     @media (max-width: 600px) {
         :root{
@@ -190,6 +182,9 @@
             --nav-bar-height: 20vh;
         }
     }
+    .exit-btn{
+        position: absolute;
+    }
 </style>
   
 <svelte:head>
@@ -200,11 +195,10 @@
     </style>
 </svelte:head>
 
-<nav class="not-selectable">
-    <ActionButton mode="exit" on:click={() => goto('/')} --width='calc(var(--nav-bar-height) * 0.99)'/>
-</nav>
-
 <main class="not-selectable" style:background-color = {$gameBackgroundColor}>
+    <div class="not-selectable exit-btn">
+        <ActionButton mode="exit" on:click={() => goto('/')} --width='var(--nav-bar-height)'/>
+    </div>
     {#each balloons as balloon (balloon.id)}
         <Balloon {balloon} on:balloonClicked={handleClick} />
     {/each}
