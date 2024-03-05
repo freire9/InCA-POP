@@ -140,17 +140,17 @@
             {/if}
     
             <h2>Main menu</h2>
-            <label for="gameModesCheckbox">Game Modes to display (Direction of balloons):</label>
+            <p>Game Modes to display (Direction of balloons):</p>
             <div class="flex-column">
                 {#each Object.keys($availableModes) as mode}
                     <div class="checkbox-flex">
-                        <label for={"gameMode" + $availableModes[mode].label + "Checkbox"} class="flex-label">{$availableModes[mode].label}:</label>
-                        <input id={"gameMode" + $availableModes[mode].label + "Checkbox"} type="checkbox" bind:checked={$availableModes[mode].enabled}>
+                        <label for={"gameMode" + mode + "Checkbox"} class="flex-label">{$availableModes[mode].label}:</label>
+                        <input id={"gameMode" + mode + "Checkbox"} type="checkbox" bind:checked={$availableModes[mode].enabled}>
     
                         {#if !$mainMenuRandomColors}
                             <div class="checkbox-flex">
-                                <label for={"gameMode" + $availableModes[mode].label + "ColorInput"}>Color:</label>
-                                <input id={"gameMode" + $availableModes[mode].label + "ColorInput"} type="color" bind:value={$availableModes[mode].color}>
+                                <label for={"gameMode" + mode + "ColorInput"}>Color:</label>
+                                <input id={"gameMode" + mode + "ColorInput"} type="color" bind:value={$availableModes[mode].color}>
                             </div>
                         {/if}
                     </div>
