@@ -1,6 +1,8 @@
 <script>
-    import "../../static/styles.css";
-
+    import 'inca-utils/styles.css';
 </script>
+<style>
+    @import '/styles.css';
+</style>
 
 <slot />

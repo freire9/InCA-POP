@@ -1,7 +1,10 @@
 <script>
     import Balloon from '../../components/Balloon.svelte';;
     import { onMount } from 'svelte';
-
+    import { ActionButton } from 'inca-utils';
+    import { getRandomColor } from '$lib/utils';
+    import { goto } from '$app/navigation';
+    
     //settings stores
     import { 
         maxBalloonsQuantity,
@@ -16,9 +19,9 @@
         balloonInterpolatedColors,
     } from '../../stores.js';
 
+
     let balloons = [];
     let balloonIdCounter = 1;
-    let navBarHeight;
     let balloonKnotHeightPercent;
 
     function addBalloon() {
@@ -71,18 +74,9 @@
         destroyBalloon(clickedBalloonId);
     }
 
-    function getRandomColor() {
-        const red = Math.floor(Math.random() * 256);
-        const green = Math.floor(Math.random() * 256);
-        const blue = Math.floor(Math.random() * 256);
-
-        return `rgb(${red}, ${green}, ${blue})`;
-    }
-
     function getRandomYPosition(size) {
-        const minPosition = navBarHeight;
-        //navBarHeight in vh, i.e window.innerHeight * (1 - navBarHeight) give the available percent of usable screen
-        const maxPosition = window.innerHeight * (1 - navBarHeight) - size.height;
+        const minPosition = 0;
+        const maxPosition = window.innerHeight - size.height;
 
         return Math.random() * (maxPosition - minPosition) + minPosition;
     }
@@ -105,7 +99,7 @@
             case 'topToBottom':
                 return { x: getRandomXPosition(size), y: 0 - size.height - (size.height * balloonKnotHeightPercent)};
             case 'bottomToTop':
-                return { x: getRandomXPosition(size), y: window.innerHeight * (1 - navBarHeight)};
+                return { x: getRandomXPosition(size), y: window.innerHeight};
             default:
                 return { x: 0, y: 0 };
         }
@@ -142,9 +136,9 @@
             
         balloons = balloons.filter(balloon => {
             if (balloon.direction === 'leftToRight' || balloon.direction === 'rightToLeft') {
-            return balloon.x <= window.innerWidth && balloon.x >= 0 - balloon.size.width;
+            return balloon.x <= window.innerWidth + balloon.size.width && balloon.x >= 0 - balloon.size.width * 2;
             } else {
-            return balloon.y <= window.innerHeight && balloon.y >= 0 - balloon.size.height - (balloon.size.height * balloonKnotHeightPercent);
+            return balloon.y <= window.innerHeight + balloon.size.height && balloon.y >= 0 - (balloon.size.height - (balloon.size.height * balloonKnotHeightPercent)) * 2;
             }
         });
         
@@ -153,12 +147,9 @@
 
         requestAnimationFrame(moveBalloons);
     }
-
     onMount(() => {
         const root = document.documentElement;
-        //in vh
-        navBarHeight = getComputedStyle(root).getPropertyValue('--nav-bar-height');
-        navBarHeight = parseFloat(navBarHeight)/100
+
         balloonKnotHeightPercent = getComputedStyle(root).getPropertyValue('--balloon-knot-height');
         balloonKnotHeightPercent = parseFloat(balloonKnotHeightPercent)/100;
 
@@ -178,12 +169,21 @@
 <style>
     main {
         position: relative;
-        height: calc(100vh - var(--nav-bar-height));
+        height: 100vh;
         overflow: hidden;
     }
-    nav {
-        background-color: red;
-        height: var(--nav-bar-height);
+    @media (max-width: 600px) {
+        :root{
+            --nav-bar-height: 15vh;
+        }
+    }
+    @media (min-width: 1024px){
+        :root{
+            --nav-bar-height: 20vh;
+        }
+    }
+    .exit-btn{
+        position: absolute;
     }
 </style>
   
@@ -195,13 +195,12 @@
     </style>
 </svelte:head>
 
-<nav class="not-selectable">
-    <a href="/">Home</a>
-</nav>
-
 <main class="not-selectable" style:background-color = {$gameBackgroundColor}>
+    <div class="not-selectable exit-btn">
+        <ActionButton mode="exit" on:click={() => goto('/')} --width='var(--nav-bar-height)'/>
+    </div>
     {#each balloons as balloon (balloon.id)}
-        <Balloon {balloon} on:balloonClicked={handleClick} onDestroy={() => destroyBalloon(balloon.id)} />
+        <Balloon {balloon} on:balloonClicked={handleClick} />
     {/each}
 </main>
   

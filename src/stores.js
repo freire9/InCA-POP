@@ -1,6 +1,7 @@
 import { writable} from 'svelte/store';
 
 export const subjectName = writable('subject-name');
+export const instructorName = writable('instructor-name');
 export const balloonSpeedOptions = {
     SLOW: {min: 0.08, max: 0.2},
     NORMAL: {min: 0.2, max: 0.4},
@@ -13,11 +14,12 @@ export const balloonSizeOptions = {
     BIG: {width: 120, height: 145},
 }
 export const balloonSize = writable(balloonSizeOptions.NORMAL);
+export const mainMenuRandomColors = writable(true);
 export const availableModes = writable({
-    'leftToRight': {label: 'Left to right', enabled: true},
-    'rightToLeft': {label: 'Right to left', enabled: true},
-    'topToBottom': {label: 'Top to bottom', enabled: true},
-    'bottomToTop': {label: 'Bottom to top', enabled: true},
+    'rightToLeft': {label: 'Right to left', enabled: true, icon: 'faLeftLong', color: '#ff0000'},
+    'bottomToTop': {label: 'Bottom to top', enabled: true, icon: 'faUpLong', color: '#22d933'},
+    'topToBottom': {label: 'Top to bottom', enabled: true, icon: 'faDownLong', color: '#2665ea'},
+    'leftToRight': {label: 'Left to right', enabled: true, icon: 'faRightLong', color: '#eacf26'},
     }
 );
 export const gameDirection = writable('leftToRight');

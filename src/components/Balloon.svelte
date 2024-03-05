@@ -1,5 +1,4 @@
 <script>
-    import { onDestroy } from 'svelte';
     import { createEventDispatcher } from 'svelte'
     import { 
         balloonLetterColor,
@@ -11,10 +10,6 @@
     const dispatch = createEventDispatcher();
     const popSound = new Audio('/sounds/balloon-pop.mp3');
     const popCorrectSound = new Audio('/sounds/pop-correct.mp3');
-
-    onDestroy(() => {
-        dispatch('balloonDestroyed', { id: balloon.id });
-    });
 
     function playPopSound(){
         const sound = balloon.isSpecial ? popCorrectSound : popSound;
@@ -40,7 +35,6 @@
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         background: radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.5), transparent 70%);
         /* background: radial-gradient(circle at 25% 25%, #fff7 12%, #0000 12.5%),radial-gradient(circle at 12% 40%, #fff7 5%, #0000 5.5%),#c47; */
-        /* border: 0.1vmin solid; */
     }
     .balloon::before {
         content: '';
@@ -57,7 +51,6 @@
         -webkit-user-select: none;
         -ms-user-select: none;
         user-select: none;
-        /* border: 0.1vmin solid; */
     }
     .string {
         position: absolute;
@@ -71,9 +64,13 @@
     span{
         -webkit-text-stroke: 0.7px black;
     }
+    button:focus-visible,
+    button:focus-visible::before{
+        outline: 2px solid blue;
+    }
 </style>
 
-<div id= "{balloon.id}" class="balloon not-selectable" on:click={handleClick}
+<button id= "{balloon.id}" class="balloon not-selectable" on:click={handleClick}
   style:transform = 'translate({balloon.x}px, {balloon.y}px) rotate({balloon.rotation}deg)'
   style:background-color = '{balloon.color}'
   style:width = '{balloon.size.width}px'
@@ -91,4 +88,4 @@
     </span>
   {/if}
   <div class="string not-selectable" style:transform='translateX(-50%) rotate({10+balloon.rotation}deg)'></div>
-</div>
+</button>
