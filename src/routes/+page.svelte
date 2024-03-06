@@ -1,5 +1,5 @@
 <script>
-    import { gameDirection, availableModes, mainMenuRandomColors, menuBackgroundColor, instructorName, subjectName} from "../stores";
+    import { gameSettings, menuSettings, appSettings} from "../stores";
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
     import { TrainerButton, Fa } from 'inca-utils';
@@ -9,12 +9,6 @@
     import { addLog } from "$lib/logService";
 
     let fullscreen;
-    const menuContext = {
-        backgroundColor: $menuBackgroundColor,
-        availableModes: $availableModes,
-        instructorName: $instructorName,
-        subjectName: $subjectName,
-    }
 
     onMount(async () => {
         ({fullscreen} = await import('inca-utils/api'));
@@ -22,17 +16,17 @@
 
     function handleClick(event){
         const { target, clientX, clientY } = event;
-        addLog('Game started', {mode: event.detail, menuContext, x: clientX, y: clientY});
+        addLog('Game started', {mode: event.detail, $menuSettings, $appSettings, x: clientX, y: clientY});
         startGame(event.detail);
     }
 
     function handleBackgroundClick(event){
         // const { target, clientX, clientY } = event;
-        addLog('Background click', {menuContext});
+        addLog('Background click', {$menuSettings, $appSettings});
     }
 
     function startGame(mode){
-        gameDirection.set(mode);
+        $gameSettings.gameDirection = mode;
         goto('/game');
     }
 
@@ -88,7 +82,7 @@
     }
 </style>
 
-<main class="not-selectable" on:click={handleBackgroundClick} style:background-color={$menuBackgroundColor}>
+<main class="not-selectable" on:click={handleBackgroundClick} style:background-color={$menuSettings.menuBackgroundColor}>
     <header>
         <h1>InCA-POP!</h1>
         <nav>
@@ -104,12 +98,12 @@
         </nav>
     </header>
     <div class="game-modes">
-        {#each Object.keys($availableModes) as mode}
-            {#if $availableModes[mode].enabled}
+        {#each Object.keys($gameSettings.availableModes) as mode}
+            {#if $gameSettings.availableModes[mode].enabled}
                 <StaticBalloon 
                     on:modeClicked={handleClick}
                     mode={mode}
-                    icon={icons[$availableModes[mode].icon]} --bg-pseudo={$mainMenuRandomColors ? getRandomColor() : $availableModes[mode].color} 
+                    icon={icons[$gameSettings.availableModes[mode].icon]} --bg-pseudo={$menuSettings.mainMenuRandomColors ? getRandomColor() : $gameSettings.availableModes[mode].color} 
                 />
             {/if}
         {/each}

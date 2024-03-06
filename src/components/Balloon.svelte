@@ -1,10 +1,6 @@
 <script>
     import { createEventDispatcher } from 'svelte'
-    import { 
-        balloonLetterColor,
-        fluidTransitions,
-        enableCustomLetter,
-    } from '../stores';
+    import { gameSettings, appSettings } from '../stores';
 
     export let balloon;
     const dispatch = createEventDispatcher();
@@ -76,12 +72,12 @@
   style:width = '{balloon.size.width}px'
   style:height = '{balloon.size.height}px'
   style:--bg-pseudo= '{balloon.color}'
-  style:transition={$fluidTransitions ? 'transform 0.3s ease' : ''}
+  style:transition={$appSettings.fluidTransitions ? 'transform 0.3s ease' : ''}
 >
   {#if balloon.isSpecial}
     <span
     class="not-selectable"
-    style="-webkit-text-fill-color: {$enableCustomLetter ? $balloonLetterColor : 'transparent'};"
+    style="-webkit-text-fill-color: {$gameSettings.enableCustomLetter ? $gameSettings.balloonLetterColor : 'transparent'};"
     style:font-size='{balloon.size.height * 0.7}px'
     >
     P

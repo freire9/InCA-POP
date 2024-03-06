@@ -5,46 +5,24 @@
     import { getRandomColor } from '$lib/utils';
     import { goto } from '$app/navigation';
     import { addLog } from "$lib/logService";
-    
-    //settings stores
-    import { 
-        maxBalloonsQuantity,
-        gameDirection,
-        balloonSize,
-        balloonSpeed,
-        balloonRandomColor,
-        balloonColor,
-        gameBackgroundColor,
-        fluidTransitions,
-        enableBalloonRangeColor,
-        balloonInterpolatedColors,
-        enableCustomLetter,
-        balloonRangeColor1,
-        balloonRangeColor2,
-        balloonRangeColorDefinition,
-        balloonLetterColor,
-        subjectName,
-        instructorName,
-    } from '../../stores.js';
-
+    import { appSettings, gameSettings } from '../../stores.js';
 
     let balloons = [];
     let balloonIdCounter = 1;
     let balloonKnotHeightPercent;
-    let gameContext = {};
 
     function addBalloon() {
-        if (balloons.length >= $maxBalloonsQuantity) return;
+        if (balloons.length >= $gameSettings.maxBalloonsQuantity) return;
 
         const id = balloonIdCounter++;
-        let randomIndex = Math.floor(Math.random() * $balloonInterpolatedColors.length);
-        const color = $balloonRandomColor ?
+        let randomIndex = Math.floor(Math.random() * $gameSettings.balloonInterpolatedColors.length);
+        const color = $gameSettings.balloonRandomColor ?
             getRandomColor() :
-            ($enableBalloonRangeColor ? $balloonInterpolatedColors[randomIndex] : $balloonColor);
-        const { x, y } = getInitialPosition($gameDirection, $balloonSize);
+            ($gameSettings.enableBalloonRangeColor ? $gameSettings.balloonInterpolatedColors[randomIndex] : $gameSettings.balloonColor);
+        const { x, y } = getInitialPosition($gameSettings.gameDirection, $gameSettings.balloonSize);
         const speed = getRandomSpeed();
-        const size = $balloonSize;
-        const direction = $gameDirection;
+        const size = $gameSettings.balloonSize;
+        const direction = $gameSettings.gameDirection;
         const rotation = Math.random() * 20 - 10;
         const isSpecial = Math.random() > 0.7;
         const balloon = { id, color, x, y, speed, direction, size, rotation, isSpecial};
@@ -53,17 +31,17 @@
     }
 
     function addInitialBalloons() {
-        while (balloons.length < $maxBalloonsQuantity) {
+        while (balloons.length < $gameSettings.maxBalloonsQuantity) {
             const id = balloonIdCounter++;
-            let randomIndex = Math.floor(Math.random() * $balloonInterpolatedColors.length);
-            const color = $balloonRandomColor ?
+            let randomIndex = Math.floor(Math.random() * $gameSettings.balloonInterpolatedColors.length);
+            const color = $gameSettings.balloonRandomColor ?
                 getRandomColor() :
-                ($enableBalloonRangeColor ? $balloonInterpolatedColors[randomIndex] : $balloonColor);
-            const x = getRandomXPosition($balloonSize);
-            const y = getRandomYPosition($balloonSize);
+                ($gameSettings.enableBalloonRangeColor ? $gameSettings.balloonInterpolatedColors[randomIndex] : $gameSettings.balloonColor);
+            const x = getRandomXPosition($gameSettings.balloonSize);
+            const y = getRandomYPosition($gameSettings.balloonSize);
             const speed = getRandomSpeed();
-            const size = $balloonSize;
-            const direction = $gameDirection;
+            const size = $gameSettings.balloonSize;
+            const direction = $gameSettings.gameDirection;
             const rotation = Math.random() * 20 - 10;
             const isSpecial = Math.random() > 0.7;
             const balloon = { id, color, x, y, speed, direction, size, rotation, isSpecial};
@@ -81,19 +59,19 @@
         //here logs can be managed to a csv or a db
         const clickedBalloonId = event.detail.id;
         const { target, clientX, clientY } = event;
-        addLog('Popped balloon', {balloon: event.detail, gameContext});
+        addLog('Popped balloon', {poppedBalloon: event.detail, onScreenBalloons: balloons, gameSettings: $gameSettings, appSettings: $appSettings});
         destroyBalloon(clickedBalloonId);
     }
 
     function handleExitClick(event){
         event.stopPropagation();
-        addLog('Exit game', {gameContext});
+        addLog('Exit game', {onScreenBalloons: balloons, gameSettings: $gameSettings, appSettings: $appSettings});
         goto('/');
     }
 
     function handleBackgroundClick(event){
         const { target, clientX, clientY } = event;
-        addLog('Background click', {gameContext, x: clientX, y: clientY});
+        addLog('Background click', {onScreenBalloons: balloons, gameSettings: $gameSettings, appSettings: $appSettings, x: clientX, y: clientY});
     }
 
     function getRandomYPosition(size) {
@@ -109,7 +87,7 @@
     }
 
     function getRandomSpeed() {
-        return Math.random() * ($balloonSpeed.max - $balloonSpeed.min) + $balloonSpeed.min;
+        return Math.random() * ($gameSettings.balloonSpeed.max - $gameSettings.balloonSpeed.min) + $gameSettings.balloonSpeed.min;
     }
 
     function getInitialPosition(direction, size) {
@@ -135,8 +113,8 @@
             const enableRotDesviation = enableMoveDesviation;
 
             //FOR TRANSITION-CLICK BUG FIREFOX transition: transform 0.3s ease;
-            const axisDesviation = $fluidTransitions ? Math.random() * 2 - 1 : Math.random() * 0.3 - 0.15;
-            const angleDesviation = $fluidTransitions ? Math.random() * 1 - 0.5 : Math.random() * 0.5 - 0.25;
+            const axisDesviation = $appSettings.fluidTransitions ? Math.random() * 2 - 1 : Math.random() * 0.3 - 0.15;
+            const angleDesviation = $appSettings.fluidTransitions ? Math.random() * 1 - 0.5 : Math.random() * 0.5 - 0.25;
             const horizontalDesviation = enableMoveDesviation ? axisDesviation : 0;
             const verticalDesviation = enableMoveDesviation ? axisDesviation : 0;
             const rotDesviation = enableRotDesviation ? angleDesviation : 0;
@@ -165,22 +143,6 @@
         });
         
         requestAnimationFrame(moveBalloons);
-        }
-        gameContext = {
-            instructorName: $instructorName,
-            subjectName: $subjectName,
-            balloons: balloons,
-            backgroundColor: $gameBackgroundColor,
-            maxBalloonsQuantity: $maxBalloonsQuantity,
-            randomColors: $balloonRandomColor,
-            balloonsColor: $balloonColor,
-            enableRangeColor: $enableBalloonRangeColor,
-            colorRange1: $balloonRangeColor1,
-            colorRange2: $balloonRangeColor2,
-            definition: $balloonRangeColorDefinition,
-            balloonInterpolatedColors: $balloonInterpolatedColors,
-            enableCustomLetter: $enableCustomLetter,
-            customLetterColor: $balloonLetterColor,
         }
         requestAnimationFrame(moveBalloons);
     }
@@ -232,7 +194,7 @@
     </style>
 </svelte:head>
 
-<main class="not-selectable" style:background-color = {$gameBackgroundColor} on:click={handleBackgroundClick}>
+<main class="not-selectable" style:background-color = {$gameSettings.gameBackgroundColor} on:click={handleBackgroundClick}>
     <div class="not-selectable exit-btn">
         <ActionButton mode="exit" on:click={handleExitClick} --width='var(--nav-bar-height)'/>
     </div>
