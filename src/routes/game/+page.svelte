@@ -4,6 +4,7 @@
     import { ActionButton } from 'inca-utils';
     import { getRandomColor } from '$lib/utils';
     import { goto } from '$app/navigation';
+    import { addLog } from "$lib/logService";
     
     //settings stores
     import { 
@@ -17,12 +18,20 @@
         fluidTransitions,
         enableBalloonRangeColor,
         balloonInterpolatedColors,
+        enableCustomLetter,
+        balloonRangeColor1,
+        balloonRangeColor2,
+        balloonRangeColorDefinition,
+        balloonLetterColor,
+        subjectName,
+        instructorName,
     } from '../../stores.js';
 
 
     let balloons = [];
     let balloonIdCounter = 1;
     let balloonKnotHeightPercent;
+    let gameContext = {};
 
     function addBalloon() {
         if (balloons.length >= $maxBalloonsQuantity) return;
@@ -71,7 +80,20 @@
         console.log('Popped balloon:', event.detail);
         //here logs can be managed to a csv or a db
         const clickedBalloonId = event.detail.id;
+        const { target, clientX, clientY } = event;
+        addLog('Popped balloon', {balloon: event.detail, gameContext});
         destroyBalloon(clickedBalloonId);
+    }
+
+    function handleExitClick(event){
+        event.stopPropagation();
+        addLog('Exit game', {gameContext});
+        goto('/');
+    }
+
+    function handleBackgroundClick(event){
+        const { target, clientX, clientY } = event;
+        addLog('Background click', {gameContext, x: clientX, y: clientY});
     }
 
     function getRandomYPosition(size) {
@@ -144,7 +166,22 @@
         
         requestAnimationFrame(moveBalloons);
         }
-
+        gameContext = {
+            instructorName: $instructorName,
+            subjectName: $subjectName,
+            balloons: balloons,
+            backgroundColor: $gameBackgroundColor,
+            maxBalloonsQuantity: $maxBalloonsQuantity,
+            randomColors: $balloonRandomColor,
+            balloonsColor: $balloonColor,
+            enableRangeColor: $enableBalloonRangeColor,
+            colorRange1: $balloonRangeColor1,
+            colorRange2: $balloonRangeColor2,
+            definition: $balloonRangeColorDefinition,
+            balloonInterpolatedColors: $balloonInterpolatedColors,
+            enableCustomLetter: $enableCustomLetter,
+            customLetterColor: $balloonLetterColor,
+        }
         requestAnimationFrame(moveBalloons);
     }
     onMount(() => {
@@ -153,7 +190,7 @@
         balloonKnotHeightPercent = getComputedStyle(root).getPropertyValue('--balloon-knot-height');
         balloonKnotHeightPercent = parseFloat(balloonKnotHeightPercent)/100;
 
-        addInitialBalloons()
+        addInitialBalloons();
 
         // add balloons with time interval 0.5s
         const intervalId = setInterval(addBalloon, 500);
@@ -195,9 +232,9 @@
     </style>
 </svelte:head>
 
-<main class="not-selectable" style:background-color = {$gameBackgroundColor}>
+<main class="not-selectable" style:background-color = {$gameBackgroundColor} on:click={handleBackgroundClick}>
     <div class="not-selectable exit-btn">
-        <ActionButton mode="exit" on:click={() => goto('/')} --width='var(--nav-bar-height)'/>
+        <ActionButton mode="exit" on:click={handleExitClick} --width='var(--nav-bar-height)'/>
     </div>
     {#each balloons as balloon (balloon.id)}
         <Balloon {balloon} on:balloonClicked={handleClick} />

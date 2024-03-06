@@ -70,7 +70,7 @@
     }
 </style>
 
-<button id= "{balloon.id}" class="balloon not-selectable" on:click={handleClick}
+<button id= "{balloon.id}" class="balloon not-selectable" on:click|stopPropagation={handleClick}
   style:transform = 'translate({balloon.x}px, {balloon.y}px) rotate({balloon.rotation}deg)'
   style:background-color = '{balloon.color}'
   style:width = '{balloon.size.width}px'

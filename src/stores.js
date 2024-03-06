@@ -35,3 +35,4 @@ export const gameBackgroundColor = writable('#add8e6');
 export const enableCustomLetter = writable(false);
 export const balloonLetterColor = writable('#000000');
 export const fluidTransitions = writable(true);
+export const menuBackgroundColor = writable('#ffffff')

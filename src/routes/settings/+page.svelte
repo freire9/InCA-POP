@@ -20,13 +20,14 @@
         balloonInterpolatedColors,
         instructorName,
         mainMenuRandomColors,
+        menuBackgroundColor,
     } from '../../stores.js';
     import { debounce } from 'lodash';
     import { onMount } from 'svelte';
     import { calculateInterpolatedColors } from '$lib/utils.js'
     import { ActionButton, NumberInput, Fa } from 'inca-utils';
     import { goto } from '$app/navigation';
-    import { faPlay } from '@fortawesome/free-solid-svg-icons';
+    import { downloadLogs } from '$lib/utils.js';
 
     // Logic for interpolating colors and updating the store
     function setInterpolatedColors(){
@@ -51,6 +52,9 @@
     <main>
         <h1>Settings</h1>
         <div class="settings-form flex-column">
+            <h2>Logs</h2>
+            <button on:click={downloadLogs}>Download logs</button>
+
             <h2>Profile</h2>
     
             <label for="subjectNameInput">Subject's name:</label>
@@ -159,6 +163,11 @@
                 <div class="checkbox-flex">
                     <label for="modeRandomColorsCheckbox">Enable random colors in mode representations:</label>
                     <input id="modeRandomColorsCheckbox" type="checkbox" bind:checked={$mainMenuRandomColors}>
+                </div>
+
+                <div class="checkbox-flex">
+                    <label for="menuBackgroundColor">Main menu background color:</label>
+                    <input id="menuBackgroundColor" type="color" bind:value={$menuBackgroundColor}>
                 </div>
             </div>
     

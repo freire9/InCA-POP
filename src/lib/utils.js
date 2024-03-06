@@ -1,3 +1,5 @@
+import { getLogs } from "$lib/logService";
+
 // Function to calculate intermediate colors
 export function calculateInterpolatedColors(steps, color1, color2) {
     const colors = [];
@@ -38,4 +40,18 @@ export function getRandomColor() {
     const blue = Math.floor(Math.random() * 256);
 
     return `rgb(${red}, ${green}, ${blue})`;
+}
+
+export function downloadLogs() {
+    const logs = getLogs();
+    const logsJSON = JSON.stringify(logs, null, 2);
+    const blob = new Blob([logsJSON], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'logs.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
 }

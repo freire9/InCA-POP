@@ -1,19 +1,34 @@
 <script>
-    import { gameDirection, availableModes, mainMenuRandomColors } from "../stores";
+    import { gameDirection, availableModes, mainMenuRandomColors, menuBackgroundColor, instructorName, subjectName} from "../stores";
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
     import { TrainerButton, Fa } from 'inca-utils';
     import { faGear, faExpand, faInfo, faLeftLong, faRightLong, faUpLong, faDownLong } from '@fortawesome/free-solid-svg-icons';
     import { getRandomColor } from "$lib/utils";
     import StaticBalloon from "../components/StaticBalloon.svelte";
+    import { addLog } from "$lib/logService";
 
     let fullscreen;
+    const menuContext = {
+        backgroundColor: $menuBackgroundColor,
+        availableModes: $availableModes,
+        instructorName: $instructorName,
+        subjectName: $subjectName,
+    }
+
     onMount(async () => {
         ({fullscreen} = await import('inca-utils/api'));
     })
 
     function handleClick(event){
+        const { target, clientX, clientY } = event;
+        addLog('Game started', {mode: event.detail, menuContext, x: clientX, y: clientY});
         startGame(event.detail);
+    }
+
+    function handleBackgroundClick(event){
+        // const { target, clientX, clientY } = event;
+        addLog('Background click', {menuContext});
     }
 
     function startGame(mode){
@@ -73,7 +88,7 @@
     }
 </style>
 
-<main class="not-selectable">
+<main class="not-selectable" on:click={handleBackgroundClick} style:background-color={$menuBackgroundColor}>
     <header>
         <h1>InCA-POP!</h1>
         <nav>
