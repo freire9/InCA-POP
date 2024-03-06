@@ -4,7 +4,7 @@ import { getLogs } from "$lib/logService";
 export function calculateInterpolatedColors(steps, color1, color2) {
     const colors = [];
 
-    for (let i = 0; i <= steps; i++) {
+    for (let i = 0; i < steps; i++) {
     const ratio = i / steps;
     const interpolatedColor = interpolateColor(color1, color2, ratio);
     colors.push(interpolatedColor);
