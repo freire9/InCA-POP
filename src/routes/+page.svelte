@@ -15,14 +15,12 @@
     })
 
     function handleClick(event){
-        const { target, clientX, clientY } = event;
-        addLog('Game started', {mode: event.detail, $menuSettings, $appSettings, x: clientX, y: clientY});
+        addLog('Game started', {mode: event.detail, menuSettings: $menuSettings, appSettings: $appSettings});
         startGame(event.detail);
     }
 
     function handleBackgroundClick(event){
-        // const { target, clientX, clientY } = event;
-        addLog('Background click', {$menuSettings, $appSettings});
+        addLog('Background click', {menuSettings: $menuSettings, appSettings: $appSettings});
     }
 
     function handleBackgroundKeyboard(event){

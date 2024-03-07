@@ -58,7 +58,6 @@
         console.log('Popped balloon:', event.detail);
         //here logs can be managed to a csv or a db
         const clickedBalloonId = event.detail.id;
-        const { target, clientX, clientY } = event;
         addLog('Popped balloon', {poppedBalloon: event.detail, onScreenBalloons: balloons, gameSettings: $gameSettings, appSettings: $appSettings});
         destroyBalloon(clickedBalloonId);
     }
