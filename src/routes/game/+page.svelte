@@ -74,6 +74,10 @@
         addLog('Background click', {onScreenBalloons: balloons, gameSettings: $gameSettings, appSettings: $appSettings, x: clientX, y: clientY});
     }
 
+    function handleBackgroundKeyboard(event){
+        return;
+    }
+
     function getRandomYPosition(size) {
         const minPosition = 0;
         const maxPosition = window.innerHeight - size.height;
@@ -194,12 +198,13 @@
     </style>
 </svelte:head>
 
-<main class="not-selectable" style:background-color = {$gameSettings.gameBackgroundColor} on:click={handleBackgroundClick}>
-    <div class="not-selectable exit-btn">
-        <ActionButton mode="exit" on:click={handleExitClick} --width='var(--nav-bar-height)'/>
-    </div>
-    {#each balloons as balloon (balloon.id)}
-        <Balloon {balloon} on:balloonClicked={handleClick} />
-    {/each}
-</main>
-  
+<div role="presentation" aria-label="Popping balloons game" on:click={handleBackgroundClick} on:keypress={handleBackgroundKeyboard}>
+    <main class="not-selectable" style:background-color = {$gameSettings.gameBackgroundColor} >
+        <div class="not-selectable exit-btn">
+            <ActionButton mode="exit" on:click={handleExitClick} --width='var(--nav-bar-height)'/>
+        </div>
+        {#each balloons as balloon (balloon.id)}
+            <Balloon {balloon} on:balloonClicked={handleClick} />
+        {/each}
+    </main>
+</div>

@@ -25,6 +25,10 @@
         addLog('Background click', {$menuSettings, $appSettings});
     }
 
+    function handleBackgroundKeyboard(event){
+        return;
+    }
+
     function startGame(mode){
         $gameSettings.gameDirection = mode;
         goto('/game');
@@ -82,30 +86,33 @@
     }
 </style>
 
-<main class="not-selectable" on:click={handleBackgroundClick} style:background-color={$menuSettings.menuBackgroundColor}>
-    <header>
-        <h1>InCA-POP!</h1>
-        <nav>
-            <TrainerButton on:click={fullscreen} label="Fullscreen">
-                <Fa icon={faExpand} />
-            </TrainerButton>
-            <TrainerButton label="Settings" on:click={() => goto('/settings')}>
-                <Fa icon={faGear} />
-            </TrainerButton>
-            <TrainerButton label="About" on:click={() => goto('/about')}>
-                <Fa icon={faInfo} />
-            </TrainerButton>
-        </nav>
-    </header>
-    <div class="game-modes">
-        {#each Object.keys($gameSettings.availableModes) as mode}
-            {#if $gameSettings.availableModes[mode].enabled}
-                <StaticBalloon 
-                    on:modeClicked={handleClick}
-                    mode={mode}
-                    icon={icons[$gameSettings.availableModes[mode].icon]} --bg-pseudo={$menuSettings.mainMenuRandomColors ? getRandomColor() : $gameSettings.availableModes[mode].color} 
-                />
-            {/if}
-        {/each}
-    </div>
-</main>
+<div on:click={handleBackgroundClick} role="menu" aria-label="Main menu" tabindex="0" on:keydown={handleBackgroundKeyboard} >
+    <main class="not-selectable" style:background-color={$menuSettings.menuBackgroundColor}>
+        <header>
+            <h1>InCA-POP!</h1>
+            <nav>
+                <TrainerButton on:click={fullscreen} label="Fullscreen">
+                    <Fa icon={faExpand} />
+                </TrainerButton>
+                <TrainerButton label="Settings" on:click={() => goto('/settings')}>
+                    <Fa icon={faGear} />
+                </TrainerButton>
+                <TrainerButton label="About" on:click={() => goto('/about')}>
+                    <Fa icon={faInfo} />
+                </TrainerButton>
+            </nav>
+        </header>
+        <div class="game-modes">
+            {#each Object.keys($gameSettings.availableModes) as mode}
+                {#if $gameSettings.availableModes[mode].enabled}
+                    <StaticBalloon 
+                        on:modeClicked={handleClick}
+                        mode={mode}
+                        icon={icons[$gameSettings.availableModes[mode].icon]} --bg-pseudo={$menuSettings.mainMenuRandomColors ? getRandomColor() : $gameSettings.availableModes[mode].color} 
+                    />
+                {/if}
+            {/each}
+        </div>
+    </main>
+
+</div>
