@@ -81,7 +81,7 @@
     }
 </style>
 
-<button class="balloon not-selectable" on:click={handleClick}>
+<button class="balloon not-selectable" on:click|stopPropagation={handleClick}>
     <span class="not-selectable">
         <Fa icon={icon}/>
     </span>

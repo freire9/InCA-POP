@@ -1,23 +1,34 @@
 <script>
-    import { gameDirection, availableModes, mainMenuRandomColors } from "../stores";
+    import { gameSettings, menuSettings, appSettings} from "../stores";
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
     import { TrainerButton, Fa } from 'inca-utils';
     import { faGear, faExpand, faInfo, faLeftLong, faRightLong, faUpLong, faDownLong } from '@fortawesome/free-solid-svg-icons';
     import { getRandomColor } from "$lib/utils";
     import StaticBalloon from "../components/StaticBalloon.svelte";
+    import { addLog } from "$lib/logService";
 
     let fullscreen;
+
     onMount(async () => {
         ({fullscreen} = await import('inca-utils/api'));
     })
 
     function handleClick(event){
+        addLog('Game started', {mode: event.detail, menuSettings: $menuSettings, appSettings: $appSettings});
         startGame(event.detail);
     }
 
+    function handleBackgroundClick(event){
+        addLog('Background click', {menuSettings: $menuSettings, appSettings: $appSettings});
+    }
+
+    function handleBackgroundKeyboard(event){
+        return;
+    }
+
     function startGame(mode){
-        gameDirection.set(mode);
+        $gameSettings.gameDirection = mode;
         goto('/game');
     }
 
@@ -73,30 +84,33 @@
     }
 </style>
 
-<main class="not-selectable">
-    <header>
-        <h1>InCA-POP!</h1>
-        <nav>
-            <TrainerButton on:click={fullscreen} label="Fullscreen">
-                <Fa icon={faExpand} />
-            </TrainerButton>
-            <TrainerButton label="Settings" on:click={() => goto('/settings')}>
-                <Fa icon={faGear} />
-            </TrainerButton>
-            <TrainerButton label="About" on:click={() => goto('/about')}>
-                <Fa icon={faInfo} />
-            </TrainerButton>
-        </nav>
-    </header>
-    <div class="game-modes">
-        {#each Object.keys($availableModes) as mode}
-            {#if $availableModes[mode].enabled}
-                <StaticBalloon 
-                    on:modeClicked={handleClick}
-                    mode={mode}
-                    icon={icons[$availableModes[mode].icon]} --bg-pseudo={$mainMenuRandomColors ? getRandomColor() : $availableModes[mode].color} 
-                />
-            {/if}
-        {/each}
-    </div>
-</main>
+<div on:click={handleBackgroundClick} role="menu" aria-label="Main menu" tabindex="0" on:keydown={handleBackgroundKeyboard} >
+    <main class="not-selectable" style:background-color={$menuSettings.menuBackgroundColor}>
+        <header>
+            <h1>InCA-POP!</h1>
+            <nav>
+                <TrainerButton on:click={fullscreen} label="Fullscreen">
+                    <Fa icon={faExpand} />
+                </TrainerButton>
+                <TrainerButton label="Settings" on:click={() => goto('/settings')}>
+                    <Fa icon={faGear} />
+                </TrainerButton>
+                <TrainerButton label="About" on:click={() => goto('/about')}>
+                    <Fa icon={faInfo} />
+                </TrainerButton>
+            </nav>
+        </header>
+        <div class="game-modes">
+            {#each Object.keys($gameSettings.availableModes) as mode}
+                {#if $gameSettings.availableModes[mode].enabled}
+                    <StaticBalloon 
+                        on:modeClicked={handleClick}
+                        mode={mode}
+                        icon={icons[$gameSettings.availableModes[mode].icon]} --bg-pseudo={$menuSettings.mainMenuRandomColors ? getRandomColor() : $gameSettings.availableModes[mode].color} 
+                    />
+                {/if}
+            {/each}
+        </div>
+    </main>
+
+</div>
