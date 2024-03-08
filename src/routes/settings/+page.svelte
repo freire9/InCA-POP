@@ -1,26 +1,61 @@
 <script>
-    import { balloonSizeOptions, balloonSpeedOptions, gameSettings, appSettings, menuSettings } from '../../stores.js';
+    import { balloonSizeOptions, balloonSpeedOptions, gameSettings, appSettings, menuSettings, isLoggedIn, user } from '../../stores.js';
     import { debounce } from 'lodash';
-    import { onMount } from 'svelte';
-    import { calculateInterpolatedColors } from '$lib/utils.js'
+    import { onDestroy, onMount } from 'svelte';
+    import { calculateInterpolatedColors, downloadLocalLogs, downloadRemoteLogs } from '$lib/utils.js'
     import { ActionButton, NumberInput, Fa } from 'inca-utils';
     import { goto } from '$app/navigation';
-    import { downloadLogs} from '$lib/utils.js';
     import { faFileArrowDown } from '@fortawesome/free-solid-svg-icons';
+    import Profile from '../../components/Profile.svelte';
+	import { doc, updateDoc } from 'firebase/firestore';
+	import { db } from '$lib/firebaseConfig.js';
+
     // Logic for interpolating colors and updating the store
     function setInterpolatedColors(){
         const colors = calculateInterpolatedColors($gameSettings.balloonRangeColorDefinition, $gameSettings.balloonRangeColor1, $gameSettings.balloonRangeColor2);
         $gameSettings.balloonInterpolatedColors = colors;
-        // balloonInterpolatedColors.set(colors);
     }
 
+    async function updateRemotePreferences(){
+        const userDocRef = doc(db, 'users', $user.uid);
+        await updateDoc(userDocRef, {
+            preferences: { gameSettings: $gameSettings, appSettings: $appSettings, menuSettings: $menuSettings},
+        });
+    }
+
+    let unsubscribeGameSettings, unsubscribeMenuSettings, unsubscribeAppSettings;
     onMount(() => {
         if($gameSettings.balloonInterpolatedColors.length == 0){
             setInterpolatedColors();
         }
+        if($isLoggedIn && $user){
+            unsubscribeGameSettings = gameSettings.subscribe((newGameSettings) => {
+                updateRemotePreferences();
+                console.log('Datos del usuario actualizados en Firestore.');
+                console.log('game settings actualizados', newGameSettings);
+            });
+            unsubscribeMenuSettings = menuSettings.subscribe((newMenuSettings) => {
+                updateRemotePreferences();
+                console.log('menu settings actualizados', newMenuSettings);
+            });
+            unsubscribeAppSettings = appSettings.subscribe((newAppSettings) => {
+                updateRemotePreferences();
+                console.log('app settings actualizados', newAppSettings);
+            });
+        }
     });
 
+    onDestroy(() => {
+        if(unsubscribeGameSettings) unsubscribeGameSettings();
+        if(unsubscribeMenuSettings) unsubscribeMenuSettings();
+        if(unsubscribeAppSettings) unsubscribeAppSettings();
+    })
+
     const handleColorChange = debounce(setInterpolatedColors, 500);
+
+    function handleRemoteLogsDownload (){
+        if ($isLoggedIn && $user) downloadRemoteLogs($user.uid);
+    }
 </script>
 
 <div class="settings">
@@ -31,20 +66,30 @@
     <main>
         <h1>Settings</h1>
         <div class="settings-form flex-column">
-            <h2>Logs</h2>
-            <button on:click={downloadLogs}>
-                <Fa icon={faFileArrowDown} />
-                Download logs file (JSON)
-            </button>
-
+            
             <h2>Profile</h2>
-    
+            <Profile />
+            
             <label for="subjectNameInput">Subject's name:</label>
             <input id="subjectNameInput" type='text' bind:value={$appSettings.subjectName}/>
-    
+            
             <label for="instructorNameInput">Instructor's name:</label>
             <input id="instructorNameInput" type="text" bind:value={$appSettings.instructorName}>
-    
+            
+            <h2>Logs</h2>
+            <div class="logs-container">
+                <button class="download-logs-btn" on:click={downloadLocalLogs}>
+                    <Fa icon={faFileArrowDown} />
+                    Download local logs file (JSON)
+                </button>
+                {#if $isLoggedIn && $user}
+                    <button class="download-logs-btn" on:click={handleRemoteLogsDownload}>
+                        <Fa icon={faFileArrowDown} />
+                        Download remote database logs file (JSON)
+                    </button>
+                {/if}
+            </div>
+
             <h2>Game settings</h2>
     
             <label for="maxBalloonsInput">Max balloons quantity on screen:</label>
@@ -195,5 +240,18 @@
         height: 100vh;
         width: 100vw;
         overflow: auto;
+    }
+    .logs-container{
+        display: flex;
+        gap: 100px;
+    }
+
+    button.download-logs-btn{
+        background-color: beige;
+        width: 300px;
+        border-radius: 10px;
+        padding: 10px;
+        margin-bottom: 10px;
+        text-align: center;
     }
 </style>

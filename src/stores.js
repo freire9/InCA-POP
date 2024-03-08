@@ -1,5 +1,9 @@
 import { writable} from 'svelte/store';
 
+export const user = writable({});
+export const isLoggedIn = writable(false);
+
+
 export const balloonSpeedOptions = {
     SLOW: {min: 0.08, max: 0.2},
     NORMAL: {min: 0.2, max: 0.4},

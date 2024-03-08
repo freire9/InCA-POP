@@ -5,7 +5,7 @@
     import { getRandomColor } from '$lib/utils';
     import { goto } from '$app/navigation';
     import { addLog } from "$lib/logService";
-    import { appSettings, gameSettings } from '../../stores.js';
+    import { appSettings, gameSettings, isLoggedIn, user } from '../../stores.js';
 
     let balloons = [];
     let balloonIdCounter = 1;
@@ -56,21 +56,32 @@
 
     function handleClick(event) {
         console.log('Popped balloon:', event.detail);
-        //here logs can be managed to a csv or a db
         const clickedBalloonId = event.detail.id;
-        addLog('Popped balloon', {poppedBalloon: event.detail, onScreenBalloons: balloons, gameSettings: $gameSettings, appSettings: $appSettings});
+        addLog(
+            'Popped balloon', 
+            {poppedBalloon: event.detail, onScreenBalloons: balloons, gameSettings: $gameSettings, appSettings: $appSettings},
+            $isLoggedIn ? $user.uid : null
+        );
         destroyBalloon(clickedBalloonId);
     }
 
     function handleExitClick(event){
         event.stopPropagation();
-        addLog('Exit game', {onScreenBalloons: balloons, gameSettings: $gameSettings, appSettings: $appSettings});
+        addLog(
+            'Exit game', 
+            {onScreenBalloons: balloons, gameSettings: $gameSettings, appSettings: $appSettings},
+            $isLoggedIn ? $user.uid : null
+        );
         goto('/');
     }
 
     function handleBackgroundClick(event){
         const { target, clientX, clientY } = event;
-        addLog('Background click', {onScreenBalloons: balloons, gameSettings: $gameSettings, appSettings: $appSettings, x: clientX, y: clientY});
+        addLog(
+            'Background click', 
+            {onScreenBalloons: balloons, gameSettings: $gameSettings, appSettings: $appSettings, x: clientX, y: clientY},
+            $isLoggedIn ? $user.uid : null
+        );
     }
 
     function handleBackgroundKeyboard(event){
