@@ -1,0 +1,20 @@
+:root {
+    --nav-bar-height: 30vh;
+    --balloon-knot-height: 15%;
+}
+.not-selectable{
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+body::backdrop{
+    background: unset;
+}
+
+button:focus-visible{
+    outline: 2px solid blue;
+}
+button:focus:not(:focus-visible) {
+    outline: unset;
+}

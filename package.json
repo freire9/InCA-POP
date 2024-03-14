@@ -29,5 +29,10 @@
 		"vite": "^4.4.2",
 		"vitest": "^0.32.2"
 	},
-	"type": "module"
+	"type": "module",
+	"dependencies": {
+		"firebase": "^10.8.1",
+		"inca-utils": "^1.2.3",
+		"lodash": "^4.17.21"
+	}
 }
