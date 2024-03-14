@@ -1,26 +1,28 @@
 <script>
-    import { balloonSizeOptions, balloonSpeedOptions, gameSettings, appSettings, menuSettings } from '../../stores.js';
+    import { balloonSizeOptions, balloonSpeedOptions, gameSettings, appSettings, menuSettings, isLoggedIn, user } from '../../stores.js';
     import { debounce } from 'lodash';
     import { onMount } from 'svelte';
-    import { calculateInterpolatedColors } from '$lib/utils.js'
+    import { calculateInterpolatedColors, downloadLocalLogs, downloadRemoteLogs } from '$lib/utils.js'
     import { ActionButton, NumberInput, Fa } from 'inca-utils';
     import { goto } from '$app/navigation';
-    import { downloadLogs} from '$lib/utils.js';
     import { faFileArrowDown } from '@fortawesome/free-solid-svg-icons';
+    import Profile from '../../components/Profile.svelte';
+
     // Logic for interpolating colors and updating the store
     function setInterpolatedColors(){
         const colors = calculateInterpolatedColors($gameSettings.balloonRangeColorDefinition, $gameSettings.balloonRangeColor1, $gameSettings.balloonRangeColor2);
         $gameSettings.balloonInterpolatedColors = colors;
-        // balloonInterpolatedColors.set(colors);
     }
 
     onMount(() => {
-        if($gameSettings.balloonInterpolatedColors.length == 0){
-            setInterpolatedColors();
-        }
+        if($gameSettings.balloonInterpolatedColors.length == 0) setInterpolatedColors();
     });
 
     const handleColorChange = debounce(setInterpolatedColors, 500);
+
+    function handleRemoteLogsDownload (){
+        if ($isLoggedIn && $user) downloadRemoteLogs($user.uid);
+    }
 </script>
 
 <div class="settings">
@@ -31,29 +33,42 @@
     <main>
         <h1>Settings</h1>
         <div class="settings-form flex-column">
-            <h2>Logs</h2>
-            <button on:click={downloadLogs}>
-                <Fa icon={faFileArrowDown} />
-                Download logs file (JSON)
-            </button>
-
+            
             <h2>Profile</h2>
-    
+            <Profile />
+            
             <label for="subjectNameInput">Subject's name:</label>
             <input id="subjectNameInput" type='text' bind:value={$appSettings.subjectName}/>
-    
+            
             <label for="instructorNameInput">Instructor's name:</label>
             <input id="instructorNameInput" type="text" bind:value={$appSettings.instructorName}>
-    
+            
+            <h2>Logs</h2>
+            <div class="logs-container">
+                <button class="download-logs-btn" on:click={downloadLocalLogs}>
+                    <Fa icon={faFileArrowDown} />
+                    Download local logs file (JSON)
+                </button>
+                {#if $isLoggedIn && $user}
+                    <button class="download-logs-btn" on:click={handleRemoteLogsDownload}>
+                        <Fa icon={faFileArrowDown} />
+                        Download remote database logs file (JSON)
+                    </button>
+                {/if}
+            </div>
+
             <h2>Game settings</h2>
     
             <label for="maxBalloonsInput">Max balloons quantity on screen:</label>
             <NumberInput id="maxBalloonsInput" min=1 max=100 bind:value={$gameSettings.maxBalloonsQuantity}/>
+
+            <label for="specialBalloonsFreqInput">Frequency of ocurrence of special balloons (balloons with letters)</label>
+            <NumberInput id="specialBalloonsFreqInput" min=1 max=100 bind:value={$gameSettings.specialBalloonsFreq} />
     
             <label for="balloonSpeedSelect">Balloon Speed:</label>
             <select id="balloonSpeedSelect" bind:value={$gameSettings.balloonSpeed}>
                 {#each Object.keys(balloonSpeedOptions) as speedOptionKey}
-                    <option value={balloonSpeedOptions[speedOptionKey]}>
+                    <option value={speedOptionKey}>
                         {speedOptionKey.charAt(0).toUpperCase() + speedOptionKey.slice(1).toLowerCase()}
                     </option>
                 {/each}
@@ -62,7 +77,7 @@
             <label for="balloonSizeInput">Balloon size:</label>
             <select id="balloonSizeInput" bind:value={$gameSettings.balloonSize}>
                 {#each Object.keys(balloonSizeOptions) as sizeOptionKey}
-                    <option value={balloonSizeOptions[sizeOptionKey]}>
+                    <option value={sizeOptionKey}>
                         {sizeOptionKey.charAt(0).toUpperCase() + sizeOptionKey.slice(1).toLowerCase()}
                     </option>
                 {/each}
@@ -80,22 +95,22 @@
                 </div>
     
                 {#if !$gameSettings.enableBalloonRangeColor}
-                    <div class="checkbox-flex">
+                    <div class="color-flex">
                         <label for="balloonColorInput">Balloon color:</label>
-                        <input id="balloonColorInput" type="color" bind:value={$gameSettings.balloonColor}>
+                        <input id="balloonColorInput" class="color-input" type="color" bind:value={$gameSettings.balloonColor}>
                     </div>
                 {:else}
-                    <div class="checkbox-flex">
+                    <div class="color-flex">
                         <label for="color1RangeInput">Color 1:</label>
-                        <input id="color1RangeInput" type="color" bind:value={$gameSettings.balloonRangeColor1} on:input={handleColorChange} />
+                        <input id="color1RangeInput" class="color-input" type="color" bind:value={$gameSettings.balloonRangeColor1} on:input={handleColorChange} />
                     </div>
     
-                    <div class="checkbox-flex">
+                    <div class="color-flex">
                         <label for="color2RangeInput">Color 2:</label>
-                        <input id="color2RangeInput" type="color" bind:value={$gameSettings.balloonRangeColor2} on:input={handleColorChange} />
+                        <input id="color2RangeInput" class="color-input" type="color" bind:value={$gameSettings.balloonRangeColor2} on:input={handleColorChange} />
                     </div>
     
-                    <div class="checkbox-flex">
+                    <div class="number-flex">
                         <label for="definitionInput">Definition:</label>
                         <NumberInput id="definitionInput" min=1 max=100 bind:value={$gameSettings.balloonRangeColorDefinition} on:change={handleColorChange} />
                     </div>
@@ -108,9 +123,9 @@
                 {/if}
             {/if}
     
-            <div class="checkbox-flex">
+            <div class="color-flex">
                 <label for="gameBackgroundColorInput">Game background color:</label>
-                <input id="gameBackgroundColorInput" type="color" bind:value={$gameSettings.gameBackgroundColor}>
+                <input id="gameBackgroundColorInput" class="color-input" type="color" bind:value={$gameSettings.gameBackgroundColor}>
             </div>
     
             <div class="checkbox-flex">
@@ -119,9 +134,9 @@
             </div>
     
             {#if $gameSettings.enableCustomLetter}
-                <div class="checkbox-flex">
+                <div class="color-flex">
                     <label for="balloonLetterColorInput">Balloon letter color:</label>
-                    <input id="balloonLetterColorInput" type="color" bind:value={$gameSettings.balloonLetterColor}>
+                    <input id="balloonLetterColorInput" class="color-input" type="color" bind:value={$gameSettings.balloonLetterColor}>
                 </div>
             {/if}
     
@@ -134,9 +149,9 @@
                         <input id={"gameMode" + mode + "Checkbox"} type="checkbox" bind:checked={$gameSettings.availableModes[mode].enabled}>
     
                         {#if !$menuSettings.mainMenuRandomColors}
-                            <div class="checkbox-flex">
+                            <div class="color-flex">
                                 <label for={"gameMode" + mode + "ColorInput"}>Color:</label>
-                                <input id={"gameMode" + mode + "ColorInput"} type="color" bind:value={$gameSettings.availableModes[mode].color}>
+                                <input id={"gameMode" + mode + "ColorInput"} class="color-input" type="color" bind:value={$gameSettings.availableModes[mode].color}>
                             </div>
                         {/if}
                     </div>
@@ -147,9 +162,9 @@
                     <input id="modeRandomColorsCheckbox" type="checkbox" bind:checked={$menuSettings.mainMenuRandomColors}>
                 </div>
 
-                <div class="checkbox-flex">
+                <div class="color-flex">
                     <label for="menuBackgroundColor">Main menu background color:</label>
-                    <input id="menuBackgroundColor" type="color" bind:value={$menuSettings.menuBackgroundColor}>
+                    <input id="menuBackgroundColor" class="color-input" type="color" bind:value={$menuSettings.menuBackgroundColor}>
                 </div>
             </div>
     
@@ -176,6 +191,7 @@
     .color-box {
         display: flex;
         flex-wrap: wrap;
+        margin-top: 15px;
     }
     .color-square {
         width: 50px;
@@ -185,7 +201,9 @@
     main{
         padding: 2rem;
     }
-    .checkbox-flex{
+    .checkbox-flex,
+    .color-flex,
+    .number-flex{
         display: flex;
         align-items: baseline;
         gap: 10px;
@@ -195,5 +213,31 @@
         height: 100vh;
         width: 100vw;
         overflow: auto;
+    }
+    .logs-container{
+        display: flex;
+        gap: 100px;
+    }
+
+    button.download-logs-btn{
+        background-color: beige;
+        width: 300px;
+        border-radius: 10px;
+        padding: 10px;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+
+    button.download-logs-btn:hover{
+        background-color: #e6e6e6;
+    }
+
+    button.download-logs-btn:focus{
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.2);
+    }
+
+    input.color-input{
+        border: 1px solid black;
     }
 </style>

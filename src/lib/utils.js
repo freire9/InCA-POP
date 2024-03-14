@@ -1,4 +1,4 @@
-import { getLogs } from "$lib/logService";
+import { getLogs, getRemoteLogs} from "$lib/logService";
 
 // Function to calculate intermediate colors
 export function calculateInterpolatedColors(steps, color1, color2) {
@@ -42,8 +42,8 @@ export function getRandomColor() {
     return `rgb(${red}, ${green}, ${blue})`;
 }
 
-export function downloadLogs() {
-    const logs = getLogs();
+export async function downloadLogs(userUid=null) {
+    const logs = userUid ? await getRemoteLogs(userUid) : getLogs();
     const logsJSON = JSON.stringify(logs, null, 2);
     const blob = new Blob([logsJSON], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -54,4 +54,12 @@ export function downloadLogs() {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+}
+
+export function downloadLocalLogs(){
+    return downloadLogs();
+}
+
+export function downloadRemoteLogs(userUid){
+    return downloadLogs(userUid);
 }
