@@ -5,13 +5,11 @@ let logs = [];
 const isClient = !import.meta.env.SSR;
 if (isClient) logs = JSON.parse(sessionStorage.getItem('logs')) || [];
 
-// Función para guardar un log en Firestore
+// Function for send log to Firestore
 const addRemoteLog = async (userUid, eventType, eventDetails) => {
   try {
-    // Referencia a la colección 'usageLogs'
     const logsCollection = collection(db, 'usageLogs');
 
-    // Añade un nuevo documento con los detalles del log
     const docRef = await addDoc(logsCollection, {
       userUid: userUid,
       eventType,
@@ -19,9 +17,9 @@ const addRemoteLog = async (userUid, eventType, eventDetails) => {
       timestamp: new Date(),
     });
 
-    console.log('Log guardado con ID: ', docRef.id);
+    console.log('Log save with ID: ', docRef.id);
   } catch (error) {
-    console.error('Error al guardar el log: ', error);
+    console.error('Error at saving log: ', error);
   }
 };
 
@@ -60,10 +58,10 @@ export const getRemoteLogs = async (userUid) => {
       remoteLogs.push({...doc.data(), id: doc.id});
     });
 
-    console.log('Logs del usuario:', remoteLogs);
+    console.log('User logs: ', remoteLogs);
     return remoteLogs;
   } catch (error) {
-    console.error('Error al obtener los logs del usuario: ', error);
+    console.error('Error at obtain user logs: ', error);
     return null;
   }
 };

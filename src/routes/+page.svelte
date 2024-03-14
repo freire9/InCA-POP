@@ -1,5 +1,5 @@
 <script>
-    import { gameSettings, menuSettings, appSettings, isLoggedIn, user} from "../stores";
+    import { gameSettings, menuSettings, appSettings, isLoggedIn, user, gameDirection, isIphone} from "../stores";
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
     import { TrainerButton, Fa } from 'inca-utils';
@@ -36,7 +36,7 @@
     }
 
     function startGame(mode){
-        $gameSettings.gameDirection = mode;
+        $gameDirection = mode;
         goto('/game');
     }
 
@@ -97,9 +97,12 @@
         <header>
             <h1>InCA-POP!</h1>
             <nav>
-                <TrainerButton on:click={fullscreen} label="Fullscreen">
-                    <Fa icon={faExpand} />
-                </TrainerButton>
+                {#if !$isIphone}
+                    <TrainerButton on:click={fullscreen} label="Fullscreen">
+                        <Fa icon={faExpand} />
+                    </TrainerButton>
+                {/if}
+
                 <TrainerButton label="Settings" on:click={() => goto('/settings')}>
                     <Fa icon={faGear} />
                 </TrainerButton>

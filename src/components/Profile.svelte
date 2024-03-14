@@ -11,7 +11,6 @@
             const res = await signInWithPopup(auth, provider);
             $user = res.user;
             $isLoggedIn = true;
-            console.log(res);
 
             const userDocRef = doc(db, 'users', res.user.uid);
 
@@ -67,14 +66,29 @@
         text-align: center;
     }
 
+    button.log-out-btn:hover, 
+    button.log-in-btn:hover{
+        background-color: #e6e6e6;
+    }
+
+    button.log-out-btn:focus,
+    button.log-in-btn:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.2);
+    }
+
     .profile-container{
         display: flex;
         align-items: center;
         margin-bottom: 40px;
     }
+    p{
+        margin-bottom: 15px;
+    }
 </style>
 
 {#if !$isLoggedIn}
+    <p>Log in to register/restore your configuration preferences:</p>
     <button class="log-in-btn" on:click={login}>Login with google</button>
 {:else}
     <div class="profile-container">

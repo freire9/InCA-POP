@@ -1,18 +1,20 @@
 import { writable} from 'svelte/store';
 
+export const isIphone = writable(false);
 export const user = writable({});
 export const isLoggedIn = writable(false);
+export const gameDirection = writable('leftToRight');
 
 
 export const balloonSpeedOptions = {
-    SLOW: {min: 0.08, max: 0.2},
-    NORMAL: {min: 0.2, max: 0.4},
-    FAST: {min: 0.4, max: 0.6},
+    SLOW: {min: 0.08, max: 0.2, label: 'SLOW'},
+    NORMAL: {min: 0.2, max: 0.4, label: 'NORMAL'},
+    FAST: {min: 0.4, max: 0.6, label: 'FAST'},
 };
 export const balloonSizeOptions = {
-    SMALL: {width: 40, height: 50},
-    NORMAL: {width: 80, height: 100},
-    BIG: {width: 120, height: 145},
+    SMALL: {width: 40, height: 50, label: 'SMALL'},
+    NORMAL: {width: 80, height: 100, label: 'NORMAL'},
+    BIG: {width: 120, height: 145, label: 'BIG'},
 };
 
 
@@ -28,9 +30,8 @@ export const menuSettings = writable({
 });
 
 export const gameSettings = writable({
-    balloonSpeed: balloonSpeedOptions.NORMAL,
-    balloonSize: balloonSizeOptions.NORMAL,
-    gameDirection: 'leftToRight',
+    balloonSpeed: balloonSpeedOptions.NORMAL.label,
+    balloonSize: balloonSizeOptions.NORMAL.label,
     maxBalloonsQuantity: 8,
     balloonRandomColor: true,
     enableBalloonRangeColor: false,
@@ -48,4 +49,5 @@ export const gameSettings = writable({
         'topToBottom': {label: 'Top to bottom', enabled: true, icon: 'faDownLong', color: '#2665ea'},
         'leftToRight': {label: 'Left to right', enabled: true, icon: 'faRightLong', color: '#eacf26'},
     },
+    specialBalloonsFreq: 30,
 });

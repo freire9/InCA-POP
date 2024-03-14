@@ -6,6 +6,8 @@
     const dispatch = createEventDispatcher();
     const popSound = new Audio('/sounds/balloon-pop.mp3');
     const popCorrectSound = new Audio('/sounds/pop-correct.mp3');
+    const letters = Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i));
+    const randomLetter = letters[Math.floor(Math.random() * letters.length)];
 
     function playPopSound(){
         const sound = balloon.isSpecial ? popCorrectSound : popSound;
@@ -80,7 +82,7 @@
     style="-webkit-text-fill-color: {$gameSettings.enableCustomLetter ? $gameSettings.balloonLetterColor : 'transparent'};"
     style:font-size='{balloon.size.height * 0.7}px'
     >
-    P
+    {randomLetter}
     </span>
   {/if}
   <div class="string not-selectable" style:transform='translateX(-50%) rotate({10+balloon.rotation}deg)'></div>

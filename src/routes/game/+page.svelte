@@ -5,11 +5,13 @@
     import { getRandomColor } from '$lib/utils';
     import { goto } from '$app/navigation';
     import { addLog } from "$lib/logService";
-    import { appSettings, gameSettings, isLoggedIn, user } from '../../stores.js';
+    import { appSettings, gameSettings, isLoggedIn, user, balloonSpeedOptions, balloonSizeOptions, gameDirection } from '../../stores.js';
 
     let balloons = [];
     let balloonIdCounter = 1;
     let balloonKnotHeightPercent;
+    let balloonSpeed = balloonSpeedOptions[$gameSettings.balloonSpeed];
+    let balloonSize = balloonSizeOptions[$gameSettings.balloonSize];
 
     function addBalloon() {
         if (balloons.length >= $gameSettings.maxBalloonsQuantity) return;
@@ -19,12 +21,12 @@
         const color = $gameSettings.balloonRandomColor ?
             getRandomColor() :
             ($gameSettings.enableBalloonRangeColor ? $gameSettings.balloonInterpolatedColors[randomIndex] : $gameSettings.balloonColor);
-        const { x, y } = getInitialPosition($gameSettings.gameDirection, $gameSettings.balloonSize);
+        const { x, y } = getInitialPosition($gameDirection, balloonSize);
         const speed = getRandomSpeed();
-        const size = $gameSettings.balloonSize;
-        const direction = $gameSettings.gameDirection;
+        const size = balloonSize;
+        const direction = $gameDirection;
         const rotation = Math.random() * 20 - 10;
-        const isSpecial = Math.random() > 0.7;
+        const isSpecial = Math.random() < $gameSettings.specialBalloonsFreq/100;
         const balloon = { id, color, x, y, speed, direction, size, rotation, isSpecial};
 
         balloons = [...balloons, balloon];
@@ -37,13 +39,13 @@
             const color = $gameSettings.balloonRandomColor ?
                 getRandomColor() :
                 ($gameSettings.enableBalloonRangeColor ? $gameSettings.balloonInterpolatedColors[randomIndex] : $gameSettings.balloonColor);
-            const x = getRandomXPosition($gameSettings.balloonSize);
-            const y = getRandomYPosition($gameSettings.balloonSize);
+            const x = getRandomXPosition(balloonSize);
+            const y = getRandomYPosition(balloonSize);
             const speed = getRandomSpeed();
-            const size = $gameSettings.balloonSize;
-            const direction = $gameSettings.gameDirection;
+            const size = balloonSize;
+            const direction = $gameDirection;
             const rotation = Math.random() * 20 - 10;
-            const isSpecial = Math.random() > 0.7;
+            const isSpecial = Math.random() < $gameSettings.specialBalloonsFreq/100;
             const balloon = { id, color, x, y, speed, direction, size, rotation, isSpecial};
 
             balloons = [...balloons, balloon];
@@ -59,7 +61,7 @@
         const clickedBalloonId = event.detail.id;
         addLog(
             'Popped balloon', 
-            {poppedBalloon: event.detail, onScreenBalloons: balloons, gameSettings: $gameSettings, appSettings: $appSettings},
+            {poppedBalloon: event.detail, onScreenBalloons: balloons, gameSettings: $gameSettings, appSettings: $appSettings, gameDirection: $gameDirection},
             $isLoggedIn ? $user.uid : null
         );
         destroyBalloon(clickedBalloonId);
@@ -69,7 +71,7 @@
         event.stopPropagation();
         addLog(
             'Exit game', 
-            {onScreenBalloons: balloons, gameSettings: $gameSettings, appSettings: $appSettings},
+            {onScreenBalloons: balloons, gameSettings: $gameSettings, appSettings: $appSettings, gameDirection: $gameDirection},
             $isLoggedIn ? $user.uid : null
         );
         goto('/');
@@ -79,7 +81,7 @@
         const { target, clientX, clientY } = event;
         addLog(
             'Background click', 
-            {onScreenBalloons: balloons, gameSettings: $gameSettings, appSettings: $appSettings, x: clientX, y: clientY},
+            {onScreenBalloons: balloons, gameSettings: $gameSettings, appSettings: $appSettings, gameDirection: $gameDirection, x: clientX, y: clientY},
             $isLoggedIn ? $user.uid : null
         );
     }
@@ -101,7 +103,7 @@
     }
 
     function getRandomSpeed() {
-        return Math.random() * ($gameSettings.balloonSpeed.max - $gameSettings.balloonSpeed.min) + $gameSettings.balloonSpeed.min;
+        return Math.random() * (balloonSpeed.max - balloonSpeed.min) + balloonSpeed.min;
     }
 
     function getInitialPosition(direction, size) {
@@ -132,7 +134,6 @@
             const horizontalDesviation = enableMoveDesviation ? axisDesviation : 0;
             const verticalDesviation = enableMoveDesviation ? axisDesviation : 0;
             const rotDesviation = enableRotDesviation ? angleDesviation : 0;
-
             switch (balloon.direction) {
             case 'leftToRight':
                 return { ...balloon, x: balloon.x + speed, y: balloon.y + verticalDesviation, rotation: balloon.rotation + rotDesviation };
