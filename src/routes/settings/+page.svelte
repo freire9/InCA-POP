@@ -1,12 +1,14 @@
 <script>
     import { balloonSizeOptions, balloonSpeedOptions, gameSettings, appSettings, menuSettings, isLoggedIn, user } from '../../stores.js';
-    import { debounce } from 'lodash';
+    import lodash from 'lodash';
     import { onMount } from 'svelte';
     import { calculateInterpolatedColors, downloadLocalLogs, downloadRemoteLogs } from '$lib/utils.js'
     import { ActionButton, NumberInput, Fa } from 'inca-utils';
     import { goto } from '$app/navigation';
     import { faFileArrowDown } from '@fortawesome/free-solid-svg-icons';
     import Profile from '../../components/Profile.svelte';
+
+    const { debounce } = lodash;
 
     // Logic for interpolating colors and updating the store
     function setInterpolatedColors(){
