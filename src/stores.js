@@ -21,7 +21,7 @@ export const balloonSizeOptions = {
 export const appSettings = writable({
     subjectName: 'subject-name',
     instructorName: 'instructor-name',
-    fluidTransitions: true,
+    fluidTransitions: false,
 });
 
 export const menuSettings = writable({
