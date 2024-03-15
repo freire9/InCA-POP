@@ -65,3 +65,44 @@ export const getRemoteLogs = async (userUid) => {
     return null;
   }
 };
+
+function flattenObject(obj, parentKey = '') {
+  return Object.keys(obj).reduce((acc, key) => {
+      const prefixedKey = parentKey ? `${parentKey}.${key}` : key;
+      if (typeof obj[key] === 'object' && obj[key] !== null) {
+          Object.assign(acc, flattenObject(obj[key], prefixedKey));
+      } else {
+          acc[prefixedKey] = obj[key];
+      }
+      return acc;
+  }, {});
+}
+
+export function convertToCSV(data) {
+  // Obtain all possible column names
+  const allKeys = data.reduce((acc, log) => {
+      return acc.concat(Object.keys(flattenObject(log)));
+  }, []);
+
+  // Delete duplicates
+  const uniqueKeys = [...new Set(allKeys)];
+
+  // Create CSV rows
+  const rows = data.map(log => {
+      const flattenedLog = flattenObject(log);
+      return uniqueKeys.map(key => {
+          const value = flattenedLog[key];
+          if (typeof value === 'string' && value.includes(',')) {
+              return `"${value}"`; // enclose in double quotation marks if value contains commas
+          } else if (typeof value === 'boolean') {
+              return value.toString(); // Convert to text string
+          }
+          return value || '';
+      }).join(',');
+  });
+
+  // add headers
+  rows.unshift(uniqueKeys.join(','));
+
+  return rows.join('\n');
+}

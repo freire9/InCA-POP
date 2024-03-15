@@ -2,7 +2,7 @@
     import { balloonSizeOptions, balloonSpeedOptions, gameSettings, appSettings, menuSettings, isLoggedIn, user } from '../../stores.js';
     import lodash from 'lodash';
     import { onMount } from 'svelte';
-    import { calculateInterpolatedColors, downloadLocalLogs, downloadRemoteLogs } from '$lib/utils.js'
+    import { calculateInterpolatedColors, downloadJsonLocal, downloadJsonRemote, downloadCsvLocal, downloadCsvRemote } from '$lib/utils.js'
     import { ActionButton, NumberInput, Fa } from 'inca-utils';
     import { goto } from '$app/navigation';
     import { faFileArrowDown } from '@fortawesome/free-solid-svg-icons';
@@ -22,9 +22,13 @@
 
     const handleColorChange = debounce(setInterpolatedColors, 500);
 
-    function handleRemoteLogsDownload (){
-        if ($isLoggedIn && $user) downloadRemoteLogs($user.uid);
+    function handleRemoteJsonDownload (){
+        if ($isLoggedIn && $user) downloadJsonRemote($user.uid);
     }
+    function handleRemoteCsvDownload(){
+        if ($isLoggedIn && $user) downloadCsvRemote($user.uid);
+    }
+
 </script>
 
 <div class="settings">
@@ -47,15 +51,27 @@
             
             <h2>Logs</h2>
             <div class="logs-container">
-                <button class="download-logs-btn" on:click={downloadLocalLogs}>
-                    <Fa icon={faFileArrowDown} />
-                    Download local logs file (JSON)
-                </button>
-                {#if $isLoggedIn && $user}
-                    <button class="download-logs-btn" on:click={handleRemoteLogsDownload}>
+                <div class="local-logs-container">
+                    <button class="download-logs-btn" on:click={downloadJsonLocal}>
                         <Fa icon={faFileArrowDown} />
-                        Download remote database logs file (JSON)
+                        Download local logs file (JSON)
                     </button>
+                    <button class="download-logs-btn" on:click={downloadCsvLocal}>
+                        <Fa icon={faFileArrowDown} />
+                        Download local logs file (CSV)
+                    </button>
+                </div>
+                {#if $isLoggedIn && $user}
+                    <div class="remote-logs-container">
+                        <button class="download-logs-btn" on:click={handleRemoteJsonDownload}>
+                            <Fa icon={faFileArrowDown} />
+                            Download remote database logs file (JSON)
+                        </button>
+                        <button class="download-logs-btn" on:click={handleRemoteCsvDownload}>
+                            <Fa icon={faFileArrowDown} />
+                            Download remote database logs file (CSV)
+                        </button>
+                    </div>
                 {/if}
             </div>
 
@@ -241,5 +257,10 @@
 
     input.color-input{
         border: 1px solid black;
+    }
+    
+    .local-logs-container,
+    .remote-logs-container{
+        display: grid;
     }
 </style>

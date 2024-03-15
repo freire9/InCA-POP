@@ -80,7 +80,7 @@
     function handleBackgroundClick(event){
         const { target, clientX, clientY } = event;
         addLog(
-            'Background click', 
+            'Game background click', 
             {onScreenBalloons: balloons, gameSettings: $gameSettings, appSettings: $appSettings, gameDirection: $gameDirection, x: clientX, y: clientY},
             $isLoggedIn ? $user.uid : null
         );
