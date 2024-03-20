@@ -5,7 +5,7 @@
     import { getRandomColor } from '$lib/utils';
     import { goto } from '$app/navigation';
     import { addLog } from "$lib/logService";
-    import { appSettings, gameSettings, isLoggedIn, user, balloonSpeedOptions, balloonSizeOptions, gameDirection } from '../../stores.js';
+    import { appSettings, gameSettings, isLoggedIn, user, balloonSpeedOptions, balloonSizeOptions, gameDirection, menuSettings } from '../../stores.js';
 
     let balloons = [];
     let balloonIdCounter = 1;
@@ -61,7 +61,7 @@
         const clickedBalloonId = event.detail.id;
         addLog(
             'Popped balloon', 
-            {poppedBalloon: event.detail, onScreenBalloons: balloons, gameSettings: $gameSettings, appSettings: $appSettings, gameDirection: $gameDirection},
+            {...event.detail, onScreenBalloons: balloons, gameDirection: $gameDirection, ...$gameSettings, ...$appSettings, ...$menuSettings,},
             $isLoggedIn ? $user.uid : null
         );
         destroyBalloon(clickedBalloonId);
@@ -71,7 +71,7 @@
         event.stopPropagation();
         addLog(
             'Exit game', 
-            {onScreenBalloons: balloons, gameSettings: $gameSettings, appSettings: $appSettings, gameDirection: $gameDirection},
+            {onScreenBalloons: balloons, gameDirection: $gameDirection, ...$gameSettings, ...$appSettings, ...$menuSettings},
             $isLoggedIn ? $user.uid : null
         );
         goto('/');
@@ -81,7 +81,7 @@
         const { target, clientX, clientY } = event;
         addLog(
             'Game background click', 
-            {onScreenBalloons: balloons, gameSettings: $gameSettings, appSettings: $appSettings, gameDirection: $gameDirection, x: clientX, y: clientY},
+            {onScreenBalloons: balloons, gameDirection: $gameDirection,  ...$gameSettings, ...$appSettings, ...$menuSettings, x: clientX, y: clientY},
             $isLoggedIn ? $user.uid : null
         );
     }

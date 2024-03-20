@@ -13,7 +13,7 @@ const addRemoteLog = async (userUid, eventType, eventDetails) => {
     const docRef = await addDoc(logsCollection, {
       userUid: userUid,
       eventType,
-      eventDetails,
+      ...eventDetails,
       timestamp: new Date(),
     });
 
@@ -25,7 +25,7 @@ const addRemoteLog = async (userUid, eventType, eventDetails) => {
 
 
 export const addLog = (eventType, eventDetails, userUid = null) => {
-  const logEntry = { eventType, eventDetails, timestamp: new Date() };
+  const logEntry = { eventType, ...eventDetails, timestamp: new Date() };
   logs.push(logEntry);
 
   // Check if running on the client side before accessing sessionStorage
@@ -66,43 +66,42 @@ export const getRemoteLogs = async (userUid) => {
   }
 };
 
-function flattenObject(obj, parentKey = '') {
-  return Object.keys(obj).reduce((acc, key) => {
-      const prefixedKey = parentKey ? `${parentKey}.${key}` : key;
-      if (typeof obj[key] === 'object' && obj[key] !== null) {
-          Object.assign(acc, flattenObject(obj[key], prefixedKey));
-      } else {
-          acc[prefixedKey] = obj[key];
-      }
-      return acc;
-  }, {});
-}
-
 export function convertToCSV(data) {
-  // Obtain all possible column names
+  const csvRows = [];
+
+  // Obtain all unique keys
   const allKeys = data.reduce((acc, log) => {
-      return acc.concat(Object.keys(flattenObject(log)));
+      return acc.concat(Object.keys(log));
   }, []);
 
   // Delete duplicates
   const uniqueKeys = [...new Set(allKeys)];
 
-  // Create CSV rows
-  const rows = data.map(log => {
-      const flattenedLog = flattenObject(log);
-      return uniqueKeys.map(key => {
-          const value = flattenedLog[key];
-          if (typeof value === 'string' && value.includes(',')) {
-              return `"${value}"`; // enclose in double quotation marks if value contains commas
-          } else if (typeof value === 'boolean') {
-              return value.toString(); // Convert to text string
-          }
-          return value || '';
-      }).join(',');
-  });
+  // Add unique keys as csv headers
+  csvRows.push(uniqueKeys.join(','));
 
-  // add headers
-  rows.unshift(uniqueKeys.join(','));
+  // Iterate on logs and create rows
+  for (const row of data) {
+      const values = uniqueKeys.map(key => {
+        const value = row[key];
+        // Convert arrays to JSON string
+        if (Array.isArray(value)){
+            return '"' + JSON.stringify(value).replace(/"/g, '""') + '"';
+        }
+        else if (typeof value === 'object' && value !== null) {
+            // Convert object in an array of one element
+            return '"[' + JSON.stringify(value).replace(/"/g, '""') + ']"';
+        }
+        else if (typeof value === 'string' && value.includes(',')) {
+            return `"${value}"`; // In double quotes if have quotes
+        } else if (typeof value === 'boolean') {
+            return value.toString(); // Convert to text
+        } else{
+            return value;
+        }
+      });
+      csvRows.push(values.join(','));
+  }
 
-  return rows.join('\n');
+  return csvRows.join('\n');
 }

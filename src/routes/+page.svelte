@@ -17,7 +17,7 @@
     function handleClick(event){
         addLog(
             'Game started', 
-            {gameDirection: event.detail, menuSettings: $menuSettings, appSettings: $appSettings},
+            {gameDirection: event.detail, ...$gameSettings, ...$menuSettings, ...$appSettings},
             $isLoggedIn ? $user.uid : null
         );
         startGame(event.detail);
@@ -26,7 +26,7 @@
     function handleBackgroundClick(event){
         addLog(
             'Menu background click', 
-            {menuSettings: $menuSettings, appSettings: $appSettings},
+            {...$gameSettings, ...$menuSettings, ...$appSettings},
             $isLoggedIn ? $user.uid : null
         );
     }

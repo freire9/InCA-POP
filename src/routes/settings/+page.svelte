@@ -81,7 +81,10 @@
             <NumberInput id="maxBalloonsInput" min=1 max=100 bind:value={$gameSettings.maxBalloonsQuantity}/>
 
             <label for="specialBalloonsFreqInput">Frequency of ocurrence of special balloons (balloons with letters)</label>
-            <NumberInput id="specialBalloonsFreqInput" min=1 max=100 bind:value={$gameSettings.specialBalloonsFreq} />
+            <div class="number-percent-flex">
+                <NumberInput id="specialBalloonsFreqInput" min=1 max=100 bind:value={$gameSettings.specialBalloonsFreq} /> 
+                <span>%</span>
+            </div>
     
             <label for="balloonSpeedSelect">Balloon Speed:</label>
             <select id="balloonSpeedSelect" bind:value={$gameSettings.balloonSpeed}>
@@ -262,5 +265,9 @@
     .local-logs-container,
     .remote-logs-container{
         display: grid;
+    }
+    .number-percent-flex{
+        display: flex;
+        align-items: center;
     }
 </style>
