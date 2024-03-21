@@ -57,7 +57,7 @@ export async function downloadLogs(format = 'json', userUid = null) {
         filename = 'logs.csv';
         mimeType = 'text/csv';
     } else{
-        throw new Error('Formato no válido. Debe ser "json" o "csv".');
+        throw new Error('Not valid format. Must be "json" or "csv".');
     }
 
     const blob = new Blob([data], { type: mimeType });
