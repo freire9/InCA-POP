@@ -1,5 +1,5 @@
 <script>
-    import { gameSettings, menuSettings, appSettings, isLoggedIn, user, gameDirection, isIphone} from "../stores";
+    import { gameSettings, menuSettings, appSettings, isLoggedIn, user, gameDirection, isIphone } from "../stores";
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
     import { TrainerButton, Fa } from 'inca-utils';

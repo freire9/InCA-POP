@@ -1,6 +1,7 @@
 import { writable} from 'svelte/store';
 
 export const isIphone = writable(false);
+export const isFirefox = writable(false);
 export const user = writable({});
 export const isLoggedIn = writable(false);
 export const gameDirection = writable('leftToRight');

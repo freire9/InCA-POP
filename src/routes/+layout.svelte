@@ -1,6 +1,6 @@
 <script>
     import 'inca-utils/styles.css';
-    import { user, isLoggedIn, gameSettings, menuSettings, appSettings, isIphone} from '../stores';
+    import { user, isLoggedIn, gameSettings, menuSettings, appSettings, isIphone, isFirefox } from '../stores';
     import { auth, db } from '$lib/firebaseConfig';
     import { onAuthStateChanged } from 'firebase/auth';
     import { doc, getDoc, updateDoc } from 'firebase/firestore';
@@ -61,6 +61,8 @@
     onMount(() => {
         const userAgent = navigator.userAgent.toLowerCase();
         $isIphone = /iphone/.test(userAgent);
+        $isFirefox = userAgent.indexOf('firefox') > -1;
+        $appSettings.fluidTransitions = $isFirefox ? false : true;
     })
 </script>
 

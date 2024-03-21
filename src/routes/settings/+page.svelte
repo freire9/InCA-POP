@@ -188,12 +188,6 @@
                     <input id="menuBackgroundColor" class="color-input" type="color" bind:value={$menuSettings.menuBackgroundColor}>
                 </div>
             </div>
-    
-            <h2>Browser settings</h2>
-            <div class="checkbox-flex">
-                <label for="fluidTransitionsCheckbox">Enable fluid transitions (Firefox presents bugs at clicks):</label>
-                <input id="fluidTransitionsCheckbox" type="checkbox" bind:checked={$appSettings.fluidTransitions}>
-            </div>
         </div>
     </main>
 </div>
