@@ -237,12 +237,10 @@
     }
     .logs-container{
         display: flex;
-        gap: 100px;
     }
 
     button.download-logs-btn{
         background-color: beige;
-        width: 300px;
         border-radius: 10px;
         padding: 10px;
         margin-bottom: 10px;
@@ -269,5 +267,30 @@
     .number-percent-flex{
         display: flex;
         align-items: center;
+    }
+    @media (max-width: 600px) {
+        .logs-container{
+            flex-direction: column;
+            gap: 20px;
+        }
+        button.download-logs-btn{
+            width: 220px;
+        }
+    }
+    @media (min-width: 600px) and (max-width: 1024px) {
+        .logs-container{
+            gap: 50px;
+        }
+        button.download-logs-btn{
+            width: 230px;
+        }
+    }
+    @media (min-width: 1024px){
+        .logs-container{
+            gap: 100px;
+        }
+        button.download-logs-btn{
+            width: 300px;
+        }
     }
 </style>

@@ -85,6 +85,12 @@
     p{
         margin-bottom: 15px;
     }
+    @media (max-width: 600px) {
+        .profile-container{
+            flex-direction: column;
+            text-align: center;
+        }
+    }
 </style>
 
 {#if !$isLoggedIn}
