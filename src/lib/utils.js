@@ -1,4 +1,4 @@
-import { getLogs, getRemoteLogs} from "$lib/logService";
+import { getLogs, getRemoteLogs, convertToCSV} from "$lib/logService";
 
 // Function to calculate intermediate colors
 export function calculateInterpolatedColors(steps, color1, color2) {
@@ -42,24 +42,45 @@ export function getRandomColor() {
     return `rgb(${red}, ${green}, ${blue})`;
 }
 
-export async function downloadLogs(userUid=null) {
+export async function downloadLogs(format = 'json', userUid = null) {
     const logs = userUid ? await getRemoteLogs(userUid) : getLogs();
-    const logsJSON = JSON.stringify(logs, null, 2);
-    const blob = new Blob([logsJSON], { type: 'application/json' });
+    let data;
+    let filename;
+    let mimeType;
+
+    if(format === 'json'){
+        data = JSON.stringify(logs, null, 2);
+        filename = 'logs.json';
+        mimeType = 'application/json';
+    } else if(format === 'csv'){
+        data = convertToCSV(logs);
+        filename = 'logs.csv';
+        mimeType = 'text/csv';
+    } else{
+        throw new Error('Not valid format. Must be "json" or "csv".');
+    }
+
+    const blob = new Blob([data], { type: mimeType });
     const url = URL.createObjectURL(blob);
 
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'logs.json';
+    a.download = filename;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
 }
 
-export function downloadLocalLogs(){
-    return downloadLogs();
+export function downloadJsonLocal(){
+    return downloadLogs('json');
+}
+export function downloadCsvLocal(){
+    return downloadLogs('csv');
 }
 
-export function downloadRemoteLogs(userUid){
-    return downloadLogs(userUid);
+export function downloadJsonRemote(userUid){
+    return downloadLogs('json', userUid);
+}
+export function downloadCsvRemote(userUid){
+    return downloadLogs('csv', userUid);
 }
