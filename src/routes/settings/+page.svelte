@@ -2,7 +2,7 @@
     import { balloonSizeOptions, balloonSpeedOptions, gameSettings, appSettings, menuSettings, isLoggedIn, user } from '../../stores.js';
     import lodash from 'lodash';
     import { onMount } from 'svelte';
-    import { calculateInterpolatedColors, downloadLocalLogs, downloadRemoteLogs } from '$lib/utils.js'
+    import { calculateInterpolatedColors, downloadJsonLocal, downloadJsonRemote, downloadCsvLocal, downloadCsvRemote } from '$lib/utils.js'
     import { ActionButton, NumberInput, Fa } from 'inca-utils';
     import { goto } from '$app/navigation';
     import { faFileArrowDown } from '@fortawesome/free-solid-svg-icons';
@@ -22,9 +22,13 @@
 
     const handleColorChange = debounce(setInterpolatedColors, 500);
 
-    function handleRemoteLogsDownload (){
-        if ($isLoggedIn && $user) downloadRemoteLogs($user.uid);
+    function handleRemoteJsonDownload (){
+        if ($isLoggedIn && $user) downloadJsonRemote($user.uid);
     }
+    function handleRemoteCsvDownload(){
+        if ($isLoggedIn && $user) downloadCsvRemote($user.uid);
+    }
+
 </script>
 
 <div class="settings">
@@ -47,15 +51,27 @@
             
             <h2>Logs</h2>
             <div class="logs-container">
-                <button class="download-logs-btn" on:click={downloadLocalLogs}>
-                    <Fa icon={faFileArrowDown} />
-                    Download local logs file (JSON)
-                </button>
-                {#if $isLoggedIn && $user}
-                    <button class="download-logs-btn" on:click={handleRemoteLogsDownload}>
+                <div class="local-logs-container">
+                    <button class="download-logs-btn" on:click={downloadJsonLocal}>
                         <Fa icon={faFileArrowDown} />
-                        Download remote database logs file (JSON)
+                        Download local logs file (JSON)
                     </button>
+                    <button class="download-logs-btn" on:click={downloadCsvLocal}>
+                        <Fa icon={faFileArrowDown} />
+                        Download local logs file (CSV)
+                    </button>
+                </div>
+                {#if $isLoggedIn && $user}
+                    <div class="remote-logs-container">
+                        <button class="download-logs-btn" on:click={handleRemoteJsonDownload}>
+                            <Fa icon={faFileArrowDown} />
+                            Download remote database logs file (JSON)
+                        </button>
+                        <button class="download-logs-btn" on:click={handleRemoteCsvDownload}>
+                            <Fa icon={faFileArrowDown} />
+                            Download remote database logs file (CSV)
+                        </button>
+                    </div>
                 {/if}
             </div>
 
@@ -65,7 +81,10 @@
             <NumberInput id="maxBalloonsInput" min=1 max=100 bind:value={$gameSettings.maxBalloonsQuantity}/>
 
             <label for="specialBalloonsFreqInput">Frequency of ocurrence of special balloons (balloons with letters)</label>
-            <NumberInput id="specialBalloonsFreqInput" min=1 max=100 bind:value={$gameSettings.specialBalloonsFreq} />
+            <div class="number-percent-flex">
+                <NumberInput id="specialBalloonsFreqInput" min=1 max=100 bind:value={$gameSettings.specialBalloonsFreq} /> 
+                <span>%</span>
+            </div>
     
             <label for="balloonSpeedSelect">Balloon Speed:</label>
             <select id="balloonSpeedSelect" bind:value={$gameSettings.balloonSpeed}>
@@ -218,12 +237,10 @@
     }
     .logs-container{
         display: flex;
-        gap: 100px;
     }
 
     button.download-logs-btn{
         background-color: beige;
-        width: 300px;
         border-radius: 10px;
         padding: 10px;
         margin-bottom: 10px;
@@ -241,5 +258,39 @@
 
     input.color-input{
         border: 1px solid black;
+    }
+    
+    .local-logs-container,
+    .remote-logs-container{
+        display: grid;
+    }
+    .number-percent-flex{
+        display: flex;
+        align-items: center;
+    }
+    @media (max-width: 600px) {
+        .logs-container{
+            flex-direction: column;
+            gap: 20px;
+        }
+        button.download-logs-btn{
+            width: 220px;
+        }
+    }
+    @media (min-width: 600px) and (max-width: 1024px) {
+        .logs-container{
+            gap: 50px;
+        }
+        button.download-logs-btn{
+            width: 230px;
+        }
+    }
+    @media (min-width: 1024px){
+        .logs-container{
+            gap: 100px;
+        }
+        button.download-logs-btn{
+            width: 300px;
+        }
     }
 </style>
