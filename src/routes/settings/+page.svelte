@@ -3,10 +3,10 @@
     import lodash from 'lodash';
     import { onMount } from 'svelte';
     import { calculateInterpolatedColors, downloadJsonLocal, downloadJsonRemote, downloadCsvLocal, downloadCsvRemote } from '$lib/utils.js'
-    import { ActionButton, NumberInput, Fa } from 'inca-utils';
-    import { goto } from '$app/navigation';
+    import { NumberInput, Fa} from 'inca-utils';
     import { faFileArrowDown } from '@fortawesome/free-solid-svg-icons';
     import Profile from '../../components/Profile.svelte';
+	import UserNavBar from '../../components/UserNavBar.svelte';
 
     const { debounce } = lodash;
 
@@ -32,10 +32,8 @@
 </script>
 
 <div class="settings">
-    <nav>
-        <ActionButton mode="exit" on:click={() => goto('/')}/>
-    </nav>
-    
+
+    <UserNavBar />
     <main>
         <h1>Settings</h1>
         <div class="settings-form flex-column">

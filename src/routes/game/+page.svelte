@@ -1,17 +1,24 @@
 <script>
     import Balloon from '../../components/Balloon.svelte';;
     import { onMount } from 'svelte';
-    import { ActionButton } from 'inca-utils';
+    import { ActionButton, TrainerButton, Fa} from 'inca-utils';
     import { getRandomColor } from '$lib/utils';
     import { goto } from '$app/navigation';
     import { addLog } from "$lib/logService";
-    import { appSettings, gameSettings, isLoggedIn, user, balloonSpeedOptions, balloonSizeOptions, gameDirection, menuSettings } from '../../stores.js';
+    import { faExpand } from '@fortawesome/free-solid-svg-icons';
+    import { appSettings, gameSettings, isLoggedIn, user, balloonSpeedOptions, balloonSizeOptions, gameDirection, menuSettings, isIphone } from '../../stores.js';
 
     let balloons = [];
     let balloonIdCounter = 1;
     let balloonKnotHeightPercent;
     let balloonSpeed = balloonSpeedOptions[$gameSettings.balloonSpeed];
     let balloonSize = balloonSizeOptions[$gameSettings.balloonSize];
+
+    let fullscreen;
+
+    onMount(async () => {
+        ({fullscreen} = await import('inca-utils/api'));
+    })
 
     function addBalloon() {
         if (balloons.length >= $gameSettings.maxBalloonsQuantity) return;
@@ -199,6 +206,10 @@
     .exit-btn{
         position: absolute;
     }
+    .full-screen-btn{
+        position: absolute;
+        right: 0;
+    }
 </style>
   
 <svelte:head>
@@ -214,6 +225,13 @@
         <div class="not-selectable exit-btn">
             <ActionButton mode="exit" on:click={handleExitClick} --width='var(--nav-bar-height)'/>
         </div>
+        {#if !$isIphone}
+            <div class="full-screen-btn not-selectable">
+                <TrainerButton on:click={fullscreen} --width='var(--nav-bar-height)'>
+                    <Fa icon={faExpand} />
+                </TrainerButton>
+            </div>
+        {/if}
         {#each balloons as balloon (balloon.id)}
             <Balloon {balloon} on:balloonClicked={handleClick} />
         {/each}
