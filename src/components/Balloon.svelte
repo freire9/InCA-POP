@@ -19,6 +19,17 @@
         playPopSound();
         dispatch('balloonClicked', balloon);
     }
+
+    function getLetterColor(){
+        if($gameSettings.enableCustomLetter && !$gameSettings.enableLetterRangeColor){
+            return $gameSettings.balloonLetterColor;
+        } else if($gameSettings.enableCustomLetter && $gameSettings.enableLetterRangeColor){
+            let randomIndex = Math.floor(Math.random() * $gameSettings.letterInterpolatedColors.length);
+            return $gameSettings.letterInterpolatedColors[randomIndex];
+        } else{
+            return 'transparent';
+        }
+    }
 </script>
 
 <style>
@@ -79,7 +90,7 @@
   {#if balloon.isSpecial}
     <span
     class="not-selectable"
-    style="-webkit-text-fill-color: {$gameSettings.enableCustomLetter ? $gameSettings.balloonLetterColor : 'transparent'};"
+    style="-webkit-text-fill-color: {getLetterColor()};"
     style:font-size='{balloon.size.height * 0.7}px'
     >
     {randomLetter}

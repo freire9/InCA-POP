@@ -15,12 +15,18 @@
         const colors = calculateInterpolatedColors($gameSettings.balloonRangeColorDefinition, $gameSettings.balloonRangeColor1, $gameSettings.balloonRangeColor2);
         $gameSettings.balloonInterpolatedColors = colors;
     }
+    function setLetterInterpolatedColors(){
+        const colors = calculateInterpolatedColors($gameSettings.letterColorDefinition, $gameSettings.letterColorRange1, $gameSettings.letterColorRange2);
+        $gameSettings.letterInterpolatedColors = colors;
+    }
 
     onMount(() => {
         if($gameSettings.balloonInterpolatedColors.length == 0) setInterpolatedColors();
+        if($gameSettings.letterInterpolatedColors.length == 0) setLetterInterpolatedColors();
     });
 
     const handleColorChange = debounce(setInterpolatedColors, 500);
+    const handleLetterColorChange = debounce(setLetterInterpolatedColors,500);
 
     function handleRemoteJsonDownload (){
         if ($isLoggedIn && $user) downloadJsonRemote($user.uid);
@@ -151,12 +157,36 @@
                 <label for="balloonLetterColorCheckbox">Enable balloon custom letter color:</label>
                 <input id="balloonLetterColorCheckbox" type="checkbox" bind:checked={$gameSettings.enableCustomLetter}>
             </div>
-    
             {#if $gameSettings.enableCustomLetter}
-                <div class="color-flex">
-                    <label for="balloonLetterColorInput">Balloon letter color:</label>
-                    <input id="balloonLetterColorInput" class="color-input" type="color" bind:value={$gameSettings.balloonLetterColor}>
+                <div class="checkbox-flex">
+                    <label for="colorRangeLetterCheckbox">Enable letter range color?</label>
+                    <input id="colorRangeLetterCheckbox" type="checkbox" bind:checked={$gameSettings.enableLetterRangeColor}>
                 </div>
+                {#if $gameSettings.enableLetterRangeColor}
+                    <div class="color-flex">
+                        <label for="color1LetterRangeInput">Color 1:</label>
+                        <input id="color1LetterRangeInput" class="color-input" type="color" bind:value={$gameSettings.letterColorRange1} on:input={handleLetterColorChange}>
+                    </div>
+                    <div class="color-flex">
+                        <label for="color2LetterRangeInput">Color 2:</label>
+                        <input id="color2LetterRangeInput" class="color-input" type="color" bind:value={$gameSettings.letterColorRange2} on:input={handleLetterColorChange}>
+                    </div>
+                    <div class="number-flex">
+                        <label for="definitionLetterColorInput">Definition:</label>
+                        <NumberInput id="definitionLetterColorInput" min=1 max=100 bind:value={$gameSettings.letterColorDefinition} on:change={handleLetterColorChange} />
+                    </div>
+                    <br>
+                    <div class="color-box">
+                        {#each $gameSettings.letterInterpolatedColors as color (color)}
+                            <div class="color-square" style="background-color: {color}"></div>
+                        {/each}
+                    </div>
+                {:else}
+                    <div class="color-flex">
+                        <label for="balloonLetterColorInput">Balloon letter color:</label>
+                        <input id="balloonLetterColorInput" class="color-input" type="color" bind:value={$gameSettings.balloonLetterColor}>
+                    </div>
+                {/if}
             {/if}
     
             <h2>Main menu</h2>
