@@ -3,7 +3,7 @@
     import { onMount } from 'svelte';
     import { getRandomColor } from '$lib/utils';
     import { addLog } from "$lib/logService";
-    import { appSettings, gameSettings, isLoggedIn, user, balloonSpeedOptions, balloonSizeOptions, gameDirection, menuSettings, isIphone } from '../../stores.js';
+    import { appSettings, gameSettings, isLoggedIn, user, balloonSpeedOptions, balloonSizeOptions, gameDirection, menuSettings } from '../../stores.js';
 	import SubjectNavBar from '../../components/SubjectNavBar.svelte';
 
     let balloons = [];
