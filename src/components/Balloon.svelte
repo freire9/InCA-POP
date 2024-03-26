@@ -1,6 +1,6 @@
 <script>
     import { createEventDispatcher } from 'svelte'
-    import { gameSettings, appSettings } from '../stores';
+    import { appSettings } from '../stores';
 
     export let balloon;
     const dispatch = createEventDispatcher();
@@ -18,17 +18,6 @@
     function handleClick() {
         playPopSound();
         dispatch('balloonClicked', balloon);
-    }
-
-    function getLetterColor(){
-        if($gameSettings.enableCustomLetter && !$gameSettings.enableLetterRangeColor){
-            return $gameSettings.balloonLetterColor;
-        } else if($gameSettings.enableCustomLetter && $gameSettings.enableLetterRangeColor){
-            let randomIndex = Math.floor(Math.random() * $gameSettings.letterInterpolatedColors.length);
-            return $gameSettings.letterInterpolatedColors[randomIndex];
-        } else{
-            return 'transparent';
-        }
     }
 </script>
 
@@ -90,7 +79,7 @@
   {#if balloon.isSpecial}
     <span
     class="not-selectable"
-    style="-webkit-text-fill-color: {getLetterColor()};"
+    style="-webkit-text-fill-color: {balloon.letterColor};"
     style:font-size='{balloon.size.height * 0.7}px'
     >
     {randomLetter}

@@ -12,6 +12,17 @@
     let balloonSpeed = balloonSpeedOptions[$gameSettings.balloonSpeed];
     let balloonSize = balloonSizeOptions[$gameSettings.balloonSize];
 
+    function getLetterColor(){
+        if($gameSettings.enableCustomLetter && !$gameSettings.enableLetterRangeColor){
+            return $gameSettings.balloonLetterColor;
+        } else if($gameSettings.enableCustomLetter && $gameSettings.enableLetterRangeColor){
+            let randomIndex = Math.floor(Math.random() * $gameSettings.letterInterpolatedColors.length);
+            return $gameSettings.letterInterpolatedColors[randomIndex];
+        } else{
+            return 'transparent';
+        }
+    }
+
     function addBalloon() {
         if (balloons.length >= $gameSettings.maxBalloonsQuantity) return;
 
@@ -26,7 +37,8 @@
         const direction = $gameDirection;
         const rotation = Math.random() * 20 - 10;
         const isSpecial = Math.random() < $gameSettings.specialBalloonsFreq/100;
-        const balloon = { id, color, x, y, speed, direction, size, rotation, isSpecial};
+        const letterColor = isSpecial ? getLetterColor() : '';
+        const balloon = { id, color, letterColor, x, y, speed, direction, size, rotation, isSpecial};
 
         balloons = [...balloons, balloon];
     }
@@ -45,7 +57,8 @@
             const direction = $gameDirection;
             const rotation = Math.random() * 20 - 10;
             const isSpecial = Math.random() < $gameSettings.specialBalloonsFreq/100;
-            const balloon = { id, color, x, y, speed, direction, size, rotation, isSpecial};
+            const letterColor = isSpecial ? getLetterColor() : '';
+            const balloon = { id, color, letterColor, x, y, speed, direction, size, rotation, isSpecial};
 
             balloons = [...balloons, balloon];
         }
