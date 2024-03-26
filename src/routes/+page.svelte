@@ -7,7 +7,9 @@
     import { getRandomColor } from "$lib/utils";
     import StaticBalloon from "../components/StaticBalloon.svelte";
     import { addLog } from "$lib/logService";
+    import packageJson from '../../package.json';
 
+    const appVersion = packageJson.version;
     let fullscreen;
 
     onMount(async () => {
@@ -90,25 +92,38 @@
         flex-grow: 1;
         text-align: center;
     }
+    .app-version{
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        font-size: small;
+    }
 </style>
+<svelte:head>
+    <style>
+        body {
+            overflow: hidden;
+        }
+    </style>
+</svelte:head>
 
 <div on:click={handleBackgroundClick} role="menu" aria-label="Main menu" tabindex="0" on:keydown={handleBackgroundKeyboard} >
     <main class="not-selectable" style:background-color={$menuSettings.menuBackgroundColor}>
         <header>
             <h1>InCA-POP!</h1>
+            <p class="app-version">v{appVersion}</p>
             <nav>
-                {#if !$isIphone}
-                    <TrainerButton on:click={fullscreen} label="Fullscreen">
-                        <Fa icon={faExpand} />
-                    </TrainerButton>
-                {/if}
-
                 <TrainerButton label="Settings" on:click={() => goto('/settings')}>
                     <Fa icon={faGear} />
                 </TrainerButton>
                 <TrainerButton label="About" on:click={() => goto('/about')}>
                     <Fa icon={faInfo} />
                 </TrainerButton>
+                {#if !$isIphone}
+                    <TrainerButton on:click={fullscreen} label="Fullscreen">
+                        <Fa icon={faExpand} />
+                    </TrainerButton>
+                {/if}
             </nav>
         </header>
         <div class="game-modes">

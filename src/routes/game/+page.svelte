@@ -1,17 +1,27 @@
 <script>
     import Balloon from '../../components/Balloon.svelte';;
     import { onMount } from 'svelte';
-    import { ActionButton } from 'inca-utils';
     import { getRandomColor } from '$lib/utils';
-    import { goto } from '$app/navigation';
     import { addLog } from "$lib/logService";
     import { appSettings, gameSettings, isLoggedIn, user, balloonSpeedOptions, balloonSizeOptions, gameDirection, menuSettings } from '../../stores.js';
+	import SubjectNavBar from '../../components/SubjectNavBar.svelte';
 
     let balloons = [];
     let balloonIdCounter = 1;
     let balloonKnotHeightPercent;
     let balloonSpeed = balloonSpeedOptions[$gameSettings.balloonSpeed];
     let balloonSize = balloonSizeOptions[$gameSettings.balloonSize];
+
+    function getLetterColor(){
+        if($gameSettings.enableCustomLetter && !$gameSettings.enableLetterRangeColor){
+            return $gameSettings.balloonLetterColor;
+        } else if($gameSettings.enableCustomLetter && $gameSettings.enableLetterRangeColor){
+            let randomIndex = Math.floor(Math.random() * $gameSettings.letterInterpolatedColors.length);
+            return $gameSettings.letterInterpolatedColors[randomIndex];
+        } else{
+            return 'transparent';
+        }
+    }
 
     function addBalloon() {
         if (balloons.length >= $gameSettings.maxBalloonsQuantity) return;
@@ -27,7 +37,8 @@
         const direction = $gameDirection;
         const rotation = Math.random() * 20 - 10;
         const isSpecial = Math.random() < $gameSettings.specialBalloonsFreq/100;
-        const balloon = { id, color, x, y, speed, direction, size, rotation, isSpecial};
+        const letterColor = isSpecial ? getLetterColor() : '';
+        const balloon = { id, color, letterColor, x, y, speed, direction, size, rotation, isSpecial};
 
         balloons = [...balloons, balloon];
     }
@@ -46,7 +57,8 @@
             const direction = $gameDirection;
             const rotation = Math.random() * 20 - 10;
             const isSpecial = Math.random() < $gameSettings.specialBalloonsFreq/100;
-            const balloon = { id, color, x, y, speed, direction, size, rotation, isSpecial};
+            const letterColor = isSpecial ? getLetterColor() : '';
+            const balloon = { id, color, letterColor, x, y, speed, direction, size, rotation, isSpecial};
 
             balloons = [...balloons, balloon];
         }
@@ -65,16 +77,6 @@
             $isLoggedIn ? $user.uid : null
         );
         destroyBalloon(clickedBalloonId);
-    }
-
-    function handleExitClick(event){
-        event.stopPropagation();
-        addLog(
-            'Exit game', 
-            {onScreenBalloons: balloons, gameDirection: $gameDirection, ...$gameSettings, ...$appSettings, ...$menuSettings},
-            $isLoggedIn ? $user.uid : null
-        );
-        goto('/');
     }
 
     function handleBackgroundClick(event){
@@ -148,7 +150,6 @@
             }
         });
         
-            
         balloons = balloons.filter(balloon => {
             if (balloon.direction === 'leftToRight' || balloon.direction === 'rightToLeft') {
             return balloon.x <= window.innerWidth + balloon.size.width && balloon.x >= 0 - balloon.size.width * 2;
@@ -161,6 +162,7 @@
         }
         requestAnimationFrame(moveBalloons);
     }
+    
     onMount(() => {
         const root = document.documentElement;
 
@@ -186,34 +188,20 @@
         height: 100vh;
         overflow: hidden;
     }
-    @media (max-width: 600px) {
-        :root{
-            --nav-bar-height: 15vh;
-        }
-    }
-    @media (min-width: 1024px){
-        :root{
-            --nav-bar-height: 20vh;
-        }
-    }
-    .exit-btn{
-        position: absolute;
-    }
 </style>
   
 <svelte:head>
     <style>
         body {
             margin: 0;
+            overflow: hidden;
         }
     </style>
 </svelte:head>
 
 <div role="presentation" aria-label="Popping balloons game" on:click={handleBackgroundClick} on:keypress={handleBackgroundKeyboard}>
     <main class="not-selectable" style:background-color = {$gameSettings.gameBackgroundColor} >
-        <div class="not-selectable exit-btn">
-            <ActionButton mode="exit" on:click={handleExitClick} --width='var(--nav-bar-height)'/>
-        </div>
+        <SubjectNavBar {balloons}/>
         {#each balloons as balloon (balloon.id)}
             <Balloon {balloon} on:balloonClicked={handleClick} />
         {/each}
