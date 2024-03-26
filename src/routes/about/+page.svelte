@@ -1,6 +1,5 @@
 <script>
-    import { goto } from "$app/navigation";
-    import { ActionButton } from "inca-utils";
+	import UserNavBar from "../../components/UserNavBar.svelte";
 </script>
 
 <style>
@@ -24,9 +23,7 @@
 
 <div class="about">
 
-    <nav>
-        <ActionButton mode="exit" on:click={() => goto('/')}/>
-    </nav>
+    <UserNavBar />
     <main>
         <h1>About InCA-POP!</h1>
         <p>
@@ -80,7 +77,7 @@
         <h2>Credits/acknowledgments</h2>
         <ul>
             <li>
-                <a href="https://github.com/freire9">Daniel Freire Fernández</a>, <a href="https://ingenieria.uchile.cl/">FCFM</a> CS Engineering and CS Master student and developer of this app.
+                <a href="https://github.com/freire9">Daniel Freire Fernández</a>, <a href="https://ingenieria.uchile.cl/">FCFM</a> CS Engineering student and developer of this app.
             </li>
             <li>
                 <a href="https://barbay.cl/">Jérémy Barbay</a> from <a href="https://buho.dcc.uchile.cl/~inca/">InCA Labs</a>.

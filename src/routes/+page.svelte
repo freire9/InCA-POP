@@ -97,18 +97,17 @@
         <header>
             <h1>InCA-POP!</h1>
             <nav>
-                {#if !$isIphone}
-                    <TrainerButton on:click={fullscreen} label="Fullscreen">
-                        <Fa icon={faExpand} />
-                    </TrainerButton>
-                {/if}
-
                 <TrainerButton label="Settings" on:click={() => goto('/settings')}>
                     <Fa icon={faGear} />
                 </TrainerButton>
                 <TrainerButton label="About" on:click={() => goto('/about')}>
                     <Fa icon={faInfo} />
                 </TrainerButton>
+                {#if !$isIphone}
+                    <TrainerButton on:click={fullscreen} label="Fullscreen">
+                        <Fa icon={faExpand} />
+                    </TrainerButton>
+                {/if}
             </nav>
         </header>
         <div class="game-modes">
