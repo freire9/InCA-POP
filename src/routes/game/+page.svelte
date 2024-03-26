@@ -1,24 +1,16 @@
 <script>
     import Balloon from '../../components/Balloon.svelte';;
     import { onMount } from 'svelte';
-    import { ActionButton, TrainerButton, Fa} from 'inca-utils';
     import { getRandomColor } from '$lib/utils';
-    import { goto } from '$app/navigation';
     import { addLog } from "$lib/logService";
-    import { faExpand } from '@fortawesome/free-solid-svg-icons';
     import { appSettings, gameSettings, isLoggedIn, user, balloonSpeedOptions, balloonSizeOptions, gameDirection, menuSettings, isIphone } from '../../stores.js';
+	import SubjectNavBar from '../../components/SubjectNavBar.svelte';
 
     let balloons = [];
     let balloonIdCounter = 1;
     let balloonKnotHeightPercent;
     let balloonSpeed = balloonSpeedOptions[$gameSettings.balloonSpeed];
     let balloonSize = balloonSizeOptions[$gameSettings.balloonSize];
-
-    let fullscreen;
-
-    onMount(async () => {
-        ({fullscreen} = await import('inca-utils/api'));
-    })
 
     function addBalloon() {
         if (balloons.length >= $gameSettings.maxBalloonsQuantity) return;
@@ -72,16 +64,6 @@
             $isLoggedIn ? $user.uid : null
         );
         destroyBalloon(clickedBalloonId);
-    }
-
-    function handleExitClick(event){
-        event.stopPropagation();
-        addLog(
-            'Exit game', 
-            {onScreenBalloons: balloons, gameDirection: $gameDirection, ...$gameSettings, ...$appSettings, ...$menuSettings},
-            $isLoggedIn ? $user.uid : null
-        );
-        goto('/');
     }
 
     function handleBackgroundClick(event){
@@ -155,7 +137,6 @@
             }
         });
         
-            
         balloons = balloons.filter(balloon => {
             if (balloon.direction === 'leftToRight' || balloon.direction === 'rightToLeft') {
             return balloon.x <= window.innerWidth + balloon.size.width && balloon.x >= 0 - balloon.size.width * 2;
@@ -168,6 +149,7 @@
         }
         requestAnimationFrame(moveBalloons);
     }
+    
     onMount(() => {
         const root = document.documentElement;
 
@@ -193,23 +175,6 @@
         height: 100vh;
         overflow: hidden;
     }
-    @media (max-width: 600px) {
-        :root{
-            --nav-bar-height: 15vh;
-        }
-    }
-    @media (min-width: 1024px){
-        :root{
-            --nav-bar-height: 20vh;
-        }
-    }
-    .exit-btn{
-        position: absolute;
-    }
-    .full-screen-btn{
-        position: absolute;
-        right: 0;
-    }
 </style>
   
 <svelte:head>
@@ -222,16 +187,7 @@
 
 <div role="presentation" aria-label="Popping balloons game" on:click={handleBackgroundClick} on:keypress={handleBackgroundKeyboard}>
     <main class="not-selectable" style:background-color = {$gameSettings.gameBackgroundColor} >
-        <div class="not-selectable exit-btn">
-            <ActionButton mode="exit" on:click={handleExitClick} --width='var(--nav-bar-height)'/>
-        </div>
-        {#if !$isIphone}
-            <div class="full-screen-btn not-selectable">
-                <TrainerButton on:click={fullscreen} --width='var(--nav-bar-height)'>
-                    <Fa icon={faExpand} />
-                </TrainerButton>
-            </div>
-        {/if}
+        <SubjectNavBar {balloons}/>
         {#each balloons as balloon (balloon.id)}
             <Balloon {balloon} on:balloonClicked={handleClick} />
         {/each}
