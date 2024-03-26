@@ -91,6 +91,13 @@
         text-align: center;
     }
 </style>
+<svelte:head>
+    <style>
+        body {
+            overflow: hidden;
+        }
+    </style>
+</svelte:head>
 
 <div on:click={handleBackgroundClick} role="menu" aria-label="Main menu" tabindex="0" on:keydown={handleBackgroundKeyboard} >
     <main class="not-selectable" style:background-color={$menuSettings.menuBackgroundColor}>
