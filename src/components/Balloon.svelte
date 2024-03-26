@@ -1,6 +1,6 @@
 <script>
     import { createEventDispatcher } from 'svelte'
-    import { gameSettings, appSettings } from '../stores';
+    import { appSettings } from '../stores';
 
     export let balloon;
     const dispatch = createEventDispatcher();
@@ -79,7 +79,7 @@
   {#if balloon.isSpecial}
     <span
     class="not-selectable"
-    style="-webkit-text-fill-color: {$gameSettings.enableCustomLetter ? $gameSettings.balloonLetterColor : 'transparent'};"
+    style="-webkit-text-fill-color: {balloon.letterColor};"
     style:font-size='{balloon.size.height * 0.7}px'
     >
     {randomLetter}
