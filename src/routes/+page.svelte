@@ -4,7 +4,7 @@
     import { onMount } from "svelte";
     import { TrainerButton, Fa } from 'inca-utils';
     import { faGear, faExpand, faInfo, faLeftLong, faRightLong, faUpLong, faDownLong } from '@fortawesome/free-solid-svg-icons';
-    import { getRandomColor } from "$lib/utils";
+    import { getRandomHexColor } from "$lib/utils";
     import StaticBalloon from "../components/StaticBalloon.svelte";
     import { addLog } from "$lib/logService";
     import packageJson from '../../package.json';
@@ -15,6 +15,14 @@
     onMount(async () => {
         ({fullscreen} = await import('inca-utils/api'));
     })
+
+    onMount(() => {
+        if($menuSettings.mainMenuRandomColors){
+            Object.keys($gameSettings.availableModes).forEach(function(mode) {
+                $gameSettings.availableModes[mode].color = getRandomHexColor();
+            });
+        }
+    });
 
     function handleClick(event){
         addLog(
@@ -132,7 +140,7 @@
                     <StaticBalloon 
                         on:modeClicked={handleClick}
                         mode={mode}
-                        icon={icons[$gameSettings.availableModes[mode].icon]} --bg-pseudo={$menuSettings.mainMenuRandomColors ? getRandomColor() : $gameSettings.availableModes[mode].color} 
+                        icon={icons[$gameSettings.availableModes[mode].icon]} --bg-pseudo={$gameSettings.availableModes[mode].color} 
                     />
                 {/if}
             {/each}
