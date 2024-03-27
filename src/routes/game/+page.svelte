@@ -1,7 +1,7 @@
 <script>
     import Balloon from '../../components/Balloon.svelte';;
     import { onMount } from 'svelte';
-    import { getRandomColor } from '$lib/utils';
+    import { getRandomHexColor } from '$lib/utils';
     import { addLog } from "$lib/logService";
     import { appSettings, gameSettings, isLoggedIn, user, balloonSpeedOptions, balloonSizeOptions, gameDirection, menuSettings } from '../../stores.js';
 	import SubjectNavBar from '../../components/SubjectNavBar.svelte';
@@ -29,7 +29,7 @@
         const id = balloonIdCounter++;
         let randomIndex = Math.floor(Math.random() * $gameSettings.balloonInterpolatedColors.length);
         const color = $gameSettings.balloonRandomColor ?
-            getRandomColor() :
+            getRandomHexColor() :
             ($gameSettings.enableBalloonRangeColor ? $gameSettings.balloonInterpolatedColors[randomIndex] : $gameSettings.balloonColor);
         const { x, y } = getInitialPosition($gameDirection, balloonSize);
         const speed = getRandomSpeed();
@@ -48,7 +48,7 @@
             const id = balloonIdCounter++;
             let randomIndex = Math.floor(Math.random() * $gameSettings.balloonInterpolatedColors.length);
             const color = $gameSettings.balloonRandomColor ?
-                getRandomColor() :
+                getRandomHexColor() :
                 ($gameSettings.enableBalloonRangeColor ? $gameSettings.balloonInterpolatedColors[randomIndex] : $gameSettings.balloonColor);
             const x = getRandomXPosition(balloonSize);
             const y = getRandomYPosition(balloonSize);
