@@ -86,3 +86,7 @@ export function downloadJsonRemote(userUid){
 export function downloadCsvRemote(userUid){
     return downloadLogs('csv', userUid);
 }
+
+export function deepCopy(obj){
+    return JSON.parse(JSON.stringify(obj));
+}

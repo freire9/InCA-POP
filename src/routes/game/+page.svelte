@@ -1,7 +1,7 @@
 <script>
     import Balloon from '../../components/Balloon.svelte';;
     import { onMount } from 'svelte';
-    import { getRandomHexColor } from '$lib/utils';
+    import { deepCopy, getRandomHexColor } from '$lib/utils';
     import { addLog } from "$lib/logService";
     import { appSettings, gameSettings, isLoggedIn, user, balloonSpeedOptions, balloonSizeOptions, gameDirection, menuSettings } from '../../stores.js';
 	import SubjectNavBar from '../../components/SubjectNavBar.svelte';
@@ -73,8 +73,14 @@
         const clickedBalloonId = event.detail.id;
         addLog(
             'Popped balloon', 
-            {...event.detail, onScreenBalloons: balloons, gameDirection: $gameDirection, ...$gameSettings, ...$appSettings, ...$menuSettings,},
-            $isLoggedIn ? $user.uid : null
+            {...deepCopy(event.detail),
+                onScreenBalloons: deepCopy(balloons),
+                gameDirection: deepCopy($gameDirection),
+                ...deepCopy($gameSettings),
+                ...deepCopy($appSettings),
+                ...deepCopy($menuSettings),
+            },
+            $isLoggedIn ? deepCopy($user.uid) : null
         );
         destroyBalloon(clickedBalloonId);
     }
@@ -83,8 +89,15 @@
         const { target, clientX, clientY } = event;
         addLog(
             'Game background click', 
-            {onScreenBalloons: balloons, gameDirection: $gameDirection,  ...$gameSettings, ...$appSettings, ...$menuSettings, x: clientX, y: clientY},
-            $isLoggedIn ? $user.uid : null
+            {onScreenBalloons: deepCopy(balloons),
+                gameDirection: deepCopy($gameDirection),
+                ...deepCopy($gameSettings),
+                ...deepCopy($appSettings),
+                ...deepCopy($menuSettings),
+                x: deepCopy(clientX),
+                y: deepCopy(clientY)
+            },
+            $isLoggedIn ? deepCopy($user.uid) : null
         );
     }
 
