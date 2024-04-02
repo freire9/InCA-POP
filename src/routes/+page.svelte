@@ -27,17 +27,13 @@
         }
     }
 
-
     function handleAuthFinally(){
-        console.log('evento recibido')
         if($menuSettings.mainMenuRandomColors){
             Object.keys($gameSettings.availableModes).forEach(function(mode) {
                 const color = getRandomHexColor();
                 randomColors[mode] = color;
                 $gameSettings.availableModes[mode].color = color;
-                console.log($gameSettings.availableModes[mode].color)
             });
-            console.log('colores random seteados')
         }
     }
 
@@ -51,12 +47,7 @@
             },
             $isLoggedIn ? deepCopy($user.uid) : null
         );
-        console.log("LOG GUARDADO ENTRAR MODO")
-        console.log($gameSettings.availableModes[event.detail].color);
-        console.log("OTROS COLORES:")
-        Object.keys($gameSettings.availableModes).forEach(function(mode){
-            console.log($gameSettings.availableModes[mode].color)
-        })
+
         startGame(event.detail);
     }
 

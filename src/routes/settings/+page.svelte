@@ -1,9 +1,9 @@
 <script>
-    import { balloonSizeOptions, balloonSpeedOptions, gameSettings, appSettings, menuSettings, isLoggedIn, user, modifyingConfig } from '../../stores.js';
+    import { balloonSizeOptions, balloonSpeedOptions, gameSettings, appSettings, menuSettings, isLoggedIn, user } from '../../stores.js';
     import lodash from 'lodash';
     import { onMount } from 'svelte';
-    import { calculateInterpolatedColors, downloadJsonLocal, downloadJsonRemote, downloadCsvLocal, downloadCsvRemote } from '$lib/utils.js'
-    import { NumberInput, Fa} from 'inca-utils';
+    import { calculateInterpolatedColors, downloadJsonLocal, downloadJsonRemote, downloadCsvLocal, downloadCsvRemote, deepCopy } from '$lib/utils.js'
+    import { Fa } from 'inca-utils';
     import { faFileArrowDown } from '@fortawesome/free-solid-svg-icons';
     import Profile from '../../components/Profile.svelte';
 	import UserNavBar from '../../components/UserNavBar.svelte';
@@ -44,9 +44,12 @@
         if (!$isLoggedIn || !$user) return;
         const userDocRef = doc(db, 'users', $user.uid);
         await updateDoc(userDocRef, {
-            preferences: { gameSettings: $gameSettings, appSettings: $appSettings, menuSettings: $menuSettings},
+            preferences: { 
+                gameSettings: deepCopy($gameSettings),
+                appSettings: deepCopy($appSettings),
+                menuSettings: deepCopy($menuSettings)},
         });
-        console.log('settings updated')
+        console.log('Settings updated')
     }
 </script>
 
@@ -93,15 +96,18 @@
             </div>
 
             <h2>Game settings</h2>
-    
-            <label for="maxBalloonsInput">Max balloons quantity on screen:</label>
-            <NumberInput id="maxBalloonsInput" min=1 max=100 bind:value={$gameSettings.maxBalloonsQuantity} on:change={handleUpdateRemotePreferences}/>
-
-            <label for="specialBalloonsFreqInput">Frequency of ocurrence of special balloons (balloons with letters)</label>
-            <div class="number-percent-flex">
-                <NumberInput id="specialBalloonsFreqInput" min=1 max=100 bind:value={$gameSettings.specialBalloonsFreq} on:change={handleUpdateRemotePreferences}/> 
-                <span>%</span>
+            
+            <div class="range-input">
+                <label for="maxBalloonsInput">Max balloons quantity on screen:</label>
+                <p>{$gameSettings.maxBalloonsQuantity}</p>
             </div>
+            <input id="maxBalloonsInput" min="1" max="50" step="1" type="range" bind:value={$gameSettings.maxBalloonsQuantity} on:input={handleUpdateRemotePreferences}>
+
+            <div class="range-input">
+                <label for="specialBalloonsFreqInput">Frequency of ocurrence of special balloons (balloons with letters):</label>
+                <p>{$gameSettings.specialBalloonsFreq}%</p>
+            </div>
+            <input id="specialBalloonsFreqInput" min="1" max="100" step="1" type="range" bind:value={$gameSettings.specialBalloonsFreq} on:input={handleUpdateRemotePreferences}>
     
             <label for="balloonSpeedSelect">Balloon Speed:</label>
             <select id="balloonSpeedSelect" bind:value={$gameSettings.balloonSpeed} on:input={handleUpdateRemotePreferences}>
@@ -149,10 +155,11 @@
                             <input id="color2RangeInput" class="color-input" type="color" bind:value={$gameSettings.balloonRangeColor2} on:input={handleColorChange} />
                         </div>
         
-                        <div class="number-flex">
+                        <div class="range-input">
                             <label for="definitionInput">Definition:</label>
-                            <NumberInput id="definitionInput" min=1 max=100 bind:value={$gameSettings.balloonRangeColorDefinition} on:change={handleColorChange} />
+                            <p>{$gameSettings.balloonRangeColorDefinition}</p>
                         </div>
+                        <input id="definitionInput" type="range" min="1" max="100" step="1" bind:value={$gameSettings.balloonRangeColorDefinition} on:input={handleColorChange}>
                         <br>
                         <div class="color-box">
                             {#each $gameSettings.balloonInterpolatedColors as color (color)}
@@ -187,10 +194,11 @@
                             <label for="color2LetterRangeInput">Color 2:</label>
                             <input id="color2LetterRangeInput" class="color-input" type="color" bind:value={$gameSettings.letterColorRange2} on:input={handleLetterColorChange}>
                         </div>
-                        <div class="number-flex">
+                        <div class="range-input">
                             <label for="definitionLetterColorInput">Definition:</label>
-                            <NumberInput id="definitionLetterColorInput" min=1 max=100 bind:value={$gameSettings.letterColorDefinition} on:change={handleLetterColorChange} />
+                            <p>{$gameSettings.letterColorDefinition}</p>
                         </div>
+                        <input id="definitionLetterColorInput" type="range" min="1" max="100" step="1" bind:value={$gameSettings.letterColorDefinition} on:input={handleLetterColorChange}>
                         <br>
                         <div class="color-box">
                             {#each $gameSettings.letterInterpolatedColors as color (color)}
@@ -261,8 +269,7 @@
         padding: 2rem;
     }
     .checkbox-flex,
-    .color-flex,
-    .number-flex{
+    .color-flex{
         display: flex;
         align-items: baseline;
         gap: 10px;
@@ -302,14 +309,24 @@
     .remote-logs-container{
         display: grid;
     }
-    .number-percent-flex{
-        display: flex;
-        align-items: center;
-    }
     .letter-range-color-container,
     .balloon-range-color-container,
     .game-modes-container{
         margin-left: 30px;
+    }
+    .range-input{
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+        margin-top: 25px;
+    }
+    .range-input label{
+        margin: 0px;
+    }
+    input,
+    select{
+        max-width: max-content;
     }
     @media (max-width: 600px) {
         .logs-container{

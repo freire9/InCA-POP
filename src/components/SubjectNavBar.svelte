@@ -27,10 +27,6 @@
             },
             $isLoggedIn ? deepCopy($user.uid) : null
         );
-        console.log("LOG GUARDADO EXIT:")
-        Object.keys($gameSettings.availableModes).forEach(function(mode){
-            console.log($gameSettings.availableModes[mode].color)
-        })
         goto('/');
     }
 </script>

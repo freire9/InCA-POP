@@ -9,11 +9,10 @@
     function syncPreferencesToStores(userData) {
         if (userData && userData.preferences) {
             gameSettings.set(userData.preferences.gameSettings || $gameSettings);
-            console.log('Game settings loaded');
             menuSettings.set(userData.preferences.menuSettings || $menuSettings);
-            console.log('Menu settings loaded');
             appSettings.set(userData.preferences.appSettings || $appSettings);
-            console.log('App settings loaded');
+            
+            console.log('User preferences loaded');
         }
     }
 
@@ -31,8 +30,10 @@
     onAuthStateChanged(auth, async authUser => {
         $user = authUser;
         $isLoggedIn = !!authUser;
-        $modifyingConfig = false;
-        if (!$user || !$isLoggedIn) return;
+        if (!$user || !$isLoggedIn) {
+            $modifyingConfig = false;
+            return;
+        }
 
         try {
             await syncPreferencesFromFirestore();
@@ -40,7 +41,6 @@
             console.error(error);
         } finally{
             $modifyingConfig = false;
-            console.log('finalizando carga, evento despachado')
         };
     });
 
