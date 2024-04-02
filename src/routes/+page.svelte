@@ -17,10 +17,6 @@
         ({fullscreen} = await import('inca-utils/api'));
     })
 
-    onMount(() => {
-        $modifyingConfig;
-    });
-
     $:{
         if(!$modifyingConfig){
             handleAuthFinally();

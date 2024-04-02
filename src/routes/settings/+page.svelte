@@ -324,10 +324,6 @@
     .range-input label{
         margin: 0px;
     }
-    input,
-    select{
-        max-width: max-content;
-    }
     @media (max-width: 600px) {
         .logs-container{
             flex-direction: column;
