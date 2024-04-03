@@ -7,9 +7,7 @@
     import { deepCopy, getRandomHexColor } from "$lib/utils";
     import StaticBalloon from "../components/StaticBalloon.svelte";
     import { addLog } from "$lib/logService";
-    import packageJson from '../../package.json';
 
-    const appVersion = packageJson.version;
     let fullscreen;
 
     onMount(async () => {
@@ -114,12 +112,6 @@
         flex-grow: 1;
         text-align: center;
     }
-    .app-version{
-        position: absolute;
-        right: 0;
-        bottom: 0;
-        font-size: small;
-    }
 </style>
 <svelte:head>
     <style>
@@ -133,7 +125,6 @@
     <main class="not-selectable" style:background-color={$menuSettings.menuBackgroundColor}>
         <header>
             <h1>InCA-POP!</h1>
-            <p class="app-version">v{appVersion}</p>
             <nav>
                 <TrainerButton label="Settings" on:click={() => goto('/settings')}>
                     <Fa icon={faGear} />

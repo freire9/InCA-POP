@@ -284,12 +284,6 @@
         align-items: baseline;
         gap: 10px;
     }
-    .settings{
-        position: absolute;
-        height: 100vh;
-        width: 100vw;
-        overflow: auto;
-    }
     .logs-container{
         display: flex;
     }
