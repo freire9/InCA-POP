@@ -28,10 +28,10 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        filter: brightness(1.2);
         border-radius: 100% / 80% 80% 120% 120%;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        background: radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.5), transparent 70%);
+        /* filter: brightness(1.2); */
+        /* background: radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.5), transparent 70%); */
         /* background: radial-gradient(circle at 25% 25%, #fff7 12%, #0000 12.5%),radial-gradient(circle at 12% 40%, #fff7 5%, #0000 5.5%),#c47; */
     }
     .balloon::before {
@@ -72,6 +72,9 @@
   style:height = '{balloon.size.height}px'
   style:--bg-pseudo= '{balloon.color}'
   style:transition={$appSettings.fluidTransitions ? 'transform 0.3s ease' : ''}
+  style=
+    "background: {$gameSettings.enableBalloonReflex ? "radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.5), transparent 70%)" : "unset"};
+    filter: {$gameSettings.enableBalloonReflex ? "brightness(1.2)" : "unset"};"
 >
   {#if balloon.isSpecial}
     <span

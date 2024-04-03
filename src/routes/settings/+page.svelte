@@ -126,6 +126,11 @@
                     </option>
                 {/each}
             </select>
+
+            <div class="checkbox-flex">
+                <label for="enableBalloonReflex">Enable balloon reflex effect (only aesthetic, slight discrepancies between what is seen and what is logged):</label>
+                <input id="enableBalloonReflex" type="checkbox" bind:checked={$gameSettings.enableBalloonReflex} on:input={handleUpdateRemotePreferences}>
+            </div>
     
             <div class="checkbox-flex">
                 <label for="randomizeColorsCheckbox">Randomize balloons colors?</label>
