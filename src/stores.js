@@ -57,4 +57,5 @@ export const gameSettings = writable({
     },
     specialBalloonsProp: 50,
     enableLetterContour: false,
+    enableBalloonReflex: false,
 });
