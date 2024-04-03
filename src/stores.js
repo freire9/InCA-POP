@@ -55,5 +55,5 @@ export const gameSettings = writable({
         'topToBottom': {label: 'Top to bottom', enabled: true, icon: 'faDownLong', color: '#2665ea'},
         'leftToRight': {label: 'Left to right', enabled: true, icon: 'faRightLong', color: '#eacf26'},
     },
-    specialBalloonsFreq: 30,
+    specialBalloonsProp: 50,
 });
