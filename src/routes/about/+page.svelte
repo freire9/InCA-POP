@@ -13,10 +13,6 @@
         font-style: italic;
     }
     .about{
-        position: absolute;
-        height: 100vh;
-        width: 100vw;
-        overflow: auto;
         text-align: justify;
     }
 </style>

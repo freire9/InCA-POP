@@ -58,7 +58,7 @@
 <style>
     @import '/styles.css';
     .app-version{
-        position: absolute;
+        position: fixed;
         right: 0;
         bottom: 0;
         font-size: small;
