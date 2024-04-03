@@ -23,6 +23,7 @@
 
 <style>
     .balloon {
+        z-index: 999999999999;
         cursor: pointer;
         position: absolute;
         display: flex;
@@ -35,6 +36,7 @@
         /* background: radial-gradient(circle at 25% 25%, #fff7 12%, #0000 12.5%),radial-gradient(circle at 12% 40%, #fff7 5%, #0000 5.5%),#c47; */
     }
     .balloon::before {
+        z-index: 999999999999;
         content: '';
         position: absolute;
         width: 15%;
@@ -51,6 +53,7 @@
         user-select: none;
     }
     .string {
+        z-index: 999999999999;
         position: absolute;
         width: 1px;
         height: 10%;

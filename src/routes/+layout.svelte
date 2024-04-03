@@ -5,6 +5,9 @@
     import { onAuthStateChanged } from 'firebase/auth';
     import { doc, getDoc } from 'firebase/firestore';
 	import { onMount } from 'svelte';
+    import packageJson from '../../package.json';
+
+    const appVersion = packageJson.version;
 
     function syncPreferencesToStores(userData) {
         if (userData && userData.preferences) {
@@ -54,6 +57,15 @@
 
 <style>
     @import '/styles.css';
+    .app-version{
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        font-size: small;
+        z-index: 1;
+        user-select: none;
+    }
 </style>
 
+<p class="app-version">v{appVersion}</p>
 <slot />
