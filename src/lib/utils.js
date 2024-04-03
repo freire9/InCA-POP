@@ -34,12 +34,14 @@ function interpolateColor(color1, color2, ratio) {
     return rgbToHex(rgb);
 }
 
-export function getRandomColor() {
+export function getRandomHexColor(){
     const red = Math.floor(Math.random() * 256);
     const green = Math.floor(Math.random() * 256);
     const blue = Math.floor(Math.random() * 256);
 
-    return `rgb(${red}, ${green}, ${blue})`;
+    const rgbColor = {r: red, g: green, b: blue};
+    const rgbToHex = rgb => `#${Math.round(rgb.r).toString(16).padStart(2, '0')}${Math.round(rgb.g).toString(16).padStart(2, '0')}${Math.round(rgb.b).toString(16).padStart(2, '0')}`;
+    return rgbToHex(rgbColor);
 }
 
 export async function downloadLogs(format = 'json', userUid = null) {
@@ -83,4 +85,8 @@ export function downloadJsonRemote(userUid){
 }
 export function downloadCsvRemote(userUid){
     return downloadLogs('csv', userUid);
+}
+
+export function deepCopy(obj){
+    return JSON.parse(JSON.stringify(obj));
 }

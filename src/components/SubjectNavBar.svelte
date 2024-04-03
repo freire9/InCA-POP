@@ -6,6 +6,7 @@
     import { onMount } from "svelte";
 	import { goto } from "$app/navigation";
 	import { addLog } from "$lib/logService";
+	import { deepCopy } from "$lib/utils";
 
     let fullscreen;
     export let balloons;
@@ -18,8 +19,13 @@
         event.stopPropagation();
         addLog(
             'Exit game', 
-            {onScreenBalloons: balloons, gameDirection: $gameDirection, ...$gameSettings, ...$appSettings, ...$menuSettings},
-            $isLoggedIn ? $user.uid : null
+            {onScreenBalloons: deepCopy(balloons),
+                gameDirection: deepCopy($gameDirection),
+                ...deepCopy($gameSettings),
+                ...deepCopy($appSettings),
+                ...deepCopy($menuSettings)
+            },
+            $isLoggedIn ? deepCopy($user.uid) : null
         );
         goto('/');
     }
