@@ -56,4 +56,5 @@ export const gameSettings = writable({
         'leftToRight': {label: 'Left to right', enabled: true, icon: 'faRightLong', color: '#eacf26'},
     },
     specialBalloonsProp: 50,
+    enableLetterContour: false,
 });

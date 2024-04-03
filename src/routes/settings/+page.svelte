@@ -174,6 +174,11 @@
                 <label for="gameBackgroundColorInput">Game background color:</label>
                 <input id="gameBackgroundColorInput" class="color-input" type="color" bind:value={$gameSettings.gameBackgroundColor} on:input={handleUpdateRemotePreferences}>
             </div>
+
+            <div class="checkbox-flex">
+                <label for="enableBalloonLetterContour">Enable balloon letter contour</label>
+                <input id="enableBalloonLetterContour" type="checkbox" bind:checked={$gameSettings.enableLetterContour} on:input={handleUpdateRemotePreferences}>
+            </div>
     
             <div class="checkbox-flex">
                 <label for="balloonLetterColorCheckbox">Enable balloon custom letter color:</label>
