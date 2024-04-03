@@ -70,7 +70,7 @@
             </li>
         </ul>
     
-        <h2>Credits/acknowledgments</h2>
+        <h2>Acknowledgments</h2>
         <ul>
             <li>
                 <a href="https://github.com/freire9">Daniel Freire Fernández</a>, <a href="https://ingenieria.uchile.cl/">FCFM</a> CS Engineering student and developer of this app.
