@@ -104,10 +104,10 @@
             <input id="maxBalloonsInput" min="1" max="50" step="1" type="range" bind:value={$gameSettings.maxBalloonsQuantity} on:input={handleUpdateRemotePreferences}>
 
             <div class="range-input">
-                <label for="specialBalloonsFreqInput">Frequency of ocurrence of special balloons (balloons with letters):</label>
-                <p>{$gameSettings.specialBalloonsFreq}%</p>
+                <label for="specialBalloonsPropInput">Proportion of special balloons (balloons with letters):</label>
+                <p>{$gameSettings.specialBalloonsProp}% ({Math.floor($gameSettings.specialBalloonsProp/100 * $gameSettings.maxBalloonsQuantity)}/{$gameSettings.maxBalloonsQuantity})</p>
             </div>
-            <input id="specialBalloonsFreqInput" min="1" max="100" step="1" type="range" bind:value={$gameSettings.specialBalloonsFreq} on:input={handleUpdateRemotePreferences}>
+            <input id="specialBalloonsPropInput" min="1" max="100" step="1" type="range" bind:value={$gameSettings.specialBalloonsProp} on:input={handleUpdateRemotePreferences}>
     
             <label for="balloonSpeedSelect">Balloon Speed:</label>
             <select id="balloonSpeedSelect" bind:value={$gameSettings.balloonSpeed} on:input={handleUpdateRemotePreferences}>
