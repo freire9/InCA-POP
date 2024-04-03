@@ -1,7 +1,7 @@
 <script>
     import Balloon from '../../components/Balloon.svelte';;
     import { onMount } from 'svelte';
-    import { getRandomColor } from '$lib/utils';
+    import { deepCopy, getRandomHexColor } from '$lib/utils';
     import { addLog } from "$lib/logService";
     import { appSettings, gameSettings, isLoggedIn, user, balloonSpeedOptions, balloonSizeOptions, gameDirection, menuSettings } from '../../stores.js';
 	import SubjectNavBar from '../../components/SubjectNavBar.svelte';
@@ -28,15 +28,16 @@
 
         const id = balloonIdCounter++;
         let randomIndex = Math.floor(Math.random() * $gameSettings.balloonInterpolatedColors.length);
+        let specialBalloonsMaxQuantity = Math.floor($gameSettings.specialBalloonsProp/100 * $gameSettings.maxBalloonsQuantity);
         const color = $gameSettings.balloonRandomColor ?
-            getRandomColor() :
+            getRandomHexColor() :
             ($gameSettings.enableBalloonRangeColor ? $gameSettings.balloonInterpolatedColors[randomIndex] : $gameSettings.balloonColor);
         const { x, y } = getInitialPosition($gameDirection, balloonSize);
         const speed = getRandomSpeed();
         const size = balloonSize;
         const direction = $gameDirection;
         const rotation = Math.random() * 20 - 10;
-        const isSpecial = Math.random() < $gameSettings.specialBalloonsFreq/100;
+        const isSpecial = balloons.filter(balloon => balloon.isSpecial).length < specialBalloonsMaxQuantity;
         const letterColor = isSpecial ? getLetterColor() : '';
         const balloon = { id, color, letterColor, x, y, speed, direction, size, rotation, isSpecial};
 
@@ -44,11 +45,13 @@
     }
 
     function addInitialBalloons() {
+        let specialBalloonsQuantity = 0;
+        let specialBalloonsMaxQuantity = Math.floor($gameSettings.specialBalloonsProp/100 * $gameSettings.maxBalloonsQuantity);
         while (balloons.length < $gameSettings.maxBalloonsQuantity) {
             const id = balloonIdCounter++;
             let randomIndex = Math.floor(Math.random() * $gameSettings.balloonInterpolatedColors.length);
             const color = $gameSettings.balloonRandomColor ?
-                getRandomColor() :
+                getRandomHexColor() :
                 ($gameSettings.enableBalloonRangeColor ? $gameSettings.balloonInterpolatedColors[randomIndex] : $gameSettings.balloonColor);
             const x = getRandomXPosition(balloonSize);
             const y = getRandomYPosition(balloonSize);
@@ -56,7 +59,8 @@
             const size = balloonSize;
             const direction = $gameDirection;
             const rotation = Math.random() * 20 - 10;
-            const isSpecial = Math.random() < $gameSettings.specialBalloonsFreq/100;
+            const isSpecial = specialBalloonsQuantity < specialBalloonsMaxQuantity;
+            specialBalloonsQuantity += isSpecial ? 1 : 0;
             const letterColor = isSpecial ? getLetterColor() : '';
             const balloon = { id, color, letterColor, x, y, speed, direction, size, rotation, isSpecial};
 
@@ -73,8 +77,14 @@
         const clickedBalloonId = event.detail.id;
         addLog(
             'Popped balloon', 
-            {...event.detail, onScreenBalloons: balloons, gameDirection: $gameDirection, ...$gameSettings, ...$appSettings, ...$menuSettings,},
-            $isLoggedIn ? $user.uid : null
+            {...deepCopy(event.detail),
+                onScreenBalloons: deepCopy(balloons),
+                gameDirection: deepCopy($gameDirection),
+                ...deepCopy($gameSettings),
+                ...deepCopy($appSettings),
+                ...deepCopy($menuSettings),
+            },
+            $isLoggedIn ? deepCopy($user.uid) : null
         );
         destroyBalloon(clickedBalloonId);
     }
@@ -83,8 +93,15 @@
         const { target, clientX, clientY } = event;
         addLog(
             'Game background click', 
-            {onScreenBalloons: balloons, gameDirection: $gameDirection,  ...$gameSettings, ...$appSettings, ...$menuSettings, x: clientX, y: clientY},
-            $isLoggedIn ? $user.uid : null
+            {onScreenBalloons: deepCopy(balloons),
+                gameDirection: deepCopy($gameDirection),
+                ...deepCopy($gameSettings),
+                ...deepCopy($appSettings),
+                ...deepCopy($menuSettings),
+                x: deepCopy(clientX),
+                y: deepCopy(clientY)
+            },
+            $isLoggedIn ? deepCopy($user.uid) : null
         );
     }
 

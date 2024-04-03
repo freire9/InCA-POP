@@ -1,10 +1,10 @@
 <script>
-    import { gameSettings, menuSettings, appSettings, isLoggedIn, user, gameDirection, isIphone } from "../stores";
+    import { gameSettings, menuSettings, appSettings, isLoggedIn, user, gameDirection, isIphone, modifyingConfig } from "../stores";
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
     import { TrainerButton, Fa } from 'inca-utils';
     import { faGear, faExpand, faInfo, faLeftLong, faRightLong, faUpLong, faDownLong } from '@fortawesome/free-solid-svg-icons';
-    import { getRandomColor } from "$lib/utils";
+    import { deepCopy, getRandomHexColor } from "$lib/utils";
     import StaticBalloon from "../components/StaticBalloon.svelte";
     import { addLog } from "$lib/logService";
     import packageJson from '../../package.json';
@@ -16,20 +16,42 @@
         ({fullscreen} = await import('inca-utils/api'));
     })
 
+    $:{
+        if(!$modifyingConfig){
+            handleAuthFinally();
+        }
+    }
+
+    function handleAuthFinally(){
+        if($menuSettings.mainMenuRandomColors){
+            Object.keys($gameSettings.availableModes).forEach(function(mode) {
+                $gameSettings.availableModes[mode].color = getRandomHexColor();
+            });
+        }
+    }
+
     function handleClick(event){
         addLog(
             'Game started', 
-            {gameDirection: event.detail, ...$gameSettings, ...$menuSettings, ...$appSettings},
-            $isLoggedIn ? $user.uid : null
+            {gameDirection: deepCopy(event.detail), 
+                ...deepCopy($gameSettings), 
+                ...deepCopy($menuSettings), 
+                ...deepCopy($appSettings)
+            },
+            $isLoggedIn ? deepCopy($user.uid) : null
         );
+
         startGame(event.detail);
     }
 
     function handleBackgroundClick(event){
         addLog(
             'Menu background click', 
-            {...$gameSettings, ...$menuSettings, ...$appSettings},
-            $isLoggedIn ? $user.uid : null
+            {...deepCopy($gameSettings),
+                ...deepCopy($menuSettings),
+                ...deepCopy($appSettings)
+            },
+            $isLoggedIn ? deepCopy($user.uid) : null
         );
     }
 
@@ -132,7 +154,7 @@
                     <StaticBalloon 
                         on:modeClicked={handleClick}
                         mode={mode}
-                        icon={icons[$gameSettings.availableModes[mode].icon]} --bg-pseudo={$menuSettings.mainMenuRandomColors ? getRandomColor() : $gameSettings.availableModes[mode].color} 
+                        icon={icons[$gameSettings.availableModes[mode].icon]} --bg-pseudo={$gameSettings.availableModes[mode].color} 
                     />
                 {/if}
             {/each}

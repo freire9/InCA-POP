@@ -1,6 +1,6 @@
 <script>
     import { createEventDispatcher } from 'svelte'
-    import { appSettings } from '../stores';
+    import { appSettings, gameSettings } from '../stores';
 
     export let balloon;
     const dispatch = createEventDispatcher();
@@ -28,10 +28,10 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        filter: brightness(1.2);
         border-radius: 100% / 80% 80% 120% 120%;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        background: radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.5), transparent 70%);
+        /* filter: brightness(1.2); */
+        /* background: radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.5), transparent 70%); */
         /* background: radial-gradient(circle at 25% 25%, #fff7 12%, #0000 12.5%),radial-gradient(circle at 12% 40%, #fff7 5%, #0000 5.5%),#c47; */
     }
     .balloon::before {
@@ -59,9 +59,6 @@
         left: 48%;
         border-bottom-left-radius: 50%;
     }
-    span{
-        -webkit-text-stroke: 0.7px black;
-    }
     button:focus-visible,
     button:focus-visible::before{
         outline: 2px solid blue;
@@ -75,11 +72,16 @@
   style:height = '{balloon.size.height}px'
   style:--bg-pseudo= '{balloon.color}'
   style:transition={$appSettings.fluidTransitions ? 'transform 0.3s ease' : ''}
+  style=
+    "background: {$gameSettings.enableBalloonReflex ? "radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.5), transparent 70%)" : "unset"};
+    filter: {$gameSettings.enableBalloonReflex ? "brightness(1.2)" : "unset"};"
 >
   {#if balloon.isSpecial}
     <span
     class="not-selectable"
-    style="-webkit-text-fill-color: {balloon.letterColor};"
+    style=
+        "-webkit-text-fill-color: {balloon.letterColor};
+        -webkit-text-stroke: {$gameSettings.enableLetterContour ? "0.7px black" : "unset"};"
     style:font-size='{balloon.size.height * 0.7}px'
     >
     {randomLetter}
