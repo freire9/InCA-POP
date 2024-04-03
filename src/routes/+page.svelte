@@ -11,7 +11,6 @@
 
     const appVersion = packageJson.version;
     let fullscreen;
-    const randomColors = {};
 
     onMount(async () => {
         ({fullscreen} = await import('inca-utils/api'));
@@ -26,9 +25,7 @@
     function handleAuthFinally(){
         if($menuSettings.mainMenuRandomColors){
             Object.keys($gameSettings.availableModes).forEach(function(mode) {
-                const color = getRandomHexColor();
-                randomColors[mode] = color;
-                $gameSettings.availableModes[mode].color = color;
+                $gameSettings.availableModes[mode].color = getRandomHexColor();
             });
         }
     }
@@ -157,7 +154,7 @@
                     <StaticBalloon 
                         on:modeClicked={handleClick}
                         mode={mode}
-                        icon={icons[$gameSettings.availableModes[mode].icon]} --bg-pseudo={$menuSettings.mainMenuRandomColors ? randomColors[mode] : $gameSettings.availableModes[mode].color} 
+                        icon={icons[$gameSettings.availableModes[mode].icon]} --bg-pseudo={$gameSettings.availableModes[mode].color} 
                     />
                 {/if}
             {/each}
