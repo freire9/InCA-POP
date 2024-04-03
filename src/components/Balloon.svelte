@@ -1,6 +1,6 @@
 <script>
     import { createEventDispatcher } from 'svelte'
-    import { appSettings } from '../stores';
+    import { appSettings, gameSettings } from '../stores';
 
     export let balloon;
     const dispatch = createEventDispatcher();
@@ -59,9 +59,6 @@
         left: 48%;
         border-bottom-left-radius: 50%;
     }
-    span{
-        -webkit-text-stroke: 0.7px black;
-    }
     button:focus-visible,
     button:focus-visible::before{
         outline: 2px solid blue;
@@ -79,7 +76,9 @@
   {#if balloon.isSpecial}
     <span
     class="not-selectable"
-    style="-webkit-text-fill-color: {balloon.letterColor};"
+    style=
+        "-webkit-text-fill-color: {balloon.letterColor};
+        -webkit-text-stroke: {$gameSettings.enableLetterContour ? "0.7px black" : "unset"};"
     style:font-size='{balloon.size.height * 0.7}px'
     >
     {randomLetter}
