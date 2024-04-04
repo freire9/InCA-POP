@@ -11,6 +11,7 @@
     let balloonKnotHeightPercent;
     let balloonSpeed = balloonSpeedOptions[$gameSettings.balloonSpeed];
     let balloonSize = balloonSizeOptions[$gameSettings.balloonSize];
+    let currentRampageChain = 0;
 
     function getLetterColor(){
         if($gameSettings.enableCustomLetter && !$gameSettings.enableLetterRangeColor){
@@ -67,6 +68,15 @@
             balloons = [...balloons, balloon];
         }
     }
+    
+    function rampageChainUpdate(balloon){
+        if(balloon.isSpecial){
+            currentRampageChain++;
+            if(currentRampageChain >= $gameSettings.rampageModeChain) currentRampageChain = 0;
+        } else {
+            currentRampageChain = 0;
+        }
+    }
 
     function destroyBalloon(id) {
         balloons = balloons.filter(balloon => balloon.id !== id);
@@ -86,6 +96,7 @@
             },
             $isLoggedIn ? deepCopy($user.uid) : null
         );
+        if($gameSettings.enableRampageMode) rampageChainUpdate(event.detail);
         destroyBalloon(clickedBalloonId);
     }
 
@@ -220,7 +231,7 @@
     <main class="not-selectable" style:background-color = {$gameSettings.gameBackgroundColor} >
         <SubjectNavBar {balloons}/>
         {#each balloons as balloon (balloon.id)}
-            <Balloon {balloon} on:balloonClicked={handleClick} />
+            <Balloon {balloon}{currentRampageChain} on:balloonClicked={handleClick} />
         {/each}
     </main>
 </div>

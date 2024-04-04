@@ -3,14 +3,20 @@
     import { appSettings, gameSettings } from '../stores';
 
     export let balloon;
+    export let currentRampageChain;
     const dispatch = createEventDispatcher();
     const popSound = new Audio('/sounds/balloon-pop.mp3');
     const popCorrectSound = new Audio('/sounds/pop-correct.mp3');
-    const letters = Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i));
+    const rampageSound = new Audio('/sounds/rampage.mp3');
+    const letters = Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i)); 
     const randomLetter = letters[Math.floor(Math.random() * letters.length)];
 
+    function isRampage(){
+        return $gameSettings.enableRampageMode && balloon.isSpecial && currentRampageChain >= $gameSettings.rampageModeChain - 1;
+    }
+
     function playPopSound(){
-        const sound = balloon.isSpecial ? popCorrectSound : popSound;
+        const sound = balloon.isSpecial ? (isRampage() ? rampageSound : popCorrectSound) : popSound;
         sound.currentTime = 0;
         sound.play();
     }
