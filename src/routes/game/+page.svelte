@@ -12,7 +12,6 @@
     let balloonSpeed = balloonSpeedOptions[$gameSettings.balloonSpeed];
     let balloonSize = balloonSizeOptions[$gameSettings.balloonSize];
     let currentRampageChain = 0;
-    let rampageCompleteSound;
 
     function getLetterColor(){
         if($gameSettings.enableCustomLetter && !$gameSettings.enableLetterRangeColor){
@@ -73,11 +72,7 @@
     function rampageChainUpdate(balloon){
         if(balloon.isSpecial){
             currentRampageChain++;
-            if(currentRampageChain >= $gameSettings.rampageModeChain){
-                rampageCompleteSound.currentTime = 0;
-                rampageCompleteSound.play();
-                currentRampageChain = 0;
-            }
+            if(currentRampageChain >= $gameSettings.rampageModeChain) currentRampageChain = 0;
         } else {
             currentRampageChain = 0;
         }
@@ -197,7 +192,6 @@
     }
     
     onMount(() => {
-        rampageCompleteSound = new Audio('/sounds/rampage.mp3');
         const root = document.documentElement;
 
         balloonKnotHeightPercent = getComputedStyle(root).getPropertyValue('--balloon-knot-height');
@@ -237,7 +231,7 @@
     <main class="not-selectable" style:background-color = {$gameSettings.gameBackgroundColor} >
         <SubjectNavBar {balloons}/>
         {#each balloons as balloon (balloon.id)}
-            <Balloon {balloon} on:balloonClicked={handleClick} />
+            <Balloon {balloon}{currentRampageChain} on:balloonClicked={handleClick} />
         {/each}
     </main>
 </div>

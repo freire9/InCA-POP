@@ -133,11 +133,13 @@
             </div>
 
             {#if $gameSettings.enableRampageMode}
-                <div class="range-input">
-                    <label for="rampageModeLength">Rampage mode chain length:</label>
-                    <p>{$gameSettings.rampageModeChain}</p>
+                <div class="rampage-mode-container">
+                    <div class="range-input">
+                        <label for="rampageModeLength">Rampage mode chain length:</label>
+                        <p>{$gameSettings.rampageModeChain}</p>
+                    </div>
+                    <input type="range" min="1" max="50" step="1" bind:value={$gameSettings.rampageModeChain} on:input={handleUpdateRemotePreferences}>
                 </div>
-                <input type="range" min="1" max="50" step="1" bind:value={$gameSettings.rampageModeChain} on:input={handleUpdateRemotePreferences}>
             {/if}
 
             <div class="checkbox-flex">
@@ -328,7 +330,8 @@
     }
     .letter-range-color-container,
     .balloon-range-color-container,
-    .game-modes-container{
+    .game-modes-container,
+    .rampage-mode-container{
         margin-left: 30px;
     }
     .range-input{
