@@ -11,6 +11,8 @@
     let balloonKnotHeightPercent;
     let balloonSpeed = balloonSpeedOptions[$gameSettings.balloonSpeed];
     let balloonSize = balloonSizeOptions[$gameSettings.balloonSize];
+    let currentRampageChain = 0;
+    let rampageCompleteSound;
 
     function getLetterColor(){
         if($gameSettings.enableCustomLetter && !$gameSettings.enableLetterRangeColor){
@@ -67,6 +69,19 @@
             balloons = [...balloons, balloon];
         }
     }
+    
+    function rampageChainUpdate(balloon){
+        if(balloon.isSpecial){
+            currentRampageChain++;
+            if(currentRampageChain >= $gameSettings.rampageModeChain){
+                rampageCompleteSound.currentTime = 0;
+                rampageCompleteSound.play();
+                currentRampageChain = 0;
+            }
+        } else {
+            currentRampageChain = 0;
+        }
+    }
 
     function destroyBalloon(id) {
         balloons = balloons.filter(balloon => balloon.id !== id);
@@ -86,6 +101,7 @@
             },
             $isLoggedIn ? deepCopy($user.uid) : null
         );
+        if($gameSettings.enableRampageMode) rampageChainUpdate(event.detail);
         destroyBalloon(clickedBalloonId);
     }
 
@@ -181,6 +197,7 @@
     }
     
     onMount(() => {
+        rampageCompleteSound = new Audio('/sounds/rampage.mp3');
         const root = document.documentElement;
 
         balloonKnotHeightPercent = getComputedStyle(root).getPropertyValue('--balloon-knot-height');

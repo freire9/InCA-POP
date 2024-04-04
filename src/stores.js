@@ -58,4 +58,6 @@ export const gameSettings = writable({
     specialBalloonsProp: 50,
     enableLetterContour: false,
     enableBalloonReflex: false,
+    enableRampageMode: true,
+    rampageModeChain: 3,
 });

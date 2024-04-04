@@ -128,6 +128,19 @@
             </select>
 
             <div class="checkbox-flex">
+                <label for="enableRampageMode">Enable rampage mode (chain a number of special balloons):</label>
+                <input id="enableRampageMode" type="checkbox" bind:checked={$gameSettings.enableRampageMode} on:input={handleUpdateRemotePreferences}>
+            </div>
+
+            {#if $gameSettings.enableRampageMode}
+                <div class="range-input">
+                    <label for="rampageModeLength">Rampage mode chain length:</label>
+                    <p>{$gameSettings.rampageModeChain}</p>
+                </div>
+                <input type="range" min="1" max="50" step="1" bind:value={$gameSettings.rampageModeChain} on:input={handleUpdateRemotePreferences}>
+            {/if}
+
+            <div class="checkbox-flex">
                 <label for="enableBalloonReflex">Enable balloon reflex effect (only aesthetic, slight discrepancies between what is seen and what is logged):</label>
                 <input id="enableBalloonReflex" type="checkbox" bind:checked={$gameSettings.enableBalloonReflex} on:input={handleUpdateRemotePreferences}>
             </div>
