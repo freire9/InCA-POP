@@ -1,5 +1,6 @@
 <script>
 	import UserNavBar from "../../components/UserNavBar.svelte";
+	import { isFullScreen } from "../../stores";
 </script>
 
 <style>
@@ -14,12 +15,14 @@
     }
     .about{
         text-align: justify;
+    }
+    .fullscreen{
         height: 100vh;
         overflow: auto;
     }
 </style>
 
-<div class="about">
+<div class="about {$isFullScreen ? 'fullscreen' : ''}">
 
     <UserNavBar />
     <main>

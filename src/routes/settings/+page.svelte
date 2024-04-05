@@ -1,5 +1,5 @@
 <script>
-    import { balloonSizeOptions, balloonSpeedOptions, gameSettings, appSettings, menuSettings, isLoggedIn, user, innerFigureOptions } from '../../stores.js';
+    import { balloonSizeOptions, balloonSpeedOptions, gameSettings, appSettings, menuSettings, isLoggedIn, user, innerFigureOptions, isFullScreen } from '../../stores.js';
     import lodash from 'lodash';
     import { onMount } from 'svelte';
     import { calculateInterpolatedColors, downloadJsonLocal, downloadJsonRemote, downloadCsvLocal, downloadCsvRemote, deepCopy } from '$lib/utils.js'
@@ -53,7 +53,7 @@
     }
 </script>
 
-<div class="settings">
+<div class="settings {$isFullScreen ? 'fullscreen' : ''}">
 
     <UserNavBar />
     <main>
@@ -276,7 +276,7 @@
 </div>
 
 <style>
-    .settings{
+    .fullscreen{
         height: 100vh;
         overflow: auto;
     }

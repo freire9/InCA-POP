@@ -6,6 +6,7 @@ export const user = writable({});
 export const isLoggedIn = writable(false);
 export const gameDirection = writable('leftToRight');
 export const modifyingConfig = writable(true);
+export const isFullScreen = writable(false);
 
 export const balloonSpeedOptions = {
     SLOW: {min: 0.08, max: 0.2, label: 'SLOW'},
