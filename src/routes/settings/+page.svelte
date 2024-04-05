@@ -276,6 +276,10 @@
 </div>
 
 <style>
+    .settings{
+        height: 100vh;
+        overflow: auto;
+    }
     .flex-column{
         display: flex;
         flex-direction: column;

@@ -14,6 +14,8 @@
     }
     .about{
         text-align: justify;
+        height: 100vh;
+        overflow: auto;
     }
 </style>
 
