@@ -1,3 +1,4 @@
+import { deepCopy } from '$lib/utils';
 import { writable} from 'svelte/store';
 
 export const isIphone = writable(false);
@@ -22,21 +23,20 @@ export const balloonSizeOptions = {
 export const innerFigureOptions = {
     LETTER: {label: 'Letter', value: 'LETTER'},
     DISC: {label: 'Disc', value: 'DISC'},
-}
+};
 
-
-export const appSettings = writable({
+export const appSettingsDEFAULT = {
     subjectName: 'subject-name',
     instructorName: 'instructor-name',
     fluidTransitions: false,
-});
+};
 
-export const menuSettings = writable({
+export const menuSettingsDEFAULT = {
     mainMenuRandomColors: true,
     menuBackgroundColor: '#ffffff',
-});
+};
 
-export const gameSettings = writable({
+export const gameSettingsDEFAULT = {
     balloonSpeed: balloonSpeedOptions.NORMAL.label,
     balloonSize: balloonSizeOptions.NORMAL.label,
     maxBalloonsQuantity: 8,
@@ -66,4 +66,8 @@ export const gameSettings = writable({
     enableBalloonReflex: false,
     enableRampageMode: true,
     rampageModeChain: 3,
-});
+};
+
+export const appSettings = writable(deepCopy(appSettingsDEFAULT));
+export const menuSettings = writable(deepCopy(menuSettingsDEFAULT));
+export const gameSettings = writable(deepCopy(gameSettingsDEFAULT));

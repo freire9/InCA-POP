@@ -1,5 +1,5 @@
 <script>
-    import { balloonSizeOptions, balloonSpeedOptions, gameSettings, appSettings, menuSettings, isLoggedIn, user, innerFigureOptions, isFullScreen } from '../../stores.js';
+    import { balloonSizeOptions, balloonSpeedOptions, gameSettings, appSettings, menuSettings, isLoggedIn, user, innerFigureOptions, isFullScreen, menuSettingsDEFAULT, appSettingsDEFAULT, gameSettingsDEFAULT} from '../../stores.js';
     import lodash from 'lodash';
     import { onMount } from 'svelte';
     import { calculateInterpolatedColors, downloadJsonLocal, downloadJsonRemote, downloadCsvLocal, downloadCsvRemote, deepCopy } from '$lib/utils.js'
@@ -51,6 +51,20 @@
         });
         console.log('Settings updated')
     }
+
+    function handleRestoreDefaults(){
+        gameSettings.set(deepCopy(gameSettingsDEFAULT));
+        appSettings.set(deepCopy(appSettingsDEFAULT));
+        menuSettings.set(deepCopy(menuSettingsDEFAULT));
+        console.log('Default settings restored')
+        if ($isLoggedIn && $user) updateRemotePreferences();
+    }
+
+    function handleRestoreDefaultsWarning(){
+        if(confirm('Are you sure you want to restore default settings? (if logged in, changes will be saved to the database!)')){
+            handleRestoreDefaults();
+        }
+    }
 </script>
 
 <div class="settings {$isFullScreen ? 'fullscreen' : ''}">
@@ -62,6 +76,8 @@
             
             <h2>Profile</h2>
             <Profile />
+
+            <button class="restore-btn" on:click={handleRestoreDefaultsWarning}>Restore default settings</button>
             
             <label for="subjectNameInput">Subject's name:</label>
             <input id="subjectNameInput" type='text' bind:value={$appSettings.subjectName} on:input={handleUpdateRemotePreferences}/>
@@ -310,7 +326,8 @@
         display: flex;
     }
 
-    button.download-logs-btn{
+    button.download-logs-btn,
+    button.restore-btn{
         background-color: beige;
         border-radius: 10px;
         padding: 10px;
@@ -318,11 +335,13 @@
         text-align: center;
     }
 
-    button.download-logs-btn:hover{
+    button.download-logs-btn:hover,
+    button.restore-btn:hover{
         background-color: #e6e6e6;
     }
 
-    button.download-logs-btn:focus{
+    button.download-logs-btn:focus,
+    button.restore-btn:focus{
         outline: none;
         box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.2);
     }
