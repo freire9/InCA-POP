@@ -5,6 +5,7 @@
     import { isIphone } from "../stores";
     import { Fa }  from "inca-utils";
     import { onMount } from "svelte";
+	import { toogleFullscreen } from "$lib/utils";
 
     let fullscreen;
 
@@ -27,7 +28,7 @@
     <ActionButton mode="exit" on:click={() => goto('/')}/>
     <div class="fullscreen-btn">
         {#if !$isIphone}
-            <TrainerButton on:click={fullscreen} label="Fullscreen" longpressTime="0.1">
+            <TrainerButton on:click={() => {toogleFullscreen(fullscreen)}} label="Fullscreen" longpressTime="0.1">
                 <Fa icon={faExpand} />
             </TrainerButton>
         {/if}

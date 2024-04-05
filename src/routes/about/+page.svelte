@@ -1,5 +1,6 @@
 <script>
 	import UserNavBar from "../../components/UserNavBar.svelte";
+	import { isFullScreen } from "../../stores";
 </script>
 
 <style>
@@ -13,15 +14,15 @@
         font-style: italic;
     }
     .about{
-        position: absolute;
-        height: 100vh;
-        width: 100vw;
-        overflow: auto;
         text-align: justify;
+    }
+    .fullscreen{
+        height: 100vh;
+        overflow: auto;
     }
 </style>
 
-<div class="about">
+<div class="about {$isFullScreen ? 'fullscreen' : ''}">
 
     <UserNavBar />
     <main>
@@ -74,7 +75,7 @@
             </li>
         </ul>
     
-        <h2>Credits/acknowledgments</h2>
+        <h2>Acknowledgments</h2>
         <ul>
             <li>
                 <a href="https://github.com/freire9">Daniel Freire Fernández</a>, <a href="https://ingenieria.uchile.cl/">FCFM</a> CS Engineering student and developer of this app.

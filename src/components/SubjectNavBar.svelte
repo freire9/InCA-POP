@@ -6,7 +6,7 @@
     import { onMount } from "svelte";
 	import { goto } from "$app/navigation";
 	import { addLog } from "$lib/logService";
-	import { deepCopy } from "$lib/utils";
+	import { deepCopy, toogleFullscreen } from "$lib/utils";
 
     let fullscreen;
     export let balloons;
@@ -57,7 +57,7 @@
     <ActionButton mode="exit" on:click={handleExitClick} --width='var(--nav-bar-height)'/>
     {#if !$isIphone}
         <div class="fullscreen-btn">
-            <TrainerButton on:click={fullscreen} --width='var(--nav-bar-height)'>
+            <TrainerButton on:click={() => {toogleFullscreen(fullscreen)}} --width='var(--nav-bar-height)'>
                 <Fa icon={faExpand} />
             </TrainerButton>
         </div>

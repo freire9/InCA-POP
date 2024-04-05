@@ -1,16 +1,22 @@
 <script>
     import { createEventDispatcher } from 'svelte'
-    import { appSettings, gameSettings } from '../stores';
+    import { appSettings, gameSettings, innerFigureOptions } from '../stores';
+	import Letter from './inner_figures/Letter.svelte';
+	import Disc from './inner_figures/Disc.svelte';
 
     export let balloon;
+    export let currentRampageChain;
     const dispatch = createEventDispatcher();
     const popSound = new Audio('/sounds/balloon-pop.mp3');
     const popCorrectSound = new Audio('/sounds/pop-correct.mp3');
-    const letters = Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i));
-    const randomLetter = letters[Math.floor(Math.random() * letters.length)];
+    const rampageSound = new Audio('/sounds/rampage.mp3');
+
+    function isRampage(){
+        return $gameSettings.enableRampageMode && balloon.isSpecial && currentRampageChain >= $gameSettings.rampageModeChain - 1;
+    }
 
     function playPopSound(){
-        const sound = balloon.isSpecial ? popCorrectSound : popSound;
+        const sound = balloon.isSpecial ? (isRampage() ? rampageSound : popCorrectSound) : popSound;
         sound.currentTime = 0;
         sound.play();
     }
@@ -23,6 +29,7 @@
 
 <style>
     .balloon {
+        z-index: 999999999999;
         cursor: pointer;
         position: absolute;
         display: flex;
@@ -35,6 +42,7 @@
         /* background: radial-gradient(circle at 25% 25%, #fff7 12%, #0000 12.5%),radial-gradient(circle at 12% 40%, #fff7 5%, #0000 5.5%),#c47; */
     }
     .balloon::before {
+        z-index: 999999999999;
         content: '';
         position: absolute;
         width: 15%;
@@ -51,6 +59,7 @@
         user-select: none;
     }
     .string {
+        z-index: 999999999999;
         position: absolute;
         width: 1px;
         height: 10%;
@@ -76,16 +85,10 @@
     "background: {$gameSettings.enableBalloonReflex ? "radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.5), transparent 70%)" : "unset"};
     filter: {$gameSettings.enableBalloonReflex ? "brightness(1.2)" : "unset"};"
 >
-  {#if balloon.isSpecial}
-    <span
-    class="not-selectable"
-    style=
-        "-webkit-text-fill-color: {balloon.letterColor};
-        -webkit-text-stroke: {$gameSettings.enableLetterContour ? "0.7px black" : "unset"};"
-    style:font-size='{balloon.size.height * 0.7}px'
-    >
-    {randomLetter}
-    </span>
-  {/if}
-  <div class="string not-selectable" style:transform='translateX(-50%) rotate({10+balloon.rotation}deg)'></div>
+    {#if balloon.isSpecial && balloon.innerFigType == innerFigureOptions.LETTER.value}
+        <Letter {balloon} />
+    {:else if balloon.isSpecial && balloon.innerFigType == innerFigureOptions.DISC.value}
+        <Disc {balloon} />
+    {/if}
+    <div class="string not-selectable" style:transform='translateX(-50%) rotate({10+balloon.rotation}deg)'></div>
 </button>
