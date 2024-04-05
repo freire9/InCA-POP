@@ -13,15 +13,11 @@
     let balloonSize = balloonSizeOptions[$gameSettings.balloonSize];
     let currentRampageChain = 0;
 
-    function getLetterColor(){
-        if($gameSettings.enableCustomLetter && !$gameSettings.enableLetterRangeColor){
-            return $gameSettings.balloonLetterColor;
-        } else if($gameSettings.enableCustomLetter && $gameSettings.enableLetterRangeColor){
-            let randomIndex = Math.floor(Math.random() * $gameSettings.letterInterpolatedColors.length);
-            return $gameSettings.letterInterpolatedColors[randomIndex];
-        } else{
-            return 'transparent';
-        }
+    function getInnerFigColor(){
+        if(!$gameSettings.enableInnerFigRangeColor) return $gameSettings.balloonInnerFigColor;
+
+        let randomIndex = Math.floor(Math.random() * $gameSettings.innerFigInterpolatedColors.length);
+        return $gameSettings.innerFigInterpolatedColors[randomIndex];
     }
 
     function addBalloon() {
@@ -39,8 +35,9 @@
         const direction = $gameDirection;
         const rotation = Math.random() * 20 - 10;
         const isSpecial = balloons.filter(balloon => balloon.isSpecial).length < specialBalloonsMaxQuantity;
-        const letterColor = isSpecial ? getLetterColor() : '';
-        const balloon = { id, color, letterColor, x, y, speed, direction, size, rotation, isSpecial};
+        const innerFigType = $gameSettings.innerFigureType;
+        const innerFigColor = isSpecial ? getInnerFigColor() : '';
+        const balloon = { id, color, innerFigType, innerFigColor, x, y, speed, direction, size, rotation, isSpecial};
 
         balloons = [...balloons, balloon];
     }
@@ -62,8 +59,9 @@
             const rotation = Math.random() * 20 - 10;
             const isSpecial = specialBalloonsQuantity < specialBalloonsMaxQuantity;
             specialBalloonsQuantity += isSpecial ? 1 : 0;
-            const letterColor = isSpecial ? getLetterColor() : '';
-            const balloon = { id, color, letterColor, x, y, speed, direction, size, rotation, isSpecial};
+            const innerFigType = $gameSettings.innerFigureType;
+            const innerFigColor = isSpecial ? getInnerFigColor() : '';
+            const balloon = { id, color, innerFigType, innerFigColor, x, y, speed, direction, size, rotation, isSpecial};
 
             balloons = [...balloons, balloon];
         }

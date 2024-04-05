@@ -4,7 +4,7 @@
     import { onMount } from "svelte";
     import { TrainerButton, Fa } from 'inca-utils';
     import { faGear, faExpand, faInfo, faLeftLong, faRightLong, faUpLong, faDownLong } from '@fortawesome/free-solid-svg-icons';
-    import { deepCopy, getRandomHexColor } from "$lib/utils";
+    import { deepCopy, getRandomHexColor, toogleFullscreen } from "$lib/utils";
     import StaticBalloon from "../components/StaticBalloon.svelte";
     import { addLog } from "$lib/logService";
 
@@ -133,7 +133,7 @@
                     <Fa icon={faInfo} />
                 </TrainerButton>
                 {#if !$isIphone}
-                    <TrainerButton on:click={fullscreen} label="Fullscreen">
+                    <TrainerButton on:click={() => {toogleFullscreen(fullscreen)}} label="Fullscreen">
                         <Fa icon={faExpand} />
                     </TrainerButton>
                 {/if}

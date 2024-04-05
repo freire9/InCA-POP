@@ -1,4 +1,5 @@
 import { getLogs, getRemoteLogs, convertToCSV} from "$lib/logService";
+import { isFullScreen } from "../stores";
 
 // Function to calculate intermediate colors
 export function calculateInterpolatedColors(steps, color1, color2) {
@@ -89,4 +90,16 @@ export function downloadCsvRemote(userUid){
 
 export function deepCopy(obj){
     return JSON.parse(JSON.stringify(obj));
+}
+
+export function toogleFullscreen(fullscreenEvent){
+    fullscreenEvent();
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+    document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+}
+
+function handleFullscreenChange(){
+    isFullScreen.update(currentValue => !currentValue);
 }

@@ -1,6 +1,8 @@
 <script>
     import { createEventDispatcher } from 'svelte'
-    import { appSettings, gameSettings } from '../stores';
+    import { appSettings, gameSettings, innerFigureOptions } from '../stores';
+	import Letter from './inner_figures/Letter.svelte';
+	import Disc from './inner_figures/Disc.svelte';
 
     export let balloon;
     export let currentRampageChain;
@@ -8,8 +10,6 @@
     const popSound = new Audio('/sounds/balloon-pop.mp3');
     const popCorrectSound = new Audio('/sounds/pop-correct.mp3');
     const rampageSound = new Audio('/sounds/rampage.mp3');
-    const letters = Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i)); 
-    const randomLetter = letters[Math.floor(Math.random() * letters.length)];
 
     function isRampage(){
         return $gameSettings.enableRampageMode && balloon.isSpecial && currentRampageChain >= $gameSettings.rampageModeChain - 1;
@@ -85,16 +85,10 @@
     "background: {$gameSettings.enableBalloonReflex ? "radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.5), transparent 70%)" : "unset"};
     filter: {$gameSettings.enableBalloonReflex ? "brightness(1.2)" : "unset"};"
 >
-  {#if balloon.isSpecial}
-    <span
-    class="not-selectable"
-    style=
-        "-webkit-text-fill-color: {balloon.letterColor};
-        -webkit-text-stroke: {$gameSettings.enableLetterContour ? "0.7px black" : "unset"};"
-    style:font-size='{balloon.size.height * 0.7}px'
-    >
-    {randomLetter}
-    </span>
-  {/if}
-  <div class="string not-selectable" style:transform='translateX(-50%) rotate({10+balloon.rotation}deg)'></div>
+    {#if balloon.isSpecial && balloon.innerFigType == innerFigureOptions.LETTER.value}
+        <Letter {balloon} />
+    {:else if balloon.isSpecial && balloon.innerFigType == innerFigureOptions.DISC.value}
+        <Disc {balloon} />
+    {/if}
+    <div class="string not-selectable" style:transform='translateX(-50%) rotate({10+balloon.rotation}deg)'></div>
 </button>
