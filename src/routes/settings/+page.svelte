@@ -138,7 +138,7 @@
                         <label for="rampageModeLength">Rampage mode chain length:</label>
                         <p>{$gameSettings.rampageModeChain}</p>
                     </div>
-                    <input type="range" min="1" max="50" step="1" bind:value={$gameSettings.rampageModeChain} on:input={handleUpdateRemotePreferences}>
+                    <input type="range" min="2" max="50" step="1" bind:value={$gameSettings.rampageModeChain} on:input={handleUpdateRemotePreferences}>
                 </div>
             {/if}
 
