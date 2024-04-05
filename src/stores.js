@@ -18,6 +18,11 @@ export const balloonSizeOptions = {
     BIG: {width: 120, height: 145, label: 'BIG'},
 };
 
+export const innerFigureOptions = {
+    LETTER: {label: 'Letter', value: 'LETTER'},
+    DISC: {label: 'Disc', value: 'DISC'},
+}
+
 
 export const appSettings = writable({
     subjectName: 'subject-name',
@@ -42,13 +47,14 @@ export const gameSettings = writable({
     balloonInterpolatedColors: [],
     balloonColor: '#ff0000',
     gameBackgroundColor: '#add8e6',
-    enableCustomLetter: true,
-    balloonLetterColor: '#000000',
-    enableLetterRangeColor: false,
-    letterColorRange1:'#000000',
-    letterColorRange2:'#ffffff',
-    letterColorDefinition: 10,
-    letterInterpolatedColors: [],
+    innerFigureType: innerFigureOptions.DISC.value,
+    balloonInnerFigColor: '#000000',
+    enableInnerFigRangeColor: false,
+    innerFigColorRange1:'#000000',
+    innerFigColorRange2:'#ffffff',
+    innerFigColorDefinition: 10,
+    innerFigInterpolatedColors: [],
+    enableInnerFigContour: false,
     availableModes: {
         'rightToLeft': {label: 'Right to left', enabled: true, icon: 'faLeftLong', color: '#ff0000'},
         'bottomToTop': {label: 'Bottom to top', enabled: true, icon: 'faUpLong', color: '#22d933'},
@@ -56,7 +62,6 @@ export const gameSettings = writable({
         'leftToRight': {label: 'Left to right', enabled: true, icon: 'faRightLong', color: '#eacf26'},
     },
     specialBalloonsProp: 50,
-    enableLetterContour: false,
     enableBalloonReflex: false,
     enableRampageMode: true,
     rampageModeChain: 3,
