@@ -103,3 +103,7 @@ export function toogleFullscreen(fullscreenEvent){
 function handleFullscreenChange(){
     isFullScreen.update(currentValue => !currentValue);
 }
+
+export function getRandomFrom(array){
+    return array[Math.floor(Math.random() * array.length)];
+} 
