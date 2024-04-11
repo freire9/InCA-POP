@@ -1,38 +1,22 @@
 <script>
-    import { calculateInterpolatedColors, deepCopy } from "$lib/utils";
-    import { doc, updateDoc } from "firebase/firestore";
-    import { appSettings, gameSettings, menuSettings, innerFigureOptions, isLoggedIn, user } from "../../../stores";
+    import { calculateInterpolatedColors, handleUpdateRemotePreferences, updateRemotePreferences } from "$lib/utils";
+    import { gameSettings, innerFigureOptions, isLoggedIn, user } from "../../../stores";
     import lodash from 'lodash';
-    import { db } from "$lib/firebaseConfig";
     
     const { debounce } = lodash;
     const handleColorChange = debounce(setCtrlInterpolatedColors, 500);
     const handleCtrlInnerFigColorChange = debounce(setCtrlInnerFigInterpolatedColors, 500);
-    const handleUpdateRemotePreferences = debounce(updateRemotePreferences, 500);
     
     function setCtrlInnerFigInterpolatedColors(){
         const colors = calculateInterpolatedColors($gameSettings.ctrlInnerFigColorDefinition, $gameSettings.ctrlInnerFigColorRange1, $gameSettings.ctrlInnerFigColorRange2);
         $gameSettings.ctrlInnerFigInterpolatedColors = colors;
         if ($isLoggedIn && $user) updateRemotePreferences();
     }
-
-    // Logic for interpolating colors and updating the store
+    
     function setCtrlInterpolatedColors(){
         const colors = calculateInterpolatedColors($gameSettings.ctrlBalloonRangeColorDefinition, $gameSettings.ctrlBalloonRangeColor1, $gameSettings.ctrlBalloonRangeColor2);
         $gameSettings.ctrlBalloonInterpolatedColors = colors;
         if ($isLoggedIn && $user) updateRemotePreferences();
-    }
-
-    async function updateRemotePreferences(){
-        if (!$isLoggedIn || !$user) return;
-        const userDocRef = doc(db, 'users', $user.uid);
-        await updateDoc(userDocRef, {
-            preferences: { 
-                gameSettings: deepCopy($gameSettings),
-                appSettings: deepCopy($appSettings),
-                menuSettings: deepCopy($menuSettings)},
-        });
-        console.log('Settings updated')
     }
 </script>
 

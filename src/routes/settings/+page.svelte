@@ -1,17 +1,14 @@
 <script>
     import { balloonSizeOptions, balloonSpeedOptions, gameSettings, appSettings, menuSettings, isLoggedIn, user, isFullScreen, menuSettingsDEFAULT, appSettingsDEFAULT, gameSettingsDEFAULT} from '../../stores.js';
-    import lodash from 'lodash';
-    import { downloadJsonLocal, downloadJsonRemote, downloadCsvLocal, downloadCsvRemote, deepCopy } from '$lib/utils.js'
+    import { downloadJsonLocal, downloadJsonRemote, downloadCsvLocal, downloadCsvRemote, deepCopy, handleUpdateRemotePreferences, updateRemotePreferences } from '$lib/utils.js'
     import { Fa } from 'inca-utils';
     import { faFileArrowDown } from '@fortawesome/free-solid-svg-icons';
     import Profile from '../../components/settings/Profile.svelte';
-	import UserNavBar from '../../components/UserNavBar.svelte';
-	import { db } from '$lib/firebaseConfig.js';
-	import { doc, updateDoc } from 'firebase/firestore';
-	import NormalBalloons from '../../components/settings/game/NormalBalloons.svelte';
-	import CtrlBalloons from '../../components/settings/game/CtrlBalloons.svelte';
-	import ExpBalloons from '../../components/settings/game/ExpBalloons.svelte';
-	import BalloonsTabs from '../../components/settings/game/BalloonsTabs.svelte';
+    import UserNavBar from '../../components/UserNavBar.svelte';
+    import NormalBalloons from '../../components/settings/game/NormalBalloons.svelte';
+    import CtrlBalloons from '../../components/settings/game/CtrlBalloons.svelte';
+    import ExpBalloons from '../../components/settings/game/ExpBalloons.svelte';
+    import BalloonsTabs from '../../components/settings/game/BalloonsTabs.svelte';
 
     // List of tab balloons with labels, values and assigned components
     let balloonTypes = [
@@ -29,26 +26,11 @@
         }
     ];
 
-    const { debounce } = lodash;
-    const handleUpdateRemotePreferences = debounce(updateRemotePreferences, 500);
-
     function handleRemoteJsonDownload (){
         if ($isLoggedIn && $user) downloadJsonRemote($user.uid);
     }
     function handleRemoteCsvDownload(){
         if ($isLoggedIn && $user) downloadCsvRemote($user.uid);
-    }
-
-    async function updateRemotePreferences(){
-        if (!$isLoggedIn || !$user) return;
-        const userDocRef = doc(db, 'users', $user.uid);
-        await updateDoc(userDocRef, {
-            preferences: { 
-                gameSettings: deepCopy($gameSettings),
-                appSettings: deepCopy($appSettings),
-                menuSettings: deepCopy($menuSettings)},
-        });
-        console.log('Settings updated')
     }
 
     function handleRestoreDefaults(){

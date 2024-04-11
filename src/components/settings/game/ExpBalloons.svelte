@@ -1,14 +1,11 @@
 <script>
-    import { calculateInterpolatedColors, deepCopy } from "$lib/utils";
-    import { doc, updateDoc } from "firebase/firestore";
-    import { appSettings, gameSettings, menuSettings, innerFigureOptions, isLoggedIn, user } from "../../../stores";
+    import { calculateInterpolatedColors, handleUpdateRemotePreferences, updateRemotePreferences } from "$lib/utils";
+    import { gameSettings, innerFigureOptions, isLoggedIn, user } from "../../../stores";
     import lodash from 'lodash';
-    import { db } from "$lib/firebaseConfig";
     
     const { debounce } = lodash;
     const handleColorChange = debounce(setExpInterpolatedColors, 500);
     const handleExpInnerFigColorChange = debounce(setExpInnerFigInterpolatedColors, 500);
-    const handleUpdateRemotePreferences = debounce(updateRemotePreferences, 500);
     
     function setExpInnerFigInterpolatedColors(){
         const colors = calculateInterpolatedColors($gameSettings.expInnerFigColorDefinition, $gameSettings.expInnerFigColorRange1, $gameSettings.expInnerFigColorRange2);
@@ -16,23 +13,10 @@
         if ($isLoggedIn && $user) updateRemotePreferences();
     }
 
-    // Logic for interpolating colors and updating the store
     function setExpInterpolatedColors(){
         const colors = calculateInterpolatedColors($gameSettings.expBalloonRangeColorDefinition, $gameSettings.expBalloonRangeColor1, $gameSettings.expBalloonRangeColor2);
         $gameSettings.expBalloonInterpolatedColors = colors;
         if ($isLoggedIn && $user) updateRemotePreferences();
-    }
-
-    async function updateRemotePreferences(){
-        if (!$isLoggedIn || !$user) return;
-        const userDocRef = doc(db, 'users', $user.uid);
-        await updateDoc(userDocRef, {
-            preferences: { 
-                gameSettings: deepCopy($gameSettings),
-                appSettings: deepCopy($appSettings),
-                menuSettings: deepCopy($menuSettings)},
-        });
-        console.log('Settings updated')
     }
 </script>
 

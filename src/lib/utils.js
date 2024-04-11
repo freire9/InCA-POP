@@ -1,5 +1,10 @@
 import { getLogs, getRemoteLogs, convertToCSV} from "$lib/logService";
-import { isFullScreen } from "../stores";
+import { doc, updateDoc } from "firebase/firestore";
+import { isFullScreen, isLoggedIn, user, appSettings, menuSettings, gameSettings } from "../stores";
+import { db } from "./firebaseConfig";
+import lodash from 'lodash';
+
+const { debounce } = lodash;
 
 // Function to calculate intermediate colors
 export function calculateInterpolatedColors(steps, color1, color2) {
@@ -106,4 +111,31 @@ function handleFullscreenChange(){
 
 export function getRandomFrom(array){
     return array[Math.floor(Math.random() * array.length)];
-} 
+}
+
+export async function updateRemotePreferences(){
+    let isLoggedIn_value, user_value, gameSettings_value, appSettings_value, menuSettings_value;
+    const unsubscribeLoggedIn = isLoggedIn.subscribe((value) => isLoggedIn_value = value);
+    const unsubscribeUser = user.subscribe((value) => user_value = value);
+    const unsubscribAappSettings = appSettings.subscribe((value) => appSettings_value = value);
+    const unsubscribeMenuSettings = menuSettings.subscribe((value) => menuSettings_value = value);
+    const unsubscribeGameSettings = gameSettings.subscribe((value) => gameSettings_value = value);
+
+    if (!isLoggedIn_value || !user_value) return;
+        const userDocRef = doc(db, 'users', user_value.uid);
+        await updateDoc(userDocRef, {
+            preferences: { 
+                gameSettings: deepCopy(gameSettings_value),
+                appSettings: deepCopy(appSettings_value),
+                menuSettings: deepCopy(menuSettings_value)},
+        });
+        console.log('Settings updated');
+
+    unsubscribeLoggedIn();
+    unsubscribeUser();
+    unsubscribAappSettings();
+    unsubscribeMenuSettings();
+    unsubscribeGameSettings();
+}
+
+export const handleUpdateRemotePreferences = debounce(updateRemotePreferences, 500);

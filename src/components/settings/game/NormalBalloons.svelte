@@ -1,31 +1,15 @@
 <script>
-    import { calculateInterpolatedColors, deepCopy } from "$lib/utils";
-    import { doc, updateDoc } from "firebase/firestore";
-    import { appSettings, gameSettings, menuSettings, isLoggedIn, user } from "../../../stores";
+    import { calculateInterpolatedColors, handleUpdateRemotePreferences, updateRemotePreferences } from "$lib/utils";
+    import { gameSettings, isLoggedIn, user } from "../../../stores";
     import lodash from 'lodash';
-    import { db } from "$lib/firebaseConfig";
     
     const { debounce } = lodash;
     const handleColorChange = debounce(setNormalInterpolatedColors, 500);
-    const handleUpdateRemotePreferences = debounce(updateRemotePreferences, 500);
 
-    // Logic for interpolating colors and updating the store
     function setNormalInterpolatedColors(){
         const colors = calculateInterpolatedColors($gameSettings.normalBalloonRangeColorDefinition, $gameSettings.normalBalloonRangeColor1, $gameSettings.normalBalloonRangeColor2);
         $gameSettings.normalBalloonInterpolatedColors = colors;
         if ($isLoggedIn && $user) updateRemotePreferences();
-    }
-
-    async function updateRemotePreferences(){
-        if (!$isLoggedIn || !$user) return;
-        const userDocRef = doc(db, 'users', $user.uid);
-        await updateDoc(userDocRef, {
-            preferences: { 
-                gameSettings: deepCopy($gameSettings),
-                appSettings: deepCopy($appSettings),
-                menuSettings: deepCopy($menuSettings)},
-        });
-        console.log('Settings updated')
     }
 </script>
 
@@ -37,10 +21,10 @@
 {#if !$gameSettings.normalBalloonRandomColor}
     <div class="checkbox-flex">
         <label for="colorRangeCheckbox">Enable normal range color?</label>
-        <input id="colorRangeCheckbox" type="checkbox" bind:checked={$gameSettings.enablenormalBalloonRangeColor} on:input={handleUpdateRemotePreferences}>
+        <input id="colorRangeCheckbox" type="checkbox" bind:checked={$gameSettings.enableNormalBalloonRangeColor} on:input={handleUpdateRemotePreferences}>
     </div>
 
-    {#if !$gameSettings.enablenormalBalloonRangeColor}
+    {#if !$gameSettings.enableNormalBalloonRangeColor}
         <div class="color-flex">
             <label for="normalBalloonColorInput">Normal balloon color:</label>
             <input id="normalBalloonColorInput" class="color-input" type="color" bind:value={$gameSettings.normalBalloonColor} on:input={handleUpdateRemotePreferences}>

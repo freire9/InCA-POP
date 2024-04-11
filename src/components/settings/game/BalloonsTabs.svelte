@@ -27,7 +27,7 @@
         border: 1px solid #dee2e6;
         border-radius: 0 0 .5rem .5rem;
         border-top: 0;
-        }
+    }
     ul {
         display: flex;
         flex-wrap: wrap;
@@ -38,6 +38,8 @@
     }
     li {
         margin-bottom: -1px;
+        text-align: center;
+        opacity: 0.3;
     }
 
     button {
@@ -52,10 +54,30 @@
     button:hover {
         border-color: #e9ecef #e9ecef #dee2e6;
     }
+    li.active {
+        opacity: 1;
+    }
 
     li.active > button {
-        color: #495057;
+        /* color: #495057; */
         background-color: #fff;
         border-color: #dee2e6 #dee2e6 #fff;
+        font-weight: bold;
+    }
+    @media (max-width: 600px) {
+        ul{
+            flex-wrap: unset;
+        }
+        li{
+            font-size: xx-small;
+        }
+        button{
+            padding: 0.25rem 0.4rem;
+        }
+    }
+    @media (min-width: 600px) and (max-width: 1024px) {
+        li{
+            font-size: medium;
+        }
     }
 </style>
