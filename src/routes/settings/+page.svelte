@@ -193,11 +193,18 @@
     main{
         padding: 2rem;
     }
-    .checkbox-flex,
-    .color-flex{
+    .checkbox-flex{
         display: flex;
         align-items: baseline;
         gap: 10px;
+    }
+    .color-flex{
+        display: flex;
+        align-items: flex-end;
+        gap: 10px;
+    }
+    .color-flex label{
+        margin-bottom: 0px;
     }
     .logs-container{
         display: flex;

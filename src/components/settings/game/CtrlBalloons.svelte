@@ -22,19 +22,19 @@
 
 <div class="range-input">
     <label for="ctrlBalloonsPropInput">Proportion of control balloons:</label>
-    <p>{$gameSettings.ctrlBalloonsProp}% ({Math.floor($gameSettings.ctrlBalloonsProp/100 * $gameSettings.maxBalloonsQuantity)}/{$gameSettings.maxBalloonsQuantity})</p>
+    <p>{$gameSettings.ctrlBalloonsProp}% ({Math.floor($gameSettings.ctrlBalloonsProp/100 * $gameSettings.maxBalloonsQuantity)}/{$gameSettings.maxBalloonsQuantity}) (Floor rounded)</p>
 </div>
 <input id="ctrlBalloonsPropInput" min="0" max="{100 - $gameSettings.expBalloonsProp}" step="1" type="range" bind:value={$gameSettings.ctrlBalloonsProp} on:input={handleUpdateRemotePreferences}>
 
 <div class="checkbox-flex">
-    <label for="randomizeColorsCheckbox">Randomize control colors?</label>
-    <input id="randomizeColorsCheckbox" type="checkbox" bind:checked={$gameSettings.ctrlBalloonRandomColor} on:input={handleUpdateRemotePreferences}>
+    <label for="randomizeCtrlColorsCheckbox">Randomize control balloons colors?</label>
+    <input id="randomizeCtrlColorsCheckbox" type="checkbox" bind:checked={$gameSettings.ctrlBalloonRandomColor} on:input={handleUpdateRemotePreferences}>
 </div>
 
 {#if !$gameSettings.ctrlBalloonRandomColor}
     <div class="checkbox-flex">
-        <label for="colorRangeCheckbox">Enable control range color?</label>
-        <input id="colorRangeCheckbox" type="checkbox" bind:checked={$gameSettings.enableCtrlBalloonRangeColor} on:input={handleUpdateRemotePreferences}>
+        <label for="ctrlColorRangeCheckbox">Enable control range color?</label>
+        <input id="ctrlColorRangeCheckbox" type="checkbox" bind:checked={$gameSettings.enableCtrlBalloonRangeColor} on:input={handleUpdateRemotePreferences}>
     </div>
 
     {#if !$gameSettings.enableCtrlBalloonRangeColor}
@@ -45,20 +45,20 @@
     {:else}
         <div class="balloon-range-color-container">
             <div class="color-flex">
-                <label for="color1RangeInput">Control color 1:</label>
-                <input id="color1RangeInput" class="color-input" type="color" bind:value={$gameSettings.ctrlBalloonRangeColor1} on:input={handleColorChange} />
+                <label for="ctrlColor1RangeInput">Control color 1:</label>
+                <input id="ctrlColor1RangeInput" class="color-input" type="color" bind:value={$gameSettings.ctrlBalloonRangeColor1} on:input={handleColorChange} />
             </div>
 
             <div class="color-flex">
-                <label for="color2RangeInput">Control color 2:</label>
-                <input id="color2RangeInput" class="color-input" type="color" bind:value={$gameSettings.ctrlBalloonRangeColor2} on:input={handleColorChange} />
+                <label for="ctrlColor2RangeInput">Control color 2:</label>
+                <input id="ctrlColor2RangeInput" class="color-input" type="color" bind:value={$gameSettings.ctrlBalloonRangeColor2} on:input={handleColorChange} />
             </div>
 
             <div class="range-input">
-                <label for="definitionInput">Control definition:</label>
+                <label for="ctrlDefinitionInput">Control definition:</label>
                 <p>{$gameSettings.ctrlBalloonRangeColorDefinition}</p>
             </div>
-            <input id="definitionInput" type="range" min="1" max="100" step="1" bind:value={$gameSettings.ctrlBalloonRangeColorDefinition} on:input={handleColorChange}>
+            <input id="ctrlDefinitionInput" type="range" min="1" max="100" step="1" bind:value={$gameSettings.ctrlBalloonRangeColorDefinition} on:input={handleColorChange}>
             <br>
             <div class="color-box">
                 {#each $gameSettings.ctrlBalloonInterpolatedColors as color (color)}
@@ -70,12 +70,12 @@
 {/if}
 
 <div class="checkbox-flex">
-    <label for="enableBalloonInnerFigContour">Enable control balloon inner figure contour:</label>
-    <input id="enableBalloonInnerFigContour" type="checkbox" bind:checked={$gameSettings.enableCtrlInnerFigContour} on:input={handleUpdateRemotePreferences}>
+    <label for="enableCtrlBalloonInnerFigContour">Enable control balloon inner figure contour:</label>
+    <input id="enableCtrlBalloonInnerFigContour" type="checkbox" bind:checked={$gameSettings.enableCtrlInnerFigContour} on:input={handleUpdateRemotePreferences}>
 </div>
 
-<label for="innerFigSelect">Control balloon inner figure type:</label>
-<select id="innerFigSelect" bind:value={$gameSettings.ctrlInnerFigureType} on:input={handleUpdateRemotePreferences}>
+<label for="ctrlInnerFigSelect">Control balloon inner figure type:</label>
+<select id="ctrlInnerFigSelect" bind:value={$gameSettings.ctrlInnerFigureType} on:input={handleUpdateRemotePreferences}>
     {#each Object.keys(innerFigureOptions) as innerFigOptionKey}
         <option value={innerFigOptionKey}>
             {innerFigOptionKey.charAt(0).toUpperCase() + innerFigOptionKey.slice(1).toLowerCase()}
@@ -84,24 +84,24 @@
 </select>
 
 <div class="checkbox-flex">
-    <label for="colorRangeInnerFigCheckbox">Enable control inner figure range color?</label>
-    <input id="colorRangeInnerFigCheckbox" type="checkbox" bind:checked={$gameSettings.enableCtrlInnerFigRangeColor} on:input={handleUpdateRemotePreferences}>
+    <label for="colorRangeCtrlInnerFigCheckbox">Enable control inner figure range color?</label>
+    <input id="colorRangeCtrlInnerFigCheckbox" type="checkbox" bind:checked={$gameSettings.enableCtrlInnerFigRangeColor} on:input={handleUpdateRemotePreferences}>
 </div>
 {#if $gameSettings.enableCtrlInnerFigRangeColor}
     <div class="inner-fig-range-color-container">
         <div class="color-flex">
-            <label for="color1InnerFigRangeInput">Color 1:</label>
-            <input id="color1InnerFigRangeInput" class="color-input" type="color" bind:value={$gameSettings.ctrlInnerFigColorRange1} on:input={handleCtrlInnerFigColorChange}>
+            <label for="color1CtrlInnerFigRangeInput">Control inner figure color 1:</label>
+            <input id="color1CtrlInnerFigRangeInput" class="color-input" type="color" bind:value={$gameSettings.ctrlInnerFigColorRange1} on:input={handleCtrlInnerFigColorChange}>
         </div>
         <div class="color-flex">
-            <label for="color2InnerFigRangeInput">Color 2:</label>
-            <input id="color2InnerFigRangeInput" class="color-input" type="color" bind:value={$gameSettings.ctrlInnerFigColorRange2} on:input={handleCtrlInnerFigColorChange}>
+            <label for="color2CtrlInnerFigRangeInput">Control inner figure color 2:</label>
+            <input id="color2CtrlInnerFigRangeInput" class="color-input" type="color" bind:value={$gameSettings.ctrlInnerFigColorRange2} on:input={handleCtrlInnerFigColorChange}>
         </div>
         <div class="range-input">
-            <label for="definitionInnerFigColorInput">Definition:</label>
+            <label for="definitionCtrlInnerFigColorInput">Control inner figure definition:</label>
             <p>{$gameSettings.ctrlInnerFigColorDefinition}</p>
         </div>
-        <input id="definitionInnerFigColorInput" type="range" min="1" max="100" step="1" bind:value={$gameSettings.ctrlInnerFigColorDefinition} on:input={handleCtrlInnerFigColorChange}>
+        <input id="definitionCtrlInnerFigColorInput" type="range" min="1" max="100" step="1" bind:value={$gameSettings.ctrlInnerFigColorDefinition} on:input={handleCtrlInnerFigColorChange}>
         <br>
         <div class="color-box">
             {#each $gameSettings.ctrlInnerFigInterpolatedColors as color (color)}
@@ -144,11 +144,18 @@
     input.color-input{
         border: 1px solid black;
     }
-    .checkbox-flex,
-    .color-flex{
+    .checkbox-flex{
         display: flex;
         align-items: baseline;
         gap: 10px;
+    }
+    .color-flex{
+        display: flex;
+        align-items: flex-end;
+        gap: 10px;
+    }
+    .color-flex label{
+        margin-bottom: 0px;
     }
     label{
         margin-top: 25px;

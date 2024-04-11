@@ -14,14 +14,14 @@
 </script>
 
 <div class="checkbox-flex">
-    <label for="randomizeColorsCheckbox">Randomize normal balloons colors?</label>
-    <input id="randomizeColorsCheckbox" type="checkbox" bind:checked={$gameSettings.normalBalloonRandomColor} on:input={handleUpdateRemotePreferences}>
+    <label for="randomizeNormalColorsCheckbox">Randomize normal balloons colors?</label>
+    <input id="randomizeNormalColorsCheckbox" type="checkbox" bind:checked={$gameSettings.normalBalloonRandomColor} on:input={handleUpdateRemotePreferences}>
 </div>
 
 {#if !$gameSettings.normalBalloonRandomColor}
     <div class="checkbox-flex">
-        <label for="colorRangeCheckbox">Enable normal range color?</label>
-        <input id="colorRangeCheckbox" type="checkbox" bind:checked={$gameSettings.enableNormalBalloonRangeColor} on:input={handleUpdateRemotePreferences}>
+        <label for="normalColorRangeCheckbox">Enable normal range color?</label>
+        <input id="normalColorRangeCheckbox" type="checkbox" bind:checked={$gameSettings.enableNormalBalloonRangeColor} on:input={handleUpdateRemotePreferences}>
     </div>
 
     {#if !$gameSettings.enableNormalBalloonRangeColor}
@@ -32,20 +32,20 @@
     {:else}
         <div class="balloon-range-color-container">
             <div class="color-flex">
-                <label for="color1RangeInput">Normal color 1:</label>
-                <input id="color1RangeInput" class="color-input" type="color" bind:value={$gameSettings.normalBalloonRangeColor1} on:input={handleColorChange} />
+                <label for="normalColor1RangeInput">Normal color 1:</label>
+                <input id="normalColor1RangeInput" class="color-input" type="color" bind:value={$gameSettings.normalBalloonRangeColor1} on:input={handleColorChange} />
             </div>
 
             <div class="color-flex">
-                <label for="color2RangeInput">Normal color 2:</label>
-                <input id="color2RangeInput" class="color-input" type="color" bind:value={$gameSettings.normalBalloonRangeColor2} on:input={handleColorChange} />
+                <label for="normalColor2RangeInput">Normal color 2:</label>
+                <input id="normalColor2RangeInput" class="color-input" type="color" bind:value={$gameSettings.normalBalloonRangeColor2} on:input={handleColorChange} />
             </div>
 
             <div class="range-input">
-                <label for="definitionInput">Normal Definition:</label>
+                <label for="normalDefinitionInput">Normal Definition:</label>
                 <p>{$gameSettings.normalBalloonRangeColorDefinition}</p>
             </div>
-            <input id="definitionInput" type="range" min="1" max="100" step="1" bind:value={$gameSettings.normalBalloonRangeColorDefinition} on:input={handleColorChange}>
+            <input id="normalDefinitionInput" type="range" min="1" max="100" step="1" bind:value={$gameSettings.normalBalloonRangeColorDefinition} on:input={handleColorChange}>
             <br>
             <div class="color-box">
                 {#each $gameSettings.normalBalloonInterpolatedColors as color (color)}
@@ -83,11 +83,18 @@
     input.color-input{
         border: 1px solid black;
     }
-    .checkbox-flex,
-    .color-flex{
+    .checkbox-flex{
         display: flex;
         align-items: baseline;
         gap: 10px;
+    }
+    .color-flex{
+        display: flex;
+        align-items: flex-end;
+        gap: 10px;
+    }
+    .color-flex label{
+        margin-bottom: 0px;
     }
     label{
         margin-top: 25px;

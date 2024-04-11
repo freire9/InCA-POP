@@ -76,8 +76,8 @@
         }
     }
     @media (min-width: 600px) and (max-width: 1024px) {
-        li{
-            font-size: medium;
+        ul{
+            flex-wrap: unset;
         }
     }
 </style>
