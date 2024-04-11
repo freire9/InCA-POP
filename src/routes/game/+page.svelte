@@ -1,7 +1,7 @@
 <script>
     import Balloon from '../../components/Balloon.svelte';;
     import { onMount } from 'svelte';
-    import { deepCopy, getRandomHexColor } from '$lib/utils';
+    import { deepCopy, getRandomFrom, getRandomHexColor } from '$lib/utils';
     import { addLog } from "$lib/logService";
     import { appSettings, gameSettings, isLoggedIn, user, balloonSpeedOptions, balloonSizeOptions, gameDirection, menuSettings } from '../../stores.js';
 	import SubjectNavBar from '../../components/SubjectNavBar.svelte';
@@ -13,44 +13,57 @@
     let balloonSize = balloonSizeOptions[$gameSettings.balloonSize];
     let currentRampageChain = 0;
 
-    function getInnerFigColor(){
-        if(!$gameSettings.enableInnerFigRangeColor) return $gameSettings.balloonInnerFigColor;
-
-        let randomIndex = Math.floor(Math.random() * $gameSettings.innerFigInterpolatedColors.length);
-        return $gameSettings.innerFigInterpolatedColors[randomIndex];
-    }
-
     function addBalloon() {
         if (balloons.length >= $gameSettings.maxBalloonsQuantity) return;
 
         const id = balloonIdCounter++;
-        let randomIndex = Math.floor(Math.random() * $gameSettings.balloonInterpolatedColors.length);
-        let specialBalloonsMaxQuantity = Math.floor($gameSettings.specialBalloonsProp/100 * $gameSettings.maxBalloonsQuantity);
-        const color = $gameSettings.balloonRandomColor ?
-            getRandomHexColor() :
-            ($gameSettings.enableBalloonRangeColor ? $gameSettings.balloonInterpolatedColors[randomIndex] : $gameSettings.balloonColor);
+        let ctrlBalloonsMaxQuantity = Math.floor($gameSettings.ctrlBalloonsProp/100 * $gameSettings.maxBalloonsQuantity);
+        let expBalloonsMaxQuantity = Math.floor($gameSettings.expBalloonsProp/100 * $gameSettings.maxBalloonsQuantity);
+        let specialBalloonsMaxQuantity = ctrlBalloonsMaxQuantity + expBalloonsMaxQuantity;
+        const isSpecial = balloons.filter(balloon => balloon.isSpecial).length < specialBalloonsMaxQuantity;
+        const type = isSpecial ? 
+            (balloons.filter(balloon => balloon.type == 'CONTROL').length < ctrlBalloonsMaxQuantity ? 'CONTROL' : 'EXPERIMENTAL')
+            : 'NORMAL';
         const { x, y } = getInitialPosition($gameDirection, balloonSize);
         const speed = getRandomSpeed();
         const size = balloonSize;
         const direction = $gameDirection;
         const rotation = Math.random() * 20 - 10;
-        const isSpecial = balloons.filter(balloon => balloon.isSpecial).length < specialBalloonsMaxQuantity;
-        const innerFigType = $gameSettings.innerFigureType;
-        const innerFigColor = isSpecial ? getInnerFigColor() : '';
-        const balloon = { id, color, innerFigType, innerFigColor, x, y, speed, direction, size, rotation, isSpecial};
+        let color;
+        let innerFigColor = '';
+        const innerFigType = type == 'CONTROL' ? $gameSettings.ctrlInnerFigureType : (type == 'EXPERIMENTAL' ? $gameSettings.expInnerFigureType : '');
+        
+        if(type == 'CONTROL'){
+            color = $gameSettings.ctrlBalloonRandomColor ?
+                getRandomHexColor() :
+                ($gameSettings.enableCtrlBalloonRangeColor ? getRandomFrom($gameSettings.ctrlBalloonInterpolatedColors) : $gameSettings.ctrlBalloonColor);
+            innerFigColor = $gameSettings.enableCtrlInnerFigRangeColor ? getRandomFrom($gameSettings.ctrlInnerFigInterpolatedColors) : $gameSettings.ctrlBalloonInnerFigColor;
+        } else if(type == 'EXPERIMENTAL'){
+            color = $gameSettings.expBalloonRandomColor ?
+                getRandomHexColor() :
+                ($gameSettings.enableExpBalloonRangeColor ? getRandomFrom($gameSettings.expBalloonInterpolatedColors) : $gameSettings.expBalloonColor);
+            innerFigColor = $gameSettings.enableExpInnerFigRangeColor ? getRandomFrom($gameSettings.expInnerFigInterpolatedColors) : $gameSettings.expBalloonInnerFigColor;
+        } else {//NORMAL
+            color = $gameSettings.normalBalloonRandomColor ?
+                getRandomHexColor() :
+                ($gameSettings.enableNormalBalloonRangeColor ? getRandomFrom($gameSettings.normalBalloonInterpolatedColors) : $gameSettings.normalBalloonColor);
+        }
+
+        const balloon = { id, color, innerFigType, innerFigColor, x, y, speed, direction, size, rotation, isSpecial, type};
 
         balloons = [...balloons, balloon];
     }
 
     function addInitialBalloons() {
-        let specialBalloonsQuantity = 0;
-        let specialBalloonsMaxQuantity = Math.floor($gameSettings.specialBalloonsProp/100 * $gameSettings.maxBalloonsQuantity);
+        let ctrlBalloonsQuantity = 0;
+        let expBalloonsQuantity = 0;
+        let specialBalloonsQuantity = ctrlBalloonsQuantity + expBalloonsQuantity;
+        let ctrlBalloonsMaxQuantity = Math.floor($gameSettings.ctrlBalloonsProp/100 * $gameSettings.maxBalloonsQuantity);
+        let expBalloonsMaxQuantity = Math.floor($gameSettings.expBalloonsProp/100 * $gameSettings.maxBalloonsQuantity);
+        let specialBalloonsMaxQuantity = ctrlBalloonsMaxQuantity + expBalloonsMaxQuantity;
+
         while (balloons.length < $gameSettings.maxBalloonsQuantity) {
             const id = balloonIdCounter++;
-            let randomIndex = Math.floor(Math.random() * $gameSettings.balloonInterpolatedColors.length);
-            const color = $gameSettings.balloonRandomColor ?
-                getRandomHexColor() :
-                ($gameSettings.enableBalloonRangeColor ? $gameSettings.balloonInterpolatedColors[randomIndex] : $gameSettings.balloonColor);
             const x = getRandomXPosition(balloonSize);
             const y = getRandomYPosition(balloonSize);
             const speed = getRandomSpeed();
@@ -58,10 +71,34 @@
             const direction = $gameDirection;
             const rotation = Math.random() * 20 - 10;
             const isSpecial = specialBalloonsQuantity < specialBalloonsMaxQuantity;
-            specialBalloonsQuantity += isSpecial ? 1 : 0;
-            const innerFigType = $gameSettings.innerFigureType;
-            const innerFigColor = isSpecial ? getInnerFigColor() : '';
-            const balloon = { id, color, innerFigType, innerFigColor, x, y, speed, direction, size, rotation, isSpecial};
+            const type = isSpecial ? 
+                (ctrlBalloonsQuantity < ctrlBalloonsMaxQuantity ? 'CONTROL' : 'EXPERIMENTAL')
+                : 'NORMAL';
+            let color;
+            let innerFigColor = '';
+            const innerFigType = type == 'CONTROL' ? $gameSettings.ctrlInnerFigureType : (type == 'EXPERIMENTAL' ? $gameSettings.expInnerFigureType : '');
+
+            if(type == 'CONTROL'){
+                color = $gameSettings.ctrlBalloonRandomColor ?
+                    getRandomHexColor() :
+                    ($gameSettings.enableCtrlBalloonRangeColor ? getRandomFrom($gameSettings.ctrlBalloonInterpolatedColors) : $gameSettings.ctrlBalloonColor);
+                innerFigColor = $gameSettings.enableCtrlInnerFigRangeColor ? getRandomFrom($gameSettings.ctrlInnerFigInterpolatedColors) : $gameSettings.ctrlBalloonInnerFigColor;
+                ctrlBalloonsQuantity += 1;
+                specialBalloonsQuantity += 1;
+            } else if(type == 'EXPERIMENTAL'){
+                color = $gameSettings.expBalloonRandomColor ?
+                    getRandomHexColor() :
+                    ($gameSettings.enableExpBalloonRangeColor ? getRandomFrom($gameSettings.expBalloonInterpolatedColors) : $gameSettings.expBalloonColor);
+                innerFigColor = $gameSettings.enableExpInnerFigRangeColor ? getRandomFrom($gameSettings.expInnerFigInterpolatedColors) : $gameSettings.expBalloonInnerFigColor;
+                expBalloonsQuantity += 1;
+                specialBalloonsQuantity += 1;
+            } else {//NORMAL
+                color = $gameSettings.normalBalloonRandomColor ?
+                    getRandomHexColor() :
+                    ($gameSettings.enableNormalBalloonRangeColor ? getRandomFrom($gameSettings.normalBalloonInterpolatedColors) : $gameSettings.normalBalloonColor);
+            }
+            
+            const balloon = { id, color, innerFigType, innerFigColor, x, y, speed, direction, size, rotation, isSpecial, type};
 
             balloons = [...balloons, balloon];
         }

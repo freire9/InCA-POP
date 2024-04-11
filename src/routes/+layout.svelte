@@ -3,25 +3,12 @@
     import { user, isLoggedIn, gameSettings, menuSettings, appSettings, isIphone, isFirefox, modifyingConfig, appSettingsDEFAULT, menuSettingsDEFAULT, gameSettingsDEFAULT } from '../stores';
     import { auth, db } from '$lib/firebaseConfig';
     import { onAuthStateChanged } from 'firebase/auth';
-    import { doc, getDoc, updateDoc } from 'firebase/firestore';
+    import { doc, getDoc } from 'firebase/firestore';
 	import { onMount } from 'svelte';
     import packageJson from '../../package.json';
-	import { deepCopy } from '$lib/utils';
+	import { updateRemotePreferences } from '$lib/utils';
 
     const appVersion = packageJson.version;
-
-    async function updateRemotePreferences(){
-        if (!$isLoggedIn || !$user) return;
-
-        const userDocRef = doc(db, 'users', $user.uid);
-        await updateDoc(userDocRef, {
-            preferences: { 
-                gameSettings: deepCopy($gameSettings),
-                appSettings: deepCopy($appSettings),
-                menuSettings: deepCopy($menuSettings)},
-        });
-        console.log('Settings updated')
-    }
 
     function updateSettingsWithDefault(settingsDEFAULT, userPreferences) {
         const updatedSettings = { ...settingsDEFAULT };

@@ -1,55 +1,36 @@
 <script>
-    import { balloonSizeOptions, balloonSpeedOptions, gameSettings, appSettings, menuSettings, isLoggedIn, user, innerFigureOptions, isFullScreen, menuSettingsDEFAULT, appSettingsDEFAULT, gameSettingsDEFAULT} from '../../stores.js';
-    import lodash from 'lodash';
-    import { onMount } from 'svelte';
-    import { calculateInterpolatedColors, downloadJsonLocal, downloadJsonRemote, downloadCsvLocal, downloadCsvRemote, deepCopy } from '$lib/utils.js'
+    import { balloonSizeOptions, balloonSpeedOptions, gameSettings, appSettings, menuSettings, isLoggedIn, user, isFullScreen, menuSettingsDEFAULT, appSettingsDEFAULT, gameSettingsDEFAULT} from '../../stores.js';
+    import { downloadJsonLocal, downloadJsonRemote, downloadCsvLocal, downloadCsvRemote, deepCopy, handleUpdateRemotePreferences, updateRemotePreferences } from '$lib/utils.js'
     import { Fa } from 'inca-utils';
     import { faFileArrowDown } from '@fortawesome/free-solid-svg-icons';
-    import Profile from '../../components/Profile.svelte';
-	import UserNavBar from '../../components/UserNavBar.svelte';
-	import { db } from '$lib/firebaseConfig.js';
-	import { doc, updateDoc } from 'firebase/firestore';
+    import Profile from '../../components/settings/Profile.svelte';
+    import UserNavBar from '../../components/UserNavBar.svelte';
+    import NormalBalloons from '../../components/settings/game/NormalBalloons.svelte';
+    import CtrlBalloons from '../../components/settings/game/CtrlBalloons.svelte';
+    import ExpBalloons from '../../components/settings/game/ExpBalloons.svelte';
+    import BalloonsTabs from '../../components/settings/game/BalloonsTabs.svelte';
 
-    const { debounce } = lodash;
-
-    // Logic for interpolating colors and updating the store
-    function setInterpolatedColors(){
-        const colors = calculateInterpolatedColors($gameSettings.balloonRangeColorDefinition, $gameSettings.balloonRangeColor1, $gameSettings.balloonRangeColor2);
-        $gameSettings.balloonInterpolatedColors = colors;
-        if ($isLoggedIn && $user) updateRemotePreferences();
-    }
-    function setinnerFigInterpolatedColors(){
-        const colors = calculateInterpolatedColors($gameSettings.innerFigColorDefinition, $gameSettings.innerFigColorRange1, $gameSettings.innerFigColorRange2);
-        $gameSettings.innerFigInterpolatedColors = colors;
-        if ($isLoggedIn && $user) updateRemotePreferences();
-    }
-
-    onMount(() => {
-        if($gameSettings.balloonInterpolatedColors.length == 0) setInterpolatedColors();
-        if($gameSettings.innerFigInterpolatedColors.length == 0) setinnerFigInterpolatedColors();
-    });
-
-    const handleColorChange = debounce(setInterpolatedColors, 500);
-    const handleInnerFigColorChange = debounce(setinnerFigInterpolatedColors, 500);
-    const handleUpdateRemotePreferences = debounce(updateRemotePreferences, 500);
+    // List of tab balloons with labels, values and assigned components
+    let balloonTypes = [
+        { label: "Normal balloons",
+            value: 1,
+            component: NormalBalloons
+        },
+        { label: "Control balloons",
+            value: 2,
+            component: CtrlBalloons
+        },
+        { label: "Experimental balloons",
+            value: 3,
+            component: ExpBalloons
+        }
+    ];
 
     function handleRemoteJsonDownload (){
         if ($isLoggedIn && $user) downloadJsonRemote($user.uid);
     }
     function handleRemoteCsvDownload(){
         if ($isLoggedIn && $user) downloadCsvRemote($user.uid);
-    }
-
-    async function updateRemotePreferences(){
-        if (!$isLoggedIn || !$user) return;
-        const userDocRef = doc(db, 'users', $user.uid);
-        await updateDoc(userDocRef, {
-            preferences: { 
-                gameSettings: deepCopy($gameSettings),
-                appSettings: deepCopy($appSettings),
-                menuSettings: deepCopy($menuSettings)},
-        });
-        console.log('Settings updated')
     }
 
     function handleRestoreDefaults(){
@@ -111,20 +92,13 @@
                 {/if}
             </div>
 
-            <h2>Game settings</h2>
-            
+            <h2>Global game</h2>
             <div class="range-input">
                 <label for="maxBalloonsInput">Max balloons quantity on screen:</label>
                 <p>{$gameSettings.maxBalloonsQuantity}</p>
             </div>
             <input id="maxBalloonsInput" min="1" max="50" step="1" type="range" bind:value={$gameSettings.maxBalloonsQuantity} on:input={handleUpdateRemotePreferences}>
 
-            <div class="range-input">
-                <label for="specialBalloonsPropInput">Proportion of special balloons (balloons with figures):</label>
-                <p>{$gameSettings.specialBalloonsProp}% ({Math.floor($gameSettings.specialBalloonsProp/100 * $gameSettings.maxBalloonsQuantity)}/{$gameSettings.maxBalloonsQuantity})</p>
-            </div>
-            <input id="specialBalloonsPropInput" min="1" max="100" step="1" type="range" bind:value={$gameSettings.specialBalloonsProp} on:input={handleUpdateRemotePreferences}>
-    
             <label for="balloonSpeedSelect">Balloon Speed:</label>
             <select id="balloonSpeedSelect" bind:value={$gameSettings.balloonSpeed} on:input={handleUpdateRemotePreferences}>
                 {#each Object.keys(balloonSpeedOptions) as speedOptionKey}
@@ -133,7 +107,7 @@
                     </option>
                 {/each}
             </select>
-    
+
             <label for="balloonSizeInput">Balloon size:</label>
             <select id="balloonSizeInput" bind:value={$gameSettings.balloonSize} on:input={handleUpdateRemotePreferences}>
                 {#each Object.keys(balloonSizeOptions) as sizeOptionKey}
@@ -162,101 +136,14 @@
                 <label for="enableBalloonReflex">Enable balloon reflex effect (only aesthetic, slight discrepancies between what is seen and what is logged):</label>
                 <input id="enableBalloonReflex" type="checkbox" bind:checked={$gameSettings.enableBalloonReflex} on:input={handleUpdateRemotePreferences}>
             </div>
-    
-            <div class="checkbox-flex">
-                <label for="randomizeColorsCheckbox">Randomize balloons colors?</label>
-                <input id="randomizeColorsCheckbox" type="checkbox" bind:checked={$gameSettings.balloonRandomColor} on:input={handleUpdateRemotePreferences}>
-            </div>
-    
-            {#if !$gameSettings.balloonRandomColor}
-                <div class="checkbox-flex">
-                    <label for="colorRangeCheckbox">Enable range color?</label>
-                    <input id="colorRangeCheckbox" type="checkbox" bind:checked={$gameSettings.enableBalloonRangeColor} on:input={handleUpdateRemotePreferences}>
-                </div>
-    
-                {#if !$gameSettings.enableBalloonRangeColor}
-                    <div class="color-flex">
-                        <label for="balloonColorInput">Balloon color:</label>
-                        <input id="balloonColorInput" class="color-input" type="color" bind:value={$gameSettings.balloonColor} on:input={handleUpdateRemotePreferences}>
-                    </div>
-                {:else}
-                    <div class="balloon-range-color-container">
-                        <div class="color-flex">
-                            <label for="color1RangeInput">Color 1:</label>
-                            <input id="color1RangeInput" class="color-input" type="color" bind:value={$gameSettings.balloonRangeColor1} on:input={handleColorChange} />
-                        </div>
-        
-                        <div class="color-flex">
-                            <label for="color2RangeInput">Color 2:</label>
-                            <input id="color2RangeInput" class="color-input" type="color" bind:value={$gameSettings.balloonRangeColor2} on:input={handleColorChange} />
-                        </div>
-        
-                        <div class="range-input">
-                            <label for="definitionInput">Definition:</label>
-                            <p>{$gameSettings.balloonRangeColorDefinition}</p>
-                        </div>
-                        <input id="definitionInput" type="range" min="1" max="100" step="1" bind:value={$gameSettings.balloonRangeColorDefinition} on:input={handleColorChange}>
-                        <br>
-                        <div class="color-box">
-                            {#each $gameSettings.balloonInterpolatedColors as color (color)}
-                                <div class="color-square" style="background-color: {color}"></div>
-                            {/each}
-                        </div>
-                    </div>
-                {/if}
-            {/if}
-    
+            
             <div class="color-flex">
                 <label for="gameBackgroundColorInput">Game background color:</label>
                 <input id="gameBackgroundColorInput" class="color-input" type="color" bind:value={$gameSettings.gameBackgroundColor} on:input={handleUpdateRemotePreferences}>
             </div>
 
-            <div class="checkbox-flex">
-                <label for="enableBalloonInnerFigContour">Enable balloon inner figure contour:</label>
-                <input id="enableBalloonInnerFigContour" type="checkbox" bind:checked={$gameSettings.enableInnerFigContour} on:input={handleUpdateRemotePreferences}>
-            </div>
-
-            <label for="innerFigSelect">Balloon inner figure type:</label>
-            <select id="innerFigSelect" bind:value={$gameSettings.innerFigureType} on:input={handleUpdateRemotePreferences}>
-                {#each Object.keys(innerFigureOptions) as innerFigOptionKey}
-                    <option value={innerFigOptionKey}>
-                        {innerFigOptionKey.charAt(0).toUpperCase() + innerFigOptionKey.slice(1).toLowerCase()}
-                    </option>
-                {/each}
-            </select>
-
-            <div class="checkbox-flex">
-                <label for="colorRangeInnerFigCheckbox">Enable inner figure range color?</label>
-                <input id="colorRangeInnerFigCheckbox" type="checkbox" bind:checked={$gameSettings.enableInnerFigRangeColor} on:input={handleUpdateRemotePreferences}>
-            </div>
-            {#if $gameSettings.enableInnerFigRangeColor}
-                <div class="inner-fig-range-color-container">
-                    <div class="color-flex">
-                        <label for="color1InnerFigRangeInput">Color 1:</label>
-                        <input id="color1InnerFigRangeInput" class="color-input" type="color" bind:value={$gameSettings.innerFigColorRange1} on:input={handleInnerFigColorChange}>
-                    </div>
-                    <div class="color-flex">
-                        <label for="color2InnerFigRangeInput">Color 2:</label>
-                        <input id="color2InnerFigRangeInput" class="color-input" type="color" bind:value={$gameSettings.innerFigColorRange2} on:input={handleInnerFigColorChange}>
-                    </div>
-                    <div class="range-input">
-                        <label for="definitionInnerFigColorInput">Definition:</label>
-                        <p>{$gameSettings.innerFigColorDefinition}</p>
-                    </div>
-                    <input id="definitionInnerFigColorInput" type="range" min="1" max="100" step="1" bind:value={$gameSettings.innerFigColorDefinition} on:input={handleInnerFigColorChange}>
-                    <br>
-                    <div class="color-box">
-                        {#each $gameSettings.innerFigInterpolatedColors as color (color)}
-                            <div class="color-square" style="background-color: {color}"></div>
-                        {/each}
-                    </div>
-                </div>
-            {:else}
-                <div class="color-flex">
-                    <label for="balloonInnerFigColorInput">Balloon inner figure color:</label>
-                    <input id="balloonInnerFigColorInput" class="color-input" type="color" bind:value={$gameSettings.balloonInnerFigColor} on:input={handleUpdateRemotePreferences}>
-                </div>
-            {/if}
+            <h2>Balloons</h2>
+            <BalloonsTabs {balloonTypes} />
     
             <h2>Main menu</h2>
             <p>Game Modes to display (Direction of balloons):</p>
@@ -303,24 +190,21 @@
     label{
         margin-top: 25px;
     }
-    .color-box {
-        display: flex;
-        flex-wrap: wrap;
-        margin-top: 15px;
-    }
-    .color-square {
-        width: 50px;
-        height: 50px;
-        margin: 5px;
-    }
     main{
         padding: 2rem;
     }
-    .checkbox-flex,
-    .color-flex{
+    .checkbox-flex{
         display: flex;
         align-items: baseline;
         gap: 10px;
+    }
+    .color-flex{
+        display: flex;
+        align-items: flex-end;
+        gap: 10px;
+    }
+    .color-flex label{
+        margin-bottom: 0px;
     }
     .logs-container{
         display: flex;
@@ -354,8 +238,7 @@
     .remote-logs-container{
         display: grid;
     }
-    .inner-fig-range-color-container,
-    .balloon-range-color-container,
+
     .game-modes-container,
     .rampage-mode-container{
         margin-left: 30px;
