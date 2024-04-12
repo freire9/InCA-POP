@@ -45,8 +45,9 @@ if (isClient) {
     speechCorrect = writable(new SpeechSynthesisUtterance('Correct!'));
     speechExcellent = writable(new SpeechSynthesisUtterance('Excellent!'));
 }
+
+export const subjectName = writable('subject-name');
 export const appSettingsDEFAULT = {
-    subjectName: 'subject-name',
     instructorName: 'instructor-name',
     fluidTransitions: false,
     enableCustomSpeeches: true,

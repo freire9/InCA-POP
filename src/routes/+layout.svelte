@@ -1,6 +1,6 @@
 <script>
     import 'inca-utils/styles.css';
-    import { user, isLoggedIn, gameSettings, menuSettings, appSettings, isIphone, isFirefox, modifyingConfig, appSettingsDEFAULT, menuSettingsDEFAULT, gameSettingsDEFAULT, speechCorrect, speechSettings, speechExcellent, voices } from '../stores';
+    import { user, isLoggedIn, gameSettings, menuSettings, appSettings, isIphone, isFirefox, modifyingConfig, appSettingsDEFAULT, menuSettingsDEFAULT, gameSettingsDEFAULT, speechCorrect, speechSettings, speechExcellent, voices, subjectName } from '../stores';
     import { auth, db } from '$lib/firebaseConfig';
     import { onAuthStateChanged } from 'firebase/auth';
     import { doc, getDoc } from 'firebase/firestore';
@@ -109,6 +109,15 @@
         }
     }
 
+    function loadSubjectNameLocal(){
+        const name = localStorage.getItem('subjectName');
+        if(name){
+            $subjectName = name;
+        }
+
+        console.log('Subject name loaded from local storage')
+    }
+
     onMount(() => {
         const userAgent = navigator.userAgent.toLowerCase();
         $isIphone = /iphone/.test(userAgent);
@@ -120,6 +129,7 @@
             $speechCorrect.rate = $speechSettings.rate;
             $speechExcellent.rate = $speechSettings.rate;
         }
+        loadSubjectNameLocal();
     });
 </script>
 

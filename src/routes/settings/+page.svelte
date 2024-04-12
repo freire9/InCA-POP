@@ -1,5 +1,5 @@
 <script>
-    import { balloonSizeOptions, balloonSpeedOptions, gameSettings, appSettings, menuSettings, isLoggedIn, user, isFullScreen, menuSettingsDEFAULT, appSettingsDEFAULT, gameSettingsDEFAULT} from '../../stores.js';
+    import { balloonSizeOptions, balloonSpeedOptions, gameSettings, appSettings, menuSettings, isLoggedIn, user, isFullScreen, menuSettingsDEFAULT, appSettingsDEFAULT, gameSettingsDEFAULT, subjectName} from '../../stores.js';
     import { downloadJsonLocal, downloadJsonRemote, downloadCsvLocal, downloadCsvRemote, deepCopy, handleUpdateRemotePreferences, updateRemotePreferences } from '$lib/utils.js'
     import { Fa } from 'inca-utils';
     import { faFileArrowDown } from '@fortawesome/free-solid-svg-icons';
@@ -10,6 +10,9 @@
     import ExpBalloons from '../../components/settings/game/ExpBalloons.svelte';
     import BalloonsTabs from '../../components/settings/game/BalloonsTabs.svelte';
 	import Speeches from '../../components/settings/Speeches.svelte';
+    import lodash from 'lodash';
+
+    const { debounce } = lodash;
 
     // List of tab balloons with labels, values and assigned components
     let balloonTypes = [
@@ -47,6 +50,13 @@
             handleRestoreDefaults();
         }
     }
+
+    function saveSubjectNameLocal(){
+        localStorage.setItem('subjectName', $subjectName);
+        console.log('Subject name saved to local storage')
+    }
+
+    const handleSaveSubjectLocal = debounce(saveSubjectNameLocal, 500);
 </script>
 
 <div class="settings {$isFullScreen ? 'fullscreen' : ''}">
@@ -62,7 +72,7 @@
             <button class="restore-btn" on:click={handleRestoreDefaultsWarning}>Restore default settings</button>
             
             <label for="subjectNameInput">Subject's name:</label>
-            <input id="subjectNameInput" type='text' bind:value={$appSettings.subjectName} on:input={handleUpdateRemotePreferences}/>
+            <input id="subjectNameInput" type='text' bind:value={$subjectName} on:input={handleSaveSubjectLocal}/>
             
             <label for="instructorNameInput">Instructor's name:</label>
             <input id="instructorNameInput" type="text" bind:value={$appSettings.instructorName} on:input={handleUpdateRemotePreferences}>

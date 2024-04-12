@@ -3,7 +3,7 @@
     import { onMount } from 'svelte';
     import { deepCopy, getRandomFrom, getRandomHexColor } from '$lib/utils';
     import { addLog } from "$lib/logService";
-    import { appSettings, gameSettings, isLoggedIn, user, balloonSpeedOptions, balloonSizeOptions, gameDirection, menuSettings } from '../../stores.js';
+    import { appSettings, gameSettings, isLoggedIn, user, balloonSpeedOptions, balloonSizeOptions, gameDirection, menuSettings, subjectName } from '../../stores.js';
 	import SubjectNavBar from '../../components/SubjectNavBar.svelte';
 
     let balloons = [];
@@ -128,6 +128,7 @@
                 ...deepCopy($gameSettings),
                 ...deepCopy($appSettings),
                 ...deepCopy($menuSettings),
+                subjectName: deepCopy($subjectName),
             },
             $isLoggedIn ? deepCopy($user.uid) : null
         );
@@ -145,7 +146,8 @@
                 ...deepCopy($appSettings),
                 ...deepCopy($menuSettings),
                 x: deepCopy(clientX),
-                y: deepCopy(clientY)
+                y: deepCopy(clientY),
+                subjectName: deepCopy($subjectName),
             },
             $isLoggedIn ? deepCopy($user.uid) : null
         );
