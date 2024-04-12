@@ -1,9 +1,9 @@
 <script>
     import { auth, db } from '$lib/firebaseConfig';
     import { GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
-    import { isLoggedIn, user } from "../stores";
+    import { isLoggedIn, user } from "../../stores";
 	import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
-    import { gameSettings, appSettings, menuSettings } from '../stores';
+    import { gameSettings, appSettings, menuSettings } from '../../stores';
 
     const login = async () => {
         try {
