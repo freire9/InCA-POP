@@ -27,15 +27,15 @@
         const pop = popSound;
         pop.currentTime = 0;
         pop.play();
-        playCustomCorrect();
-        playCustomExcellent();
+        setTimeout(playCustomCorrect, 400);
+        setTimeout(playCustomExcellent, 1400);
     }
 
     function customSpeechCorrect(){
         const pop = popSound;
         pop.currentTime = 0;
         pop.play();
-        playCustomCorrect();
+        setTimeout(playCustomCorrect, 400);
     }
 
     function playPopSound(){
