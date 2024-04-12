@@ -32,7 +32,7 @@ export const speechSettings = writable({
     speechCorrect: 'Correct!',
     speechExcellent: 'Excellent!',
     voice: null,
-    rate: 1.5,
+    rate: 1,
     pitch: 1,
     volume: 1,
 });
