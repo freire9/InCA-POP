@@ -1,6 +1,6 @@
 <script>
     import 'inca-utils/styles.css';
-    import { user, isLoggedIn, gameSettings, menuSettings, appSettings, isIphone, isFirefox, modifyingConfig, appSettingsDEFAULT, menuSettingsDEFAULT, gameSettingsDEFAULT } from '../stores';
+    import { user, isLoggedIn, gameSettings, menuSettings, appSettings, isIphone, isFirefox, modifyingConfig, appSettingsDEFAULT, menuSettingsDEFAULT, gameSettingsDEFAULT, speechCorrect, speechSettings, speechExcellent, voices } from '../stores';
     import { auth, db } from '$lib/firebaseConfig';
     import { onAuthStateChanged } from 'firebase/auth';
     import { doc, getDoc } from 'firebase/firestore';
@@ -74,11 +74,52 @@
         };
     });
 
+    function loadVoices() {
+        $voices = window.speechSynthesis.getVoices();
+        if($voices.length > 0 && !$speechSettings.voice){
+            $speechSettings.voice = $voices[0];
+            $speechCorrect.voice = $voices[0];
+            $speechExcellent.voice = $voices[0];
+        }
+        loadSpeechConfigLocal();
+    }
+
+    function loadSpeechConfigLocal(){
+        const config = localStorage.getItem('speechConfig');
+        if(config){
+            const parsedConfig = JSON.parse(config);
+            $speechSettings.voice = $voices.find(voice => voice.voiceURI === parsedConfig.selectedVoiceURI);
+            $speechSettings.speechCorrect = parsedConfig.speechCorrect;
+            $speechSettings.speechExcellent = parsedConfig.speechExcellent;
+            $speechSettings.volume = parsedConfig.volume;
+            $speechSettings.pitch = parsedConfig.pitch;
+            $speechSettings.rate = parsedConfig.rate;
+            $speechCorrect.volume = parsedConfig.volume;
+            $speechExcellent.volume = parsedConfig.volume;
+            $speechCorrect.pitch = parsedConfig.pitch;
+            $speechExcellent.pitch = parsedConfig.pitch;
+            $speechCorrect.rate = parsedConfig.rate;
+            $speechExcellent.rate = parsedConfig.rate;
+            $speechCorrect.voice = $voices.find(voice => voice.voiceURI === parsedConfig.selectedVoiceURI);
+            $speechExcellent.voice = $voices.find(voice => voice.voiceURI === parsedConfig.selectedVoiceURI);
+            $speechCorrect.text = parsedConfig.speechCorrect;
+            $speechExcellent.text = parsedConfig.speechExcellent;
+
+            console.log('Speech config loaded from local storage')
+        }
+    }
+
     onMount(() => {
         const userAgent = navigator.userAgent.toLowerCase();
         $isIphone = /iphone/.test(userAgent);
         $isFirefox = userAgent.indexOf('firefox') > -1;
         $appSettings.fluidTransitions = $isFirefox ? false : true;
+        loadVoices();
+        window.speechSynthesis.onvoiceschanged = loadVoices;
+        if($speechCorrect.rate != $speechSettings.rate || $speechExcellent.rate != $speechSettings.rate){
+            $speechCorrect.rate = $speechSettings.rate;
+            $speechExcellent.rate = $speechSettings.rate;
+        }
     });
 </script>
 

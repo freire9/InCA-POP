@@ -9,6 +9,7 @@
     import CtrlBalloons from '../../components/settings/game/CtrlBalloons.svelte';
     import ExpBalloons from '../../components/settings/game/ExpBalloons.svelte';
     import BalloonsTabs from '../../components/settings/game/BalloonsTabs.svelte';
+	import Speeches from '../../components/settings/Speeches.svelte';
 
     // List of tab balloons with labels, values and assigned components
     let balloonTypes = [
@@ -174,6 +175,9 @@
                     <input id="menuBackgroundColor" class="color-input" type="color" bind:value={$menuSettings.menuBackgroundColor} on:input={handleUpdateRemotePreferences}>
                 </div>
             </div>
+
+            <h2>Speeches</h2>
+            <Speeches />
         </div>
     </main>
 </div>

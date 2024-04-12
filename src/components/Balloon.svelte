@@ -1,6 +1,6 @@
 <script>
     import { createEventDispatcher } from 'svelte'
-    import { appSettings, gameSettings, innerFigureOptions } from '../stores';
+    import { appSettings, gameSettings, innerFigureOptions, speechCorrect, speechExcellent } from '../stores';
 	import Letter from './inner_figures/Letter.svelte';
 	import Disc from './inner_figures/Disc.svelte';
 
@@ -15,7 +15,36 @@
         return $gameSettings.enableRampageMode && balloon.isSpecial && currentRampageChain >= $gameSettings.rampageModeChain - 1;
     }
 
+    function playCustomCorrect(){
+        window.speechSynthesis.speak($speechCorrect);
+    }
+
+    function playCustomExcellent(){
+        window.speechSynthesis.speak($speechExcellent);
+    }
+
+    function customSpeechRampage(){
+        const pop = popSound;
+        pop.currentTime = 0;
+        pop.play();
+        playCustomCorrect();
+        playCustomExcellent();
+    }
+
+    function customSpeechCorrect(){
+        const pop = popSound;
+        pop.currentTime = 0;
+        pop.play();
+        playCustomCorrect();
+    }
+
     function playPopSound(){
+        if($appSettings.enableCustomSpeeches){
+            const pop = popSound;
+            pop.currentTime = 0;
+            balloon.isSpecial ? (isRampage() ? customSpeechRampage() : customSpeechCorrect()) : pop.play();
+            return;
+        }
         const sound = balloon.isSpecial ? (isRampage() ? rampageSound : popCorrectSound) : popSound;
         sound.currentTime = 0;
         sound.play();
