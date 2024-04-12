@@ -28,10 +28,29 @@ export const innerFigureOptions = {
 const defaultBalloonInterpolatedColors = [ "#ff0000", "#e61a00", "#cc3300", "#b34d00", "#996600", "#808000", "#669900", "#4db300", "#33cc00", "#1ae600" ];
 const defaultInnerFigInterpolatedColors = [ "#000000", "#1a1a1a", "#333333", "#4d4d4d", "#666666", "#808080", "#999999", "#b3b3b3", "#cccccc", "#e6e6e6" ];
 
+export const speechSettings = writable({
+    speechCorrect: 'Correct!',
+    speechExcellent: 'Excellent!',
+    voice: null,
+    rate: 1,
+    pitch: 1,
+    volume: 1,
+});
+const isClient = !import.meta.env.SSR;
+
+export let speechCorrect;
+export let speechExcellent;
+export const voices = writable([]);
+if (isClient) {
+    speechCorrect = writable(new SpeechSynthesisUtterance('Correct!'));
+    speechExcellent = writable(new SpeechSynthesisUtterance('Excellent!'));
+}
+
+export const subjectName = writable('subject-name');
 export const appSettingsDEFAULT = {
-    subjectName: 'subject-name',
     instructorName: 'instructor-name',
     fluidTransitions: false,
+    enableCustomSpeeches: true,
 };
 
 export const menuSettingsDEFAULT = {

@@ -1,5 +1,5 @@
 <script>
-    import { gameSettings, menuSettings, appSettings, isLoggedIn, user, gameDirection, isIphone, modifyingConfig } from "../stores";
+    import { gameSettings, menuSettings, appSettings, isLoggedIn, user, gameDirection, isIphone, modifyingConfig, subjectName } from "../stores";
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
     import { TrainerButton, Fa } from 'inca-utils';
@@ -34,7 +34,8 @@
             {gameDirection: deepCopy(event.detail), 
                 ...deepCopy($gameSettings), 
                 ...deepCopy($menuSettings), 
-                ...deepCopy($appSettings)
+                ...deepCopy($appSettings),
+                subjectName: deepCopy($subjectName),
             },
             $isLoggedIn ? deepCopy($user.uid) : null
         );
@@ -47,7 +48,8 @@
             'Menu background click', 
             {...deepCopy($gameSettings),
                 ...deepCopy($menuSettings),
-                ...deepCopy($appSettings)
+                ...deepCopy($appSettings),
+                subjectName: deepCopy($subjectName),
             },
             $isLoggedIn ? deepCopy($user.uid) : null
         );

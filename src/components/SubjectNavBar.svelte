@@ -1,7 +1,7 @@
 <script>
     import { ActionButton, TrainerButton } from "inca-utils";
     import { faExpand } from '@fortawesome/free-solid-svg-icons';
-    import { appSettings, gameDirection, gameSettings, menuSettings, isIphone, isLoggedIn, user } from "../stores";
+    import { appSettings, gameDirection, gameSettings, menuSettings, isIphone, isLoggedIn, user, subjectName } from "../stores";
     import { Fa }  from "inca-utils";
     import { onMount } from "svelte";
 	import { goto } from "$app/navigation";
@@ -23,7 +23,8 @@
                 gameDirection: deepCopy($gameDirection),
                 ...deepCopy($gameSettings),
                 ...deepCopy($appSettings),
-                ...deepCopy($menuSettings)
+                ...deepCopy($menuSettings),
+                subjectName: deepCopy($subjectName),
             },
             $isLoggedIn ? deepCopy($user.uid) : null
         );
