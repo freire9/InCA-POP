@@ -9,7 +9,7 @@
 	import { deepCopy, toogleFullscreen } from "$lib/utils";
 
     let fullscreen;
-    export let balloons;
+    export let popElmnts;
 
     onMount(async () => {
         ({fullscreen} = await import('inca-utils/api'));
@@ -19,7 +19,7 @@
         event.stopPropagation();
         addLog(
             'Exit game', 
-            {onScreenBalloons: deepCopy(balloons),
+            {onScreenPopElmnts: deepCopy(popElmnts),
                 gameDirection: deepCopy($gameDirection),
                 ...deepCopy($gameSettings),
                 ...deepCopy($appSettings),

@@ -1,5 +1,5 @@
 <script>
-    import { balloonSizeOptions, balloonSpeedOptions, gameSettings, appSettings, menuSettings, isLoggedIn, user, isFullScreen, menuSettingsDEFAULT, appSettingsDEFAULT, gameSettingsDEFAULT, subjectName} from '../../stores.js';
+    import { popElmntSizeOpts, popElmntSpeedOpts, gameSettings, appSettings, menuSettings, isLoggedIn, user, isFullScreen, menuSettingsDEFAULT, appSettingsDEFAULT, gameSettingsDEFAULT, subjectName} from '../../stores.js';
     import { downloadJsonLocal, downloadJsonRemote, downloadCsvLocal, downloadCsvRemote, deepCopy, handleUpdateRemotePreferences, updateRemotePreferences } from '$lib/utils.js'
     import { Fa } from 'inca-utils';
     import { faFileArrowDown } from '@fortawesome/free-solid-svg-icons';
@@ -105,23 +105,23 @@
 
             <h2>Global game</h2>
             <div class="range-input">
-                <label for="maxBalloonsInput">Max balloons quantity on screen:</label>
-                <p>{$gameSettings.maxBalloonsQuantity}</p>
+                <label for="maxPopElmntQtyInput">Max balloons quantity on screen:</label>
+                <p>{$gameSettings.maxPopElmntQty}</p>
             </div>
-            <input id="maxBalloonsInput" min="1" max="50" step="1" type="range" bind:value={$gameSettings.maxBalloonsQuantity} on:input={handleUpdateRemotePreferences}>
+            <input id="maxPopElmntQtyInput" min="1" max="50" step="1" type="range" bind:value={$gameSettings.maxPopElmntQty} on:input={handleUpdateRemotePreferences}>
 
-            <label for="balloonSpeedSelect">Balloon Speed:</label>
-            <select id="balloonSpeedSelect" bind:value={$gameSettings.balloonSpeed} on:input={handleUpdateRemotePreferences}>
-                {#each Object.keys(balloonSpeedOptions) as speedOptionKey}
+            <label for="popElmntSpeedSelect">Balloon Speed:</label>
+            <select id="popElmntSpeedSelect" bind:value={$gameSettings.popElmntSpeed} on:input={handleUpdateRemotePreferences}>
+                {#each Object.keys(popElmntSpeedOpts) as speedOptionKey}
                     <option value={speedOptionKey}>
                         {speedOptionKey.charAt(0).toUpperCase() + speedOptionKey.slice(1).toLowerCase()}
                     </option>
                 {/each}
             </select>
 
-            <label for="balloonSizeInput">Balloon size:</label>
-            <select id="balloonSizeInput" bind:value={$gameSettings.balloonSize} on:input={handleUpdateRemotePreferences}>
-                {#each Object.keys(balloonSizeOptions) as sizeOptionKey}
+            <label for="popElmntSizeInput">Balloon size:</label>
+            <select id="popElmntSizeInput" bind:value={$gameSettings.popElmntSize} on:input={handleUpdateRemotePreferences}>
+                {#each Object.keys(popElmntSizeOpts) as sizeOptionKey}
                     <option value={sizeOptionKey}>
                         {sizeOptionKey.charAt(0).toUpperCase() + sizeOptionKey.slice(1).toLowerCase()}
                     </option>

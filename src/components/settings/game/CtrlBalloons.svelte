@@ -1,6 +1,6 @@
 <script>
     import { calculateInterpolatedColors, handleUpdateRemotePreferences, updateRemotePreferences } from "$lib/utils";
-    import { gameSettings, innerFigureOptions, isLoggedIn, user } from "../../../stores";
+    import { gameSettings, innerFigureOptions, isLoggedIn, popElmntType, user } from "../../../stores";
     import lodash from 'lodash';
     
     const { debounce } = lodash;
@@ -8,60 +8,60 @@
     const handleCtrlInnerFigColorChange = debounce(setCtrlInnerFigInterpolatedColors, 500);
     
     function setCtrlInnerFigInterpolatedColors(){
-        const colors = calculateInterpolatedColors($gameSettings.ctrlInnerFigColorDefinition, $gameSettings.ctrlInnerFigColorRange1, $gameSettings.ctrlInnerFigColorRange2);
-        $gameSettings.ctrlInnerFigInterpolatedColors = colors;
+        const colors = calculateInterpolatedColors($gameSettings.popElmntConfig[popElmntType.CTRL].innerFigColorRangeDef, $gameSettings.popElmntConfig[popElmntType.CTRL].innerFigRangeColor1, $gameSettings.popElmntConfig[popElmntType.CTRL].innerFigRangeColor2);
+        $gameSettings.popElmntConfig[popElmntType.CTRL].innerFigInterpColors = colors;
         if ($isLoggedIn && $user) updateRemotePreferences();
     }
     
     function setCtrlInterpolatedColors(){
-        const colors = calculateInterpolatedColors($gameSettings.ctrlBalloonRangeColorDefinition, $gameSettings.ctrlBalloonRangeColor1, $gameSettings.ctrlBalloonRangeColor2);
-        $gameSettings.ctrlBalloonInterpolatedColors = colors;
+        const colors = calculateInterpolatedColors($gameSettings.popElmntConfig[popElmntType.CTRL].colorRangeDef, $gameSettings.popElmntConfig[popElmntType.CTRL].rangeColor1, $gameSettings.popElmntConfig[popElmntType.CTRL].rangeColor2);
+        $gameSettings.popElmntConfig[popElmntType.CTRL].interpColors = colors;
         if ($isLoggedIn && $user) updateRemotePreferences();
     }
 </script>
 
 <div class="range-input">
-    <label for="ctrlBalloonsPropInput">Proportion of control balloons:</label>
-    <p>{$gameSettings.ctrlBalloonsProp}% ({Math.floor($gameSettings.ctrlBalloonsProp/100 * $gameSettings.maxBalloonsQuantity)}/{$gameSettings.maxBalloonsQuantity}) (Floor rounded)</p>
+    <label for="ctrlPopElemntPropInput">Proportion of control balloons:</label>
+    <p>{$gameSettings.popElmntConfig[popElmntType.CTRL].proportion}% ({Math.floor($gameSettings.popElmntConfig[popElmntType.CTRL].proportion/100 * $gameSettings.maxPopElmntQty)}/{$gameSettings.maxPopElmntQty}) (Floor rounded)</p>
 </div>
-<input id="ctrlBalloonsPropInput" min="0" max="{100 - $gameSettings.expBalloonsProp}" step="1" type="range" bind:value={$gameSettings.ctrlBalloonsProp} on:input={handleUpdateRemotePreferences}>
+<input id="ctrlPopElemntPropInput" min="0" max="{100 - $gameSettings.popElmntConfig[popElmntType.EXP].proportion}" step="1" type="range" bind:value={$gameSettings.popElmntConfig[popElmntType.CTRL].proportion} on:input={handleUpdateRemotePreferences}>
 
 <div class="checkbox-flex">
     <label for="randomizeCtrlColorsCheckbox">Randomize control balloons colors?</label>
-    <input id="randomizeCtrlColorsCheckbox" type="checkbox" bind:checked={$gameSettings.ctrlBalloonRandomColor} on:input={handleUpdateRemotePreferences}>
+    <input id="randomizeCtrlColorsCheckbox" type="checkbox" bind:checked={$gameSettings.popElmntConfig[popElmntType.CTRL].enableRandColor} on:input={handleUpdateRemotePreferences}>
 </div>
 
-{#if !$gameSettings.ctrlBalloonRandomColor}
+{#if !$gameSettings.popElmntConfig[popElmntType.CTRL].enableRandColor}
     <div class="checkbox-flex">
         <label for="ctrlColorRangeCheckbox">Enable control range color?</label>
-        <input id="ctrlColorRangeCheckbox" type="checkbox" bind:checked={$gameSettings.enableCtrlBalloonRangeColor} on:input={handleUpdateRemotePreferences}>
+        <input id="ctrlColorRangeCheckbox" type="checkbox" bind:checked={$gameSettings.popElmntConfig[popElmntType.CTRL].enableRangeColor} on:input={handleUpdateRemotePreferences}>
     </div>
 
-    {#if !$gameSettings.enableCtrlBalloonRangeColor}
+    {#if !$gameSettings.popElmntConfig[popElmntType.CTRL].enableRangeColor}
         <div class="color-flex">
-            <label for="ctrlBalloonColorInput">Control balloon color:</label>
-            <input id="ctrlBalloonColorInput" class="color-input" type="color" bind:value={$gameSettings.ctrlBalloonColor} on:input={handleUpdateRemotePreferences}>
+            <label for="ctrlPopElemntColorInput">Control balloon color:</label>
+            <input id="ctrlPopElemntColorInput" class="color-input" type="color" bind:value={$gameSettings.popElmntConfig[popElmntType.CTRL].color} on:input={handleUpdateRemotePreferences}>
         </div>
     {:else}
         <div class="balloon-range-color-container">
             <div class="color-flex">
                 <label for="ctrlColor1RangeInput">Control color 1:</label>
-                <input id="ctrlColor1RangeInput" class="color-input" type="color" bind:value={$gameSettings.ctrlBalloonRangeColor1} on:input={handleColorChange} />
+                <input id="ctrlColor1RangeInput" class="color-input" type="color" bind:value={$gameSettings.popElmntConfig[popElmntType.CTRL].rangeColor1} on:input={handleColorChange} />
             </div>
 
             <div class="color-flex">
                 <label for="ctrlColor2RangeInput">Control color 2:</label>
-                <input id="ctrlColor2RangeInput" class="color-input" type="color" bind:value={$gameSettings.ctrlBalloonRangeColor2} on:input={handleColorChange} />
+                <input id="ctrlColor2RangeInput" class="color-input" type="color" bind:value={$gameSettings.popElmntConfig[popElmntType.CTRL].rangeColor2} on:input={handleColorChange} />
             </div>
 
             <div class="range-input">
                 <label for="ctrlDefinitionInput">Control definition:</label>
-                <p>{$gameSettings.ctrlBalloonRangeColorDefinition}</p>
+                <p>{$gameSettings.popElmntConfig[popElmntType.CTRL].colorRangeDef}</p>
             </div>
-            <input id="ctrlDefinitionInput" type="range" min="1" max="100" step="1" bind:value={$gameSettings.ctrlBalloonRangeColorDefinition} on:input={handleColorChange}>
+            <input id="ctrlDefinitionInput" type="range" min="1" max="100" step="1" bind:value={$gameSettings.popElmntConfig[popElmntType.CTRL].colorRangeDef} on:input={handleColorChange}>
             <br>
             <div class="color-box">
-                {#each $gameSettings.ctrlBalloonInterpolatedColors as color (color)}
+                {#each $gameSettings.popElmntConfig[popElmntType.CTRL].interpColors as color (color)}
                     <div class="color-square" style="background-color: {color}"></div>
                 {/each}
             </div>
@@ -71,11 +71,11 @@
 
 <div class="checkbox-flex">
     <label for="enableCtrlBalloonInnerFigContour">Enable control balloon inner figure contour:</label>
-    <input id="enableCtrlBalloonInnerFigContour" type="checkbox" bind:checked={$gameSettings.enableCtrlInnerFigContour} on:input={handleUpdateRemotePreferences}>
+    <input id="enableCtrlBalloonInnerFigContour" type="checkbox" bind:checked={$gameSettings.popElmntConfig[popElmntType.CTRL].enableInnerFigContour} on:input={handleUpdateRemotePreferences}>
 </div>
 
 <label for="ctrlInnerFigSelect">Control balloon inner figure type:</label>
-<select id="ctrlInnerFigSelect" bind:value={$gameSettings.ctrlInnerFigureType} on:input={handleUpdateRemotePreferences}>
+<select id="ctrlInnerFigSelect" bind:value={$gameSettings.popElmntConfig[popElmntType.CTRL].innerFigType} on:input={handleUpdateRemotePreferences}>
     {#each Object.keys(innerFigureOptions) as innerFigOptionKey}
         <option value={innerFigOptionKey}>
             {innerFigOptionKey.charAt(0).toUpperCase() + innerFigOptionKey.slice(1).toLowerCase()}
@@ -85,34 +85,34 @@
 
 <div class="checkbox-flex">
     <label for="colorRangeCtrlInnerFigCheckbox">Enable control inner figure range color?</label>
-    <input id="colorRangeCtrlInnerFigCheckbox" type="checkbox" bind:checked={$gameSettings.enableCtrlInnerFigRangeColor} on:input={handleUpdateRemotePreferences}>
+    <input id="colorRangeCtrlInnerFigCheckbox" type="checkbox" bind:checked={$gameSettings.popElmntConfig[popElmntType.CTRL].enableInnerFigRangeColor} on:input={handleUpdateRemotePreferences}>
 </div>
-{#if $gameSettings.enableCtrlInnerFigRangeColor}
+{#if $gameSettings.popElmntConfig[popElmntType.CTRL].enableInnerFigRangeColor}
     <div class="inner-fig-range-color-container">
         <div class="color-flex">
             <label for="color1CtrlInnerFigRangeInput">Control inner figure color 1:</label>
-            <input id="color1CtrlInnerFigRangeInput" class="color-input" type="color" bind:value={$gameSettings.ctrlInnerFigColorRange1} on:input={handleCtrlInnerFigColorChange}>
+            <input id="color1CtrlInnerFigRangeInput" class="color-input" type="color" bind:value={$gameSettings.popElmntConfig[popElmntType.CTRL].innerFigRangeColor1} on:input={handleCtrlInnerFigColorChange}>
         </div>
         <div class="color-flex">
             <label for="color2CtrlInnerFigRangeInput">Control inner figure color 2:</label>
-            <input id="color2CtrlInnerFigRangeInput" class="color-input" type="color" bind:value={$gameSettings.ctrlInnerFigColorRange2} on:input={handleCtrlInnerFigColorChange}>
+            <input id="color2CtrlInnerFigRangeInput" class="color-input" type="color" bind:value={$gameSettings.popElmntConfig[popElmntType.CTRL].innerFigRangeColor2} on:input={handleCtrlInnerFigColorChange}>
         </div>
         <div class="range-input">
             <label for="definitionCtrlInnerFigColorInput">Control inner figure definition:</label>
-            <p>{$gameSettings.ctrlInnerFigColorDefinition}</p>
+            <p>{$gameSettings.popElmntConfig[popElmntType.CTRL].innerFigColorRangeDef}</p>
         </div>
-        <input id="definitionCtrlInnerFigColorInput" type="range" min="1" max="100" step="1" bind:value={$gameSettings.ctrlInnerFigColorDefinition} on:input={handleCtrlInnerFigColorChange}>
+        <input id="definitionCtrlInnerFigColorInput" type="range" min="1" max="100" step="1" bind:value={$gameSettings.popElmntConfig[popElmntType.CTRL].innerFigColorRangeDef} on:input={handleCtrlInnerFigColorChange}>
         <br>
         <div class="color-box">
-            {#each $gameSettings.ctrlInnerFigInterpolatedColors as color (color)}
+            {#each $gameSettings.popElmntConfig[popElmntType.CTRL].innerFigInterpColors as color (color)}
                 <div class="color-square" style="background-color: {color}"></div>
             {/each}
         </div>
     </div>
 {:else}
     <div class="color-flex">
-        <label for="ctrlBalloonInnerFigColorInput">Control balloon inner figure color:</label>
-        <input id="ctrlBalloonInnerFigColorInput" class="color-input" type="color" bind:value={$gameSettings.ctrlBalloonInnerFigColor} on:input={handleUpdateRemotePreferences}>
+        <label for="ctrlPopElemntInnerFigColorInput">Control balloon inner figure color:</label>
+        <input id="ctrlPopElemntInnerFigColorInput" class="color-input" type="color" bind:value={$gameSettings.popElmntConfig[popElmntType.CTRL].innerFigColor} on:input={handleUpdateRemotePreferences}>
     </div>
 {/if}
 

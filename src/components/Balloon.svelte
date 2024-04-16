@@ -124,9 +124,9 @@
     filter: {$gameSettings.enableBalloonReflex ? "brightness(1.2)" : "unset"};"
 >
     {#if balloon.isSpecial && balloon.innerFigType == innerFigureOptions.LETTER.value}
-        <Letter {balloon} />
+        <Letter popElmnt={balloon} />
     {:else if balloon.isSpecial && balloon.innerFigType == innerFigureOptions.DISC.value}
-        <Disc {balloon} />
+        <Disc popElmnt={balloon} />
     {/if}
     <div class="string not-selectable {balloon.isSpecial ? 'special-string' : ''}" style:transform='translateX(-50%) rotate({10+balloon.rotation}deg)'></div>
 </button>

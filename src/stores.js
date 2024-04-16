@@ -9,12 +9,18 @@ export const gameDirection = writable('leftToRight');
 export const modifyingConfig = writable(true);
 export const isFullScreen = writable(false);
 
-export const balloonSpeedOptions = {
+export const popElmntType = {
+    NORMAL: 'normal',
+    EXP: 'exp',
+    CTRL: 'ctrl',
+}
+
+export const popElmntSpeedOpts = {
     SLOW: {min: 0.08, max: 0.2, label: 'SLOW'},
     NORMAL: {min: 0.2, max: 0.4, label: 'NORMAL'},
     FAST: {min: 0.4, max: 0.6, label: 'FAST'},
 };
-export const balloonSizeOptions = {
+export const popElmntSizeOpts = {
     SMALL: {width: 40, height: 50, label: 'SMALL'},
     NORMAL: {width: 80, height: 100, label: 'NORMAL'},
     BIG: {width: 120, height: 145, label: 'BIG'},
@@ -25,8 +31,8 @@ export const innerFigureOptions = {
     DISC: {label: 'Disc', value: 'DISC'},
 };
 
-const defaultBalloonInterpolatedColors = [ "#ff0000", "#e61a00", "#cc3300", "#b34d00", "#996600", "#808000", "#669900", "#4db300", "#33cc00", "#1ae600" ];
-const defaultInnerFigInterpolatedColors = [ "#000000", "#1a1a1a", "#333333", "#4d4d4d", "#666666", "#808080", "#999999", "#b3b3b3", "#cccccc", "#e6e6e6" ];
+const dfltPopElmntInterColors = [ "#ff0000", "#e61a00", "#cc3300", "#b34d00", "#996600", "#808000", "#669900", "#4db300", "#33cc00", "#1ae600" ];
+const dfltInnerFigInterpColors = [ "#000000", "#1a1a1a", "#333333", "#4d4d4d", "#666666", "#808080", "#999999", "#b3b3b3", "#cccccc", "#e6e6e6" ];
 
 export const speechSettings = writable({
     speechCorrect: 'Correct!',
@@ -58,59 +64,75 @@ export const menuSettingsDEFAULT = {
     menuBackgroundColor: '#ffffff',
 };
 
+const normalPopElmntSettings = {
+    enableRandColor: true,
+    enableRangeColor: false,
+    rangeColor1: '#ff0000',
+    rangeColor2: '#00ff00',
+    colorRangeDef: 10,
+    interpColors: deepCopy(dfltPopElmntInterColors),
+    color: '#ff0000',   
+};
+
+const expPopElmntSettings = {
+    enableRandColor: true,
+    enableRangeColor: false,
+    rangeColor1: '#ff0000',
+    rangeColor2: '#00ff00',
+    colorRangeDef: 10,
+    interpColors: deepCopy(dfltPopElmntInterColors),
+    color: '#ff0000',
+    innerFigType: innerFigureOptions.DISC.value,
+    innerFigColor: '#f82383',
+    enableInnerFigRangeColor: false,
+    innerFigRangeColor1:'#000000',
+    innerFigRangeColor2:'#ffffff',
+    innerFigColorRangeDef: 10,
+    innerFigInterpColors: deepCopy(dfltInnerFigInterpColors),
+    enableInnerFigContour: false,
+    proportion: 20,
+};
+
+const ctrlPopElmntSettings = {
+    enableRandColor: true,
+    enableRangeColor: false,
+    rangeColor1: '#ff0000',
+    rangeColor2: '#00ff00',
+    colorRangeDef: 10,
+    interpColors: deepCopy(dfltPopElmntInterColors),
+    color: '#ff0000',
+    innerFigType: innerFigureOptions.DISC.value,
+    innerFigColor: '#000000',
+    enableInnerFigRangeColor: false,
+    innerFigRangeColor1:'#000000',
+    innerFigRangeColor2:'#ffffff',
+    innerFigColorRangeDef: 10,
+    innerFigInterpColors: deepCopy(dfltInnerFigInterpColors),
+    enableInnerFigContour: false,
+    proportion: 30,
+};
+
+const availableModes = {
+    'rightToLeft': {label: 'Right to left', enabled: true, icon: 'faLeftLong', color: '#ff0000'},
+    'bottomToTop': {label: 'Bottom to top', enabled: true, icon: 'faUpLong', color: '#22d933'},
+    'topToBottom': {label: 'Top to bottom', enabled: true, icon: 'faDownLong', color: '#2665ea'},
+    'leftToRight': {label: 'Left to right', enabled: true, icon: 'faRightLong', color: '#eacf26'},
+};
+
 export const gameSettingsDEFAULT = {
-    balloonSpeed: balloonSpeedOptions.NORMAL.label,
-    balloonSize: balloonSizeOptions.NORMAL.label,
-    maxBalloonsQuantity: 8,
-    normalBalloonRandomColor: true,
-    expBalloonRandomColor: true,
-    ctrlBalloonRandomColor: true,
-    enableNormalBalloonRangeColor: false,
-    enableExpBalloonRangeColor: false,
-    enableCtrlBalloonRangeColor: false,
-    normalBalloonRangeColor1: '#ff0000',
-    normalBalloonRangeColor2: '#00ff00',
-    normalBalloonRangeColorDefinition: 10,
-    expBalloonRangeColor1: '#ff0000',
-    expBalloonRangeColor2: '#00ff00',
-    expBalloonRangeColorDefinition: 10,
-    ctrlBalloonRangeColor1: '#ff0000',
-    ctrlBalloonRangeColor2: '#00ff00',
-    ctrlBalloonRangeColorDefinition: 10,
-    normalBalloonInterpolatedColors: deepCopy(defaultBalloonInterpolatedColors),
-    expBalloonInterpolatedColors: deepCopy(defaultBalloonInterpolatedColors),
-    ctrlBalloonInterpolatedColors: deepCopy(defaultBalloonInterpolatedColors),
-    normalBalloonColor: '#ff0000',
-    expBalloonColor: '#ff0000',
-    ctrlBalloonColor: '#ff0000',
+    popElmntSpeed: popElmntSpeedOpts.NORMAL.label,
+    popElmntSize: popElmntSizeOpts.NORMAL.label,
+    maxPopElmntQty: 8,
     gameBackgroundColor: '#add8e6',
-    expInnerFigureType: innerFigureOptions.DISC.value,
-    ctrlInnerFigureType: innerFigureOptions.DISC.value,
-    expBalloonInnerFigColor: '#f82383',
-    ctrlBalloonInnerFigColor: '#000000',
-    enableExpInnerFigRangeColor: false,
-    enableCtrlInnerFigRangeColor: false,
-    expInnerFigColorRange1:'#000000',
-    expInnerFigColorRange2:'#ffffff',
-    expInnerFigColorDefinition: 10,
-    expInnerFigInterpolatedColors: deepCopy(defaultInnerFigInterpolatedColors),
-    ctrlInnerFigColorRange1:'#000000',
-    ctrlInnerFigColorRange2:'#ffffff',
-    ctrlInnerFigColorDefinition: 10,
-    ctrlInnerFigInterpolatedColors: deepCopy(defaultInnerFigInterpolatedColors),
-    enableExpInnerFigContour: false,
-    enableCtrlInnerFigContour: false,
-    availableModes: {
-        'rightToLeft': {label: 'Right to left', enabled: true, icon: 'faLeftLong', color: '#ff0000'},
-        'bottomToTop': {label: 'Bottom to top', enabled: true, icon: 'faUpLong', color: '#22d933'},
-        'topToBottom': {label: 'Top to bottom', enabled: true, icon: 'faDownLong', color: '#2665ea'},
-        'leftToRight': {label: 'Left to right', enabled: true, icon: 'faRightLong', color: '#eacf26'},
-    },
-    expBalloonsProp: 20,
-    ctrlBalloonsProp: 30,
+    availableModes: deepCopy(availableModes),
     enableBalloonReflex: false,
     enableRampageMode: true,
     rampageModeChain: 3,
+    popElmntConfig: {
+        [popElmntType.NORMAL]: deepCopy(normalPopElmntSettings),
+        [popElmntType.EXP]: deepCopy(expPopElmntSettings),
+        [popElmntType.CTRL]: deepCopy(ctrlPopElmntSettings),
+    },
 };
 
 export const appSettings = writable(deepCopy(appSettingsDEFAULT));
