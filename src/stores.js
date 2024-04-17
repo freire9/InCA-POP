@@ -9,6 +9,7 @@ export const gameDirection = writable('leftToRight');
 export const modifyingConfig = writable(true);
 export const isFullScreen = writable(false);
 
+// Pop element types: NORMAL AND SPECIAL (EXP, CTRL, etc.)
 export const popElmntType = {
     NORMAL: 'normal',
     EXP: 'exp',

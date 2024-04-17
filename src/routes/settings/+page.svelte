@@ -5,28 +5,29 @@
     import { faFileArrowDown } from '@fortawesome/free-solid-svg-icons';
     import Profile from '../../components/settings/Profile.svelte';
     import UserNavBar from '../../components/UserNavBar.svelte';
-    import NormalBalloons from '../../components/settings/game/NormalBalloons.svelte';
-    import CtrlBalloons from '../../components/settings/game/CtrlBalloons.svelte';
-    import ExpBalloons from '../../components/settings/game/ExpBalloons.svelte';
-    import BalloonsTabs from '../../components/settings/game/BalloonsTabs.svelte';
+    import NormalPopElmnts from '../../components/settings/game/NormalPopElmnts.svelte';
+    import ExpPopElmnts from '../../components/settings/game/ExpPopElmnts.svelte';
+    import CtrlPopElmnts from '../../components/settings/game/CtrlPopElmnts.svelte';
+    import PopElmntsTabs from '../../components/settings/game/PopElmntsTabs.svelte';
+
 	import Speeches from '../../components/settings/Speeches.svelte';
     import lodash from 'lodash';
 
     const { debounce } = lodash;
 
-    // List of tab balloons with labels, values and assigned components
-    let balloonTypes = [
+    // List of tab pop elements with labels, values and assigned components
+    let popElmntTypes = [
         { label: "Normal balloons",
             value: 1,
-            component: NormalBalloons
+            component: NormalPopElmnts
         },
         { label: "Control balloons",
             value: 2,
-            component: CtrlBalloons
+            component: CtrlPopElmnts
         },
         { label: "Experimental balloons",
             value: 3,
-            component: ExpBalloons
+            component: ExpPopElmnts
         }
     ];
 
@@ -154,7 +155,7 @@
             </div>
 
             <h2>Balloons</h2>
-            <BalloonsTabs {balloonTypes} />
+            <PopElmntsTabs {popElmntTypes} />
     
             <h2>Main menu</h2>
             <p>Game Modes to display (Direction of balloons):</p>

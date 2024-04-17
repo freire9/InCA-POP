@@ -26,8 +26,8 @@
 
     {#if !$gameSettings.popElmntConfig[popElmntType.NORMAL].enableRangeColor}
         <div class="color-flex">
-            <label for="normalPopElemntColorInput">Normal balloon color:</label>
-            <input id="normalPopElemntColorInput" class="color-input" type="color" bind:value={$gameSettings.popElmntConfig[popElmntType.NORMAL].color} on:input={handleUpdateRemotePreferences}>
+            <label for="normalPopElmntColorInput">Normal balloon color:</label>
+            <input id="normalPopElmntColorInput" class="color-input" type="color" bind:value={$gameSettings.popElmntConfig[popElmntType.NORMAL].color} on:input={handleUpdateRemotePreferences}>
         </div>
     {:else}
         <div class="balloon-range-color-container">

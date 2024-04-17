@@ -1,21 +1,21 @@
 <script>
-    export let balloonTypes = [];
+    export let popElmntTypes = [];
     export let activeTabValue = 1;
 
     const handleClick = tabValue => () => (activeTabValue = tabValue);
 </script>
   
 <ul>
-    {#each balloonTypes as balloonType}
-        <li class={activeTabValue === balloonType.value ? 'active' : ''}>
-            <button on:click={handleClick(balloonType.value)}>{balloonType.label}</button>
+    {#each popElmntTypes as popElmntType}
+        <li class={activeTabValue === popElmntType.value ? 'active' : ''}>
+            <button on:click={handleClick(popElmntType.value)}>{popElmntType.label}</button>
         </li>
     {/each}
 </ul>
-{#each balloonTypes as balloonType}
-    {#if activeTabValue == balloonType.value}
+{#each popElmntTypes as popElmntType}
+    {#if activeTabValue == popElmntType.value}
         <div class="box">
-            <svelte:component this={balloonType.component}/>
+            <svelte:component this={popElmntType.component}/>
         </div>
     {/if}
 {/each}

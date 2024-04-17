@@ -21,10 +21,10 @@
 </script>
 
 <div class="range-input">
-    <label for="expPopElemntPropInput">Proportion of experimental balloons:</label>
+    <label for="expPopElmntPropInput">Proportion of experimental balloons:</label>
     <p>{$gameSettings.popElmntConfig[popElmntType.EXP].proportion}% ({Math.floor($gameSettings.popElmntConfig[popElmntType.EXP].proportion/100 * $gameSettings.maxPopElmntQty)}/{$gameSettings.maxPopElmntQty}) (Floor rounded)</p>
 </div>
-<input id="expPopElemntPropInput" min="0" max="{100-$gameSettings.popElmntConfig[popElmntType.CTRL].proportion}" step="1" type="range" bind:value={$gameSettings.popElmntConfig[popElmntType.EXP].proportion} on:input={handleUpdateRemotePreferences}>
+<input id="expPopElmntPropInput" min="0" max="{100-$gameSettings.popElmntConfig[popElmntType.CTRL].proportion}" step="1" type="range" bind:value={$gameSettings.popElmntConfig[popElmntType.EXP].proportion} on:input={handleUpdateRemotePreferences}>
 
 <div class="checkbox-flex">
     <label for="randomizeExpColorsCheckbox">Randomize experimental balloons colors?</label>
@@ -39,8 +39,8 @@
 
     {#if !$gameSettings.popElmntConfig[popElmntType.EXP].enableRangeColor}
         <div class="color-flex">
-            <label for="expPopElemntColorInput">Experimental balloon color:</label>
-            <input id="expPopElemntColorInput" class="color-input" type="color" bind:value={$gameSettings.popElmntConfig[popElmntType.EXP].color} on:input={handleUpdateRemotePreferences}>
+            <label for="expPopElmntColorInput">Experimental balloon color:</label>
+            <input id="expPopElmntColorInput" class="color-input" type="color" bind:value={$gameSettings.popElmntConfig[popElmntType.EXP].color} on:input={handleUpdateRemotePreferences}>
         </div>
     {:else}
         <div class="balloon-range-color-container">
@@ -111,8 +111,8 @@
     </div>
 {:else}
     <div class="color-flex">
-        <label for="expPopElemntInnerFigColorInput">Experimental balloon inner figure color:</label>
-        <input id="expPopElemntInnerFigColorInput" class="color-input" type="color" bind:value={$gameSettings.popElmntConfig[popElmntType.EXP].innerFigColor} on:input={handleUpdateRemotePreferences}>
+        <label for="expPopElmntInnerFigColorInput">Experimental balloon inner figure color:</label>
+        <input id="expPopElmntInnerFigColorInput" class="color-input" type="color" bind:value={$gameSettings.popElmntConfig[popElmntType.EXP].innerFigColor} on:input={handleUpdateRemotePreferences}>
     </div>
 {/if}
 
