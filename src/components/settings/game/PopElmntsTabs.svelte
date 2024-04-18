@@ -1,21 +1,53 @@
 <script>
-    export let popElmntTypes = [];
-    export let activeTabValue = 1;
+    import { gameSettings, popElmntType } from "../../../stores";
+    import NormalPopElmnts from "./NormalPopElmnts.svelte";
+    import CtrlPopElmnts from "./CtrlPopElmnts.svelte";
+    import ExpPopElmnts from "./ExpPopElmnts.svelte";
+
+    let activeTabValue = 1;
 
     const handleClick = tabValue => () => (activeTabValue = tabValue);
+
+    const normalLabelUp = popElmntType.NORMAL.charAt(0).toUpperCase() + popElmntType.NORMAL.slice(1);
+    const ctrlLabelUp = popElmntType.CTRL.charAt(0).toUpperCase() + popElmntType.CTRL.slice(1);
+    const expLabelUp = popElmntType.EXP.charAt(0).toUpperCase() + popElmntType.EXP.slice(1);
+    let normalPopElmntLabel;
+    let ctrlPopElmntLabel;
+    let expPopElmntLabel;
+    let tabs;
+
+    $: normalPopElmntLabel = $gameSettings.popElmntConfig[popElmntType.NORMAL].shape;
+    $: ctrlPopElmntLabel = $gameSettings.popElmntConfig[popElmntType.CTRL].shape;
+    $: expPopElmntLabel = $gameSettings.popElmntConfig[popElmntType.EXP].shape;
+
+    // List of tab pop elements with labels, values and assigned components
+    $: tabs = [
+        { label: `${normalLabelUp} ${normalPopElmntLabel}`,
+            value: 1,
+            component: NormalPopElmnts
+        },
+        { label: `${ctrlLabelUp} ${ctrlPopElmntLabel}`,
+            value: 2,
+            component: CtrlPopElmnts
+        },
+        { label: `${expLabelUp} ${expPopElmntLabel}`,
+            value: 3,
+            component: ExpPopElmnts
+        }
+    ];
 </script>
   
 <ul>
-    {#each popElmntTypes as popElmntType}
-        <li class={activeTabValue === popElmntType.value ? 'active' : ''}>
-            <button on:click={handleClick(popElmntType.value)}>{popElmntType.label}</button>
+    {#each tabs as tab}
+        <li class={activeTabValue === tab.value ? 'active' : ''}>
+            <button on:click={handleClick(tab.value)}>{tab.label}</button>
         </li>
     {/each}
 </ul>
-{#each popElmntTypes as popElmntType}
-    {#if activeTabValue == popElmntType.value}
+{#each tabs as tab}
+    {#if activeTabValue == tab.value}
         <div class="box">
-            <svelte:component this={popElmntType.component}/>
+            <svelte:component this={tab.component}/>
         </div>
     {/if}
 {/each}

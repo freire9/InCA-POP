@@ -3,7 +3,7 @@
     import { onMount } from 'svelte';
     import { deepCopy, getRandomFrom, getRandomHexColor } from '$lib/utils';
     import { addLog } from "$lib/logService";
-    import { appSettings, gameSettings, isLoggedIn, user, popElmntSizeOpts, gameDirection, menuSettings, subjectName, popElmntSpeedOpts, popElmntType } from '../../stores.js';
+    import { appSettings, gameSettings, isLoggedIn, user, popElmntSizeOpts, gameDirection, menuSettings, subjectName, popElmntSpeedOpts, popElmntType, popElmntShape } from '../../stores.js';
     import SubjectNavBar from '../../components/SubjectNavBar.svelte';
 
     let popElmnts = [];
@@ -25,6 +25,12 @@
     //Total max quantity of special popElmnts
     const specialPopElmntsMaxQuantity = Object.values(specialPopElmntsMaxQuantities).reduce((sum, value) => sum + value, 0);
 
+    function getAditionalHeight(type, height){
+        if($gameSettings.popElmntConfig[type].shape !== popElmntShape.BALLOON) return 0;
+
+        return height * balloonKnotHeightPercent;
+    }
+
     function setSpecialType(){
         for (const type in specialPopElmntsMaxQuantities) {
             const specialPopElmntsQty = popElmnts.filter(popElmnt => popElmnt.type === type).length;
@@ -44,7 +50,7 @@
         const id = PopElmntIdCounter++;
         const isSpecial = popElmnts.filter(popElmnt => popElmnt.isSpecial).length < specialPopElmntsMaxQuantity;
         const type = isSpecial ? setSpecialType() : popElmntType.NORMAL;
-        const { x, y } = getInitialPosition($gameDirection, popElmntSize);
+        const { x, y } = getInitialPosition($gameDirection, popElmntSize, type);
         const speed = getRandomSpeed();
         const size = popElmntSize;
         const direction = $gameDirection;
@@ -170,14 +176,14 @@
         return Math.random() * (popElmntSpeed.max - popElmntSpeed.min) + popElmntSpeed.min;
     }
 
-    function getInitialPosition(direction, size) {
+    function getInitialPosition(direction, size, type) {
         switch (direction) {
             case 'leftToRight':
                 return { x: 0 - size.width, y: getRandomYPosition(size) };
             case 'rightToLeft':
                 return { x: window.innerWidth, y: getRandomYPosition(size) };
             case 'topToBottom':
-                return { x: getRandomXPosition(size), y: 0 - size.height - (size.height * balloonKnotHeightPercent)};
+                return { x: getRandomXPosition(size), y: 0 - size.height - getAditionalHeight(type, size.height)};
             case 'bottomToTop':
                 return { x: getRandomXPosition(size), y: window.innerHeight};
             default:
@@ -217,7 +223,7 @@
             if (popElmnt.direction === 'leftToRight' || popElmnt.direction === 'rightToLeft') {
                 return popElmnt.x <= window.innerWidth + popElmnt.size.width && popElmnt.x >= 0 - popElmnt.size.width * 2;
             } else {
-                return popElmnt.y <= window.innerHeight + popElmnt.size.height && popElmnt.y >= 0 - (popElmnt.size.height - (popElmnt.size.height * balloonKnotHeightPercent)) * 2;
+                return popElmnt.y <= window.innerHeight + popElmnt.size.height && popElmnt.y >= 0 - (popElmnt.size.height - getAditionalHeight(popElmnt.type, popElmnt.size.height)) * 2;
             }
         });
         
@@ -227,10 +233,12 @@
     }
     
     onMount(() => {
-        const root = document.documentElement;
-
-        balloonKnotHeightPercent = getComputedStyle(root).getPropertyValue('--balloon-knot-height');
-        balloonKnotHeightPercent = parseFloat(balloonKnotHeightPercent)/100;
+        const areBalloons = Object.values($gameSettings.popElmntConfig).some(popElmnt => popElmnt.shape === popElmntShape.BALLOON);
+        if(areBalloons){
+            const root = document.documentElement;
+            balloonKnotHeightPercent = getComputedStyle(root).getPropertyValue('--balloon-knot-height');
+            balloonKnotHeightPercent = parseFloat(balloonKnotHeightPercent)/100;
+        }
 
         addInitialPopElmnts();
 

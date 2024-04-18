@@ -1,35 +1,16 @@
 <script>
-    import { popElmntSizeOpts, popElmntSpeedOpts, gameSettings, appSettings, menuSettings, isLoggedIn, user, isFullScreen, menuSettingsDEFAULT, appSettingsDEFAULT, gameSettingsDEFAULT, subjectName} from '../../stores.js';
+    import { popElmntSizeOpts, popElmntSpeedOpts, gameSettings, appSettings, menuSettings, isLoggedIn, user, isFullScreen, menuSettingsDEFAULT, appSettingsDEFAULT, gameSettingsDEFAULT, subjectName, popElmntType} from '../../stores.js';
     import { downloadJsonLocal, downloadJsonRemote, downloadCsvLocal, downloadCsvRemote, deepCopy, handleUpdateRemotePreferences, updateRemotePreferences } from '$lib/utils.js'
     import { Fa } from 'inca-utils';
     import { faFileArrowDown } from '@fortawesome/free-solid-svg-icons';
     import Profile from '../../components/settings/Profile.svelte';
     import UserNavBar from '../../components/UserNavBar.svelte';
-    import NormalPopElmnts from '../../components/settings/game/NormalPopElmnts.svelte';
-    import ExpPopElmnts from '../../components/settings/game/ExpPopElmnts.svelte';
-    import CtrlPopElmnts from '../../components/settings/game/CtrlPopElmnts.svelte';
     import PopElmntsTabs from '../../components/settings/game/PopElmntsTabs.svelte';
 
 	import Speeches from '../../components/settings/Speeches.svelte';
     import lodash from 'lodash';
 
     const { debounce } = lodash;
-
-    // List of tab pop elements with labels, values and assigned components
-    let popElmntTypes = [
-        { label: "Normal balloons",
-            value: 1,
-            component: NormalPopElmnts
-        },
-        { label: "Control balloons",
-            value: 2,
-            component: CtrlPopElmnts
-        },
-        { label: "Experimental balloons",
-            value: 3,
-            component: ExpPopElmnts
-        }
-    ];
 
     function handleRemoteJsonDownload (){
         if ($isLoggedIn && $user) downloadJsonRemote($user.uid);
@@ -106,12 +87,12 @@
 
             <h2>Global game</h2>
             <div class="range-input">
-                <label for="maxPopElmntQtyInput">Max balloons quantity on screen:</label>
+                <label for="maxPopElmntQtyInput">Max pop elements quantity on screen:</label>
                 <p>{$gameSettings.maxPopElmntQty}</p>
             </div>
             <input id="maxPopElmntQtyInput" min="1" max="50" step="1" type="range" bind:value={$gameSettings.maxPopElmntQty} on:input={handleUpdateRemotePreferences}>
 
-            <label for="popElmntSpeedSelect">Balloon Speed:</label>
+            <label for="popElmntSpeedSelect">Pop element speed:</label>
             <select id="popElmntSpeedSelect" bind:value={$gameSettings.popElmntSpeed} on:input={handleUpdateRemotePreferences}>
                 {#each Object.keys(popElmntSpeedOpts) as speedOptionKey}
                     <option value={speedOptionKey}>
@@ -120,7 +101,7 @@
                 {/each}
             </select>
 
-            <label for="popElmntSizeInput">Balloon size:</label>
+            <label for="popElmntSizeInput">Pop element size:</label>
             <select id="popElmntSizeInput" bind:value={$gameSettings.popElmntSize} on:input={handleUpdateRemotePreferences}>
                 {#each Object.keys(popElmntSizeOpts) as sizeOptionKey}
                     <option value={sizeOptionKey}>
@@ -130,7 +111,7 @@
             </select>
 
             <div class="checkbox-flex">
-                <label for="enableRampageMode">Enable rampage mode (chain a number of special balloons):</label>
+                <label for="enableRampageMode">Enable rampage mode (chain a number of special pop elements):</label>
                 <input id="enableRampageMode" type="checkbox" bind:checked={$gameSettings.enableRampageMode} on:input={handleUpdateRemotePreferences}>
             </div>
 
@@ -145,7 +126,7 @@
             {/if}
 
             <div class="checkbox-flex">
-                <label for="enableBalloonReflex">Enable balloon reflex effect (only aesthetic, slight discrepancies between what is seen and what is logged):</label>
+                <label for="enableBalloonReflex">Enable pop element reflex effect (only aesthetic in pop element type balloon, slight discrepancies between what is seen and what is logged):</label>
                 <input id="enableBalloonReflex" type="checkbox" bind:checked={$gameSettings.enableBalloonReflex} on:input={handleUpdateRemotePreferences}>
             </div>
             
@@ -154,11 +135,11 @@
                 <input id="gameBackgroundColorInput" class="color-input" type="color" bind:value={$gameSettings.gameBackgroundColor} on:input={handleUpdateRemotePreferences}>
             </div>
 
-            <h2>Balloons</h2>
-            <PopElmntsTabs {popElmntTypes} />
+            <h2>Pop elements</h2>
+            <PopElmntsTabs />
     
             <h2>Main menu</h2>
-            <p>Game Modes to display (Direction of balloons):</p>
+            <p>Game modes to display (direction of pop elements):</p>
             <div class="flex-column">
                 <div class="game-modes-container">
                     {#each Object.keys($gameSettings.availableModes) as mode}

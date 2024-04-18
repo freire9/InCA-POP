@@ -12,8 +12,12 @@ export const isFullScreen = writable(false);
 // Pop element types: NORMAL AND SPECIAL (EXP, CTRL, etc.)
 export const popElmntType = {
     NORMAL: 'normal',
-    EXP: 'exp',
-    CTRL: 'ctrl',
+    EXP: 'experimental',
+    CTRL: 'control',
+}
+// Pop element shapes: BALLOON, etc.
+export const popElmntShape = {
+    BALLOON: 'balloon',
 }
 
 export const popElmntSpeedOpts = {
@@ -72,7 +76,8 @@ const normalPopElmntSettings = {
     rangeColor2: '#00ff00',
     colorRangeDef: 10,
     interpColors: deepCopy(dfltPopElmntInterColors),
-    color: '#ff0000',   
+    color: '#ff0000',
+    shape: popElmntShape.BALLOON,
 };
 
 const expPopElmntSettings = {
@@ -83,6 +88,7 @@ const expPopElmntSettings = {
     colorRangeDef: 10,
     interpColors: deepCopy(dfltPopElmntInterColors),
     color: '#ff0000',
+    shape: popElmntShape.BALLOON,
     innerFigType: innerFigureOptions.DISC.value,
     innerFigColor: '#f82383',
     enableInnerFigRangeColor: false,
@@ -102,6 +108,7 @@ const ctrlPopElmntSettings = {
     colorRangeDef: 10,
     interpColors: deepCopy(dfltPopElmntInterColors),
     color: '#ff0000',
+    shape: popElmntShape.BALLOON,
     innerFigType: innerFigureOptions.DISC.value,
     innerFigColor: '#000000',
     enableInnerFigRangeColor: false,
