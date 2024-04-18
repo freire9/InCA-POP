@@ -12,7 +12,7 @@
     const rampageSound = new Audio('/sounds/rampage.mp3');
 
     function isRampage(){
-        return $gameSettings.enableRampageMode && balloon.isSpecial && currentRampageChain >= $gameSettings.rampageModeChain - 1;
+        return $gameSettings.enableRampageMode && balloon.isSpecial && ((currentRampageChain + 1) % $gameSettings.rampageModeChain === 0);
     }
 
     function playCustomCorrect(){

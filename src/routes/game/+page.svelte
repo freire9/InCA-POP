@@ -56,6 +56,7 @@
         const direction = $gameDirection;
         const rotation = Math.random() * 20 - 10;
         const innerFigType = isSpecial ? $gameSettings.popElmntConfig[type].innerFigType : '';
+        const shape = $gameSettings.popElmntConfig[type].shape;
 
         const color = $gameSettings.popElmntConfig[type].enableRandColor ?
             getRandomHexColor() :
@@ -65,7 +66,7 @@
             ($gameSettings.popElmntConfig[type].enableInnerFigRangeColor ? getRandomFrom($gameSettings.popElmntConfig[type].innerFigInterpColors) : $gameSettings.popElmntConfig[type].innerFigColor)
             : '';
 
-        const popElmnt = { id, color, innerFigType, innerFigColor, x, y, speed, direction, size, rotation, isSpecial, type};
+        const popElmnt = { id, color, innerFigType, innerFigColor, x, y, speed, direction, size, rotation, isSpecial, type, shape};
 
         popElmnts = [...popElmnts, popElmnt];
     }
@@ -87,6 +88,7 @@
             const isSpecial = specialPopElmntsTotalQty < specialPopElmntsMaxQuantity;
             const type = isSpecial ? setInitialSpecialType(specialPopElmntsQuantities) : popElmntType.NORMAL;
             const innerFigType = isSpecial ? $gameSettings.popElmntConfig[type].innerFigType : '';
+            const shape = $gameSettings.popElmntConfig[type].shape;
 
             const color = $gameSettings.popElmntConfig[type].enableRandColor ?
                 getRandomHexColor()
@@ -101,7 +103,7 @@
                 specialPopElmntsTotalQty += 1;
             }
 
-            const popElmnt = { id, color, innerFigType, innerFigColor, x, y, speed, direction, size, rotation, isSpecial, type};
+            const popElmnt = { id, color, innerFigType, innerFigColor, x, y, speed, direction, size, rotation, isSpecial, type, shape};
 
             popElmnts = [...popElmnts, popElmnt];
         }
@@ -110,7 +112,6 @@
     function rampageChainUpdate(popElmnt){
         if(popElmnt.isSpecial){
             currentRampageChain++;
-            if(currentRampageChain >= $gameSettings.rampageModeChain) currentRampageChain = 0;
         } else {
             currentRampageChain = 0;
         }
@@ -118,6 +119,74 @@
 
     function destroyPopElmnt(id) {
         popElmnts = popElmnts.filter(popElmnt => popElmnt.id !== id);
+    }
+
+    function onScreenPopElmnts(popElmnts){
+        const popElmntsOnScreen = popElmnts.filter(popElmnt => {
+            switch (popElmnt.direction) {
+                case 'leftToRight':
+                    return popElmnt.x <= window.innerWidth && popElmnt.x >= 0;
+                case 'rightToLeft':
+                    return popElmnt.x <= window.innerWidth && popElmnt.x >= 0 - popElmnt.size.width;
+                case 'topToBottom':
+                    return popElmnt.y <= window.innerHeight && popElmnt.y >= 0;
+                case 'bottomToTop':
+                    return popElmnt.y <= window.innerHeight + popElmnt.size.height && popElmnt.y >= 0 - (popElmnt.size.height - getAditionalHeight(popElmnt.type, popElmnt.size.height));
+                default:
+                    return false;
+            }
+        });
+        return popElmntsOnScreen;
+    }
+
+    function poppedElmntLogs(popElmnt){
+        const now = new Date();
+        const generalLogs = {
+            timestamp: "2024-03-22T17:13:45.706Z",
+            user: "Anonymous",
+            userId: "90ae7b8d-f0f6-4cf9-8f27-2ee61d9f80ff",
+            date: now.toISOString().slice(0, 10),
+            time: now.toISOString().slice(11, 19),
+            teacher: $appSettings.instructorName,
+            action: "Popped element",
+            subject: $subjectName,
+        }
+        const onScreen = onScreenPopElmnts(popElmnts); 
+        const specialPopElmntsQtyOnScreen = Object.fromEntries(
+            Object.values(popElmntType)
+                .filter(type => type !== popElmntType.NORMAL) // exclude 'NORMAL'
+                .map(type => [
+                    type + 'Qty',
+                    onScreen.filter(popElmnt => popElmnt.type === type).length
+                ])
+        );
+        let specialDetails = {};
+        if(popElmnt.isSpecial){
+            specialDetails = {
+                innerFigType: popElmnt.innerFigType,
+                innerFigColor: popElmnt.innerFigColor,
+            }
+        }
+        const detailLogs = {
+            id: popElmnt.id,
+            color: popElmnt.color,
+            x: popElmnt.x,
+            y: popElmnt.y,
+            speed: popElmnt.speed,
+            direction: popElmnt.direction,
+            size: popElmnt.size,
+            isSpecial: popElmnt.isSpecial,
+            type: popElmnt.type,
+            ...specialDetails,
+            currentRampageChain: currentRampageChain,
+            rampageChainForExcellent: $gameSettings.rampageModeChain,
+            shape: popElmnt.shape,
+            screenElmnts: onScreenPopElmnts(popElmnts).length,
+            specialPopElmntsQty: Object.values(specialPopElmntsQtyOnScreen).reduce((sum, value) => sum + value, 0),
+            ...specialPopElmntsQtyOnScreen,
+            backgroundColor: $gameSettings.gameBackgroundColor,
+        }
+        return {...generalLogs, details: detailLogs};
     }
 
     function handleClick(event) {
@@ -136,6 +205,7 @@
             $isLoggedIn ? deepCopy($user.uid) : null
         );
         if($gameSettings.enableRampageMode) rampageChainUpdate(event.detail);
+        console.log(poppedElmntLogs(event.detail));
         destroyPopElmnt(clickedPopElmntId);
     }
 
