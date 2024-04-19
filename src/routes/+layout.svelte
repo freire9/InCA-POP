@@ -32,9 +32,9 @@
 
     function syncPreferencesToStores(userData) {
         if (userData && userData.preferences) {
-            const { settings: updatedAppSettings, hasChanged: appSettingsHasChanged } = updateSettingsWithDefault(appSettingsDEFAULT, userData.preferences.appSettings);
-            const { settings: updatedGameSettings, hasChanged: gameSettingsHasChanged } = updateSettingsWithDefault(gameSettingsDEFAULT, userData.preferences.gameSettings);
-            const { settings: updatedMenuSettings, hasChanged: menuSettingsHasChanged } = updateSettingsWithDefault(menuSettingsDEFAULT, userData.preferences.menuSettings);
+            const { settings: updatedAppSettings, hasChanged: appSettingsHasChanged } = updateSettingsWithDefault(appSettingsDEFAULT, userData.preferences.appSettings || {});
+            const { settings: updatedGameSettings, hasChanged: gameSettingsHasChanged } = updateSettingsWithDefault(gameSettingsDEFAULT, userData.preferences.gameSettings || {});
+            const { settings: updatedMenuSettings, hasChanged: menuSettingsHasChanged } = updateSettingsWithDefault(menuSettingsDEFAULT, userData.preferences.menuSettings || {});
 
             gameSettings.set(updatedGameSettings);
             menuSettings.set(updatedMenuSettings);

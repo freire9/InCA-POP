@@ -1,5 +1,5 @@
 <script>
-    import { gameSettings, popElmntType } from "../../../stores";
+    import { gameSettings, popElmntTypes } from "../../../stores";
     import NormalPopElmnts from "./NormalPopElmnts.svelte";
     import CtrlPopElmnts from "./CtrlPopElmnts.svelte";
     import ExpPopElmnts from "./ExpPopElmnts.svelte";
@@ -8,17 +8,17 @@
 
     const handleClick = tabValue => () => (activeTabValue = tabValue);
 
-    const normalLabelUp = popElmntType.NORMAL.charAt(0).toUpperCase() + popElmntType.NORMAL.slice(1);
-    const ctrlLabelUp = popElmntType.CTRL.charAt(0).toUpperCase() + popElmntType.CTRL.slice(1);
-    const expLabelUp = popElmntType.EXP.charAt(0).toUpperCase() + popElmntType.EXP.slice(1);
+    const normalLabelUp = popElmntTypes.NORMAL.charAt(0).toUpperCase() + popElmntTypes.NORMAL.slice(1);
+    const ctrlLabelUp = popElmntTypes.CTRL.charAt(0).toUpperCase() + popElmntTypes.CTRL.slice(1);
+    const expLabelUp = popElmntTypes.EXP.charAt(0).toUpperCase() + popElmntTypes.EXP.slice(1);
     let normalPopElmntLabel;
     let ctrlPopElmntLabel;
     let expPopElmntLabel;
     let tabs;
 
-    $: normalPopElmntLabel = $gameSettings.popElmntConfig[popElmntType.NORMAL].shape;
-    $: ctrlPopElmntLabel = $gameSettings.popElmntConfig[popElmntType.CTRL].shape;
-    $: expPopElmntLabel = $gameSettings.popElmntConfig[popElmntType.EXP].shape;
+    $: normalPopElmntLabel = $gameSettings.popElmntConfig[popElmntTypes.NORMAL].shape;
+    $: ctrlPopElmntLabel = $gameSettings.popElmntConfig[popElmntTypes.CTRL].shape;
+    $: expPopElmntLabel = $gameSettings.popElmntConfig[popElmntTypes.EXP].shape;
 
     // List of tab pop elements with labels, values and assigned components
     $: tabs = [

@@ -1,59 +1,59 @@
 <script>
     import { calculateInterpolatedColors, handleUpdateRemotePreferences, updateRemotePreferences } from "$lib/utils";
-    import { gameSettings, isLoggedIn, popElmntType, user } from "../../../stores";
+    import { gameSettings, isLoggedIn, user, popElmntTypes } from "../../../stores";
     import lodash from 'lodash';
     
     const { debounce } = lodash;
     const handleColorChange = debounce(setNormalInterpolatedColors, 500);
-    const normalLabel = popElmntType.NORMAL;
+    const normalLabel = popElmntTypes.NORMAL;
     const normalLabelUp = normalLabel.charAt(0).toUpperCase() + normalLabel.slice(1);
     let normalPopElmntLabel;
 
-    $: normalPopElmntLabel = $gameSettings.popElmntConfig[popElmntType.NORMAL].shape;
+    $: normalPopElmntLabel = $gameSettings.popElmntConfig[popElmntTypes.NORMAL].shape;
 
     function setNormalInterpolatedColors(){
-        const colors = calculateInterpolatedColors($gameSettings.popElmntConfig[popElmntType.NORMAL].colorRangeDef, $gameSettings.popElmntConfig[popElmntType.NORMAL].rangeColor1, $gameSettings.popElmntConfig[popElmntType.NORMAL].rangeColor2);
-        $gameSettings.popElmntConfig[popElmntType.NORMAL].interpColors = colors;
+        const colors = calculateInterpolatedColors($gameSettings.popElmntConfig[popElmntTypes.NORMAL].colorRangeDef, $gameSettings.popElmntConfig[popElmntTypes.NORMAL].rangeColor1, $gameSettings.popElmntConfig[popElmntTypes.NORMAL].rangeColor2);
+        $gameSettings.popElmntConfig[popElmntTypes.NORMAL].interpColors = colors;
         if ($isLoggedIn && $user) updateRemotePreferences();
     }
 </script>
 
 <div class="checkbox-flex">
     <label for="randomizeNormalColorsCheckbox">Randomize {normalLabel} {normalPopElmntLabel} colors?</label>
-    <input id="randomizeNormalColorsCheckbox" type="checkbox" bind:checked={$gameSettings.popElmntConfig[popElmntType.NORMAL].enableRandColor} on:input={handleUpdateRemotePreferences}>
+    <input id="randomizeNormalColorsCheckbox" type="checkbox" bind:checked={$gameSettings.popElmntConfig[popElmntTypes.NORMAL].enableRandColor} on:input={handleUpdateRemotePreferences}>
 </div>
 
-{#if !$gameSettings.popElmntConfig[popElmntType.NORMAL].enableRandColor}
+{#if !$gameSettings.popElmntConfig[popElmntTypes.NORMAL].enableRandColor}
     <div class="checkbox-flex">
         <label for="normalColorRangeCheckbox">Enable {normalLabel} {normalPopElmntLabel} range color?</label>
-        <input id="normalColorRangeCheckbox" type="checkbox" bind:checked={$gameSettings.popElmntConfig[popElmntType.NORMAL].enableRangeColor} on:input={handleUpdateRemotePreferences}>
+        <input id="normalColorRangeCheckbox" type="checkbox" bind:checked={$gameSettings.popElmntConfig[popElmntTypes.NORMAL].enableRangeColor} on:input={handleUpdateRemotePreferences}>
     </div>
 
-    {#if !$gameSettings.popElmntConfig[popElmntType.NORMAL].enableRangeColor}
+    {#if !$gameSettings.popElmntConfig[popElmntTypes.NORMAL].enableRangeColor}
         <div class="color-flex">
             <label for="normalPopElmntColorInput">{normalLabelUp} {normalPopElmntLabel} color:</label>
-            <input id="normalPopElmntColorInput" class="color-input" type="color" bind:value={$gameSettings.popElmntConfig[popElmntType.NORMAL].color} on:input={handleUpdateRemotePreferences}>
+            <input id="normalPopElmntColorInput" class="color-input" type="color" bind:value={$gameSettings.popElmntConfig[popElmntTypes.NORMAL].color} on:input={handleUpdateRemotePreferences}>
         </div>
     {:else}
         <div class="pop-elmnt-range-color-container">
             <div class="color-flex">
                 <label for="normalColor1RangeInput">{normalLabelUp} color 1:</label>
-                <input id="normalColor1RangeInput" class="color-input" type="color" bind:value={$gameSettings.popElmntConfig[popElmntType.NORMAL].rangeColor1} on:input={handleColorChange} />
+                <input id="normalColor1RangeInput" class="color-input" type="color" bind:value={$gameSettings.popElmntConfig[popElmntTypes.NORMAL].rangeColor1} on:input={handleColorChange} />
             </div>
 
             <div class="color-flex">
                 <label for="normalColor2RangeInput">{normalLabelUp} color 2:</label>
-                <input id="normalColor2RangeInput" class="color-input" type="color" bind:value={$gameSettings.popElmntConfig[popElmntType.NORMAL].rangeColor2} on:input={handleColorChange} />
+                <input id="normalColor2RangeInput" class="color-input" type="color" bind:value={$gameSettings.popElmntConfig[popElmntTypes.NORMAL].rangeColor2} on:input={handleColorChange} />
             </div>
 
             <div class="range-input">
                 <label for="normalDefinitionInput">{normalLabelUp} Definition:</label>
-                <p>{$gameSettings.popElmntConfig[popElmntType.NORMAL].colorRangeDef}</p>
+                <p>{$gameSettings.popElmntConfig[popElmntTypes.NORMAL].colorRangeDef}</p>
             </div>
-            <input id="normalDefinitionInput" type="range" min="1" max="100" step="1" bind:value={$gameSettings.popElmntConfig[popElmntType.NORMAL].colorRangeDef} on:input={handleColorChange}>
+            <input id="normalDefinitionInput" type="range" min="1" max="100" step="1" bind:value={$gameSettings.popElmntConfig[popElmntTypes.NORMAL].colorRangeDef} on:input={handleColorChange}>
             <br>
             <div class="color-box">
-                {#each $gameSettings.popElmntConfig[popElmntType.NORMAL].interpColors as color (color)}
+                {#each $gameSettings.popElmntConfig[popElmntTypes.NORMAL].interpColors as color (color)}
                     <div class="color-square" style="background-color: {color}"></div>
                 {/each}
             </div>

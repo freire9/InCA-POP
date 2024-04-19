@@ -1,48 +1,32 @@
 import { db } from "$lib/firebaseConfig";
 import { addDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { deepCopy } from "./utils";
 
 let logs = [];
 const isClient = !import.meta.env.SSR;
 if (isClient) logs = JSON.parse(sessionStorage.getItem('logs')) || [];
 
 // Function for send log to Firestore
-const addRemoteLog = async (userUid, eventType, eventDetails) => {
+const addRemoteLog = async (dataLogs) => {
   try {
     const logsCollection = collection(db, 'usageLogs');
-
-    const docRef = await addDoc(logsCollection, {
-      userUid: userUid,
-      eventType,
-      ...eventDetails,
-      timestamp: new Date(),
-    });
-
+    const docRef = await addDoc(logsCollection, dataLogs);
     console.log('Log save with ID: ', docRef.id);
   } catch (error) {
     console.error('Error at saving log: ', error);
   }
 };
 
-
-export const addLog = (eventType, eventDetails, userUid = null) => {
-  const logEntry = { eventType, ...eventDetails, timestamp: new Date() };
+export const addLog = (dataLogs) => {
+  const logEntry = deepCopy(dataLogs);
   logs.push(logEntry);
-
-  // Check if running on the client side before accessing sessionStorage
-  if (isClient) {
-    sessionStorage.setItem('logs', JSON.stringify(logs));
-  }
-
-  if (userUid){
-    addRemoteLog(userUid, eventType, eventDetails);
-  }
+  console.log('Data saved in logs: ', logEntry);
+  if (isClient) sessionStorage.setItem('logs', JSON.stringify(logs));
+  if (dataLogs.userId != null) addRemoteLog(dataLogs);
 };
 
 export const getLogs = () => {
-  // Check if running on the client side before accessing sessionStorage
-  if (isClient) {
-    return JSON.parse(sessionStorage.getItem('logs')) || [];
-  }
+  if (isClient) return JSON.parse(sessionStorage.getItem('logs')) || [];
 
   return logs;
 };

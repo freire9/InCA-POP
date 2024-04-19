@@ -28,31 +28,28 @@
         }
     }
 
-    function handleClick(event){
-        addLog(
-            'Game started', 
-            {gameDirection: deepCopy(event.detail), 
-                ...deepCopy($gameSettings), 
-                ...deepCopy($menuSettings), 
-                ...deepCopy($appSettings),
-                subjectName: deepCopy($subjectName),
-            },
-            $isLoggedIn ? deepCopy($user.uid) : null
-        );
+    function setGeneralLogs(action){
+        const now = new Date;
+        const generalLogs = {
+            timestamp: now,
+            user: $user ? $user.displayName : "Anonymous",
+            userId: $user ? $user.uid : null,
+            date: now.toISOString().slice(0, 10),
+            time: now.toISOString().slice(11, 19),
+            teacher: $appSettings.instructorName,
+            action: action.toString(),
+            subject: $subjectName,
+        }
+        return generalLogs;
+    }
 
+    function handleClick(event){
+        addLog({...setGeneralLogs('Game started'), gameDirection: event.detail});
         startGame(event.detail);
     }
 
     function handleBackgroundClick(event){
-        addLog(
-            'Menu background click', 
-            {...deepCopy($gameSettings),
-                ...deepCopy($menuSettings),
-                ...deepCopy($appSettings),
-                subjectName: deepCopy($subjectName),
-            },
-            $isLoggedIn ? deepCopy($user.uid) : null
-        );
+        addLog({...setGeneralLogs('Menu background click'), x: event.clientX, y: event.clientY});
     }
 
     function handleBackgroundKeyboard(event){

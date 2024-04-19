@@ -1,5 +1,5 @@
 <script>
-    import { popElmntSizeOpts, popElmntSpeedOpts, gameSettings, appSettings, menuSettings, isLoggedIn, user, isFullScreen, menuSettingsDEFAULT, appSettingsDEFAULT, gameSettingsDEFAULT, subjectName, popElmntType} from '../../stores.js';
+    import { gameSettings, appSettings, menuSettings, isLoggedIn, user, isFullScreen, menuSettingsDEFAULT, appSettingsDEFAULT, gameSettingsDEFAULT, subjectName, popElmntSpeeds, popElmntSizes} from '../../stores.js';
     import { downloadJsonLocal, downloadJsonRemote, downloadCsvLocal, downloadCsvRemote, deepCopy, handleUpdateRemotePreferences, updateRemotePreferences } from '$lib/utils.js'
     import { Fa } from 'inca-utils';
     import { faFileArrowDown } from '@fortawesome/free-solid-svg-icons';
@@ -94,18 +94,18 @@
 
             <label for="popElmntSpeedSelect">Pop element speed:</label>
             <select id="popElmntSpeedSelect" bind:value={$gameSettings.popElmntSpeed} on:input={handleUpdateRemotePreferences}>
-                {#each Object.keys(popElmntSpeedOpts) as speedOptionKey}
-                    <option value={speedOptionKey}>
-                        {speedOptionKey.charAt(0).toUpperCase() + speedOptionKey.slice(1).toLowerCase()}
+                {#each Object.values(popElmntSpeeds) as speedOption}
+                    <option value={speedOption}>
+                        {speedOption.charAt(0).toUpperCase() + speedOption.slice(1).toLowerCase()}
                     </option>
                 {/each}
             </select>
 
             <label for="popElmntSizeInput">Pop element size:</label>
             <select id="popElmntSizeInput" bind:value={$gameSettings.popElmntSize} on:input={handleUpdateRemotePreferences}>
-                {#each Object.keys(popElmntSizeOpts) as sizeOptionKey}
-                    <option value={sizeOptionKey}>
-                        {sizeOptionKey.charAt(0).toUpperCase() + sizeOptionKey.slice(1).toLowerCase()}
+                {#each Object.values(popElmntSizes) as sizeOption}
+                    <option value={sizeOption}>
+                        {sizeOption.charAt(0).toUpperCase() + sizeOption.slice(1).toLowerCase()}
                     </option>
                 {/each}
             </select>

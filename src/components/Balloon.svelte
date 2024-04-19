@@ -1,6 +1,6 @@
 <script>
     import { createEventDispatcher } from 'svelte'
-    import { appSettings, gameSettings, innerFigureOptions, speechCorrect, speechExcellent } from '../stores';
+    import { appSettings, gameSettings, popElmntInnerFigs, speechCorrect, speechExcellent } from '../stores';
 	import Letter from './inner_figures/Letter.svelte';
 	import Disc from './inner_figures/Disc.svelte';
 
@@ -123,9 +123,9 @@
     "background: {$gameSettings.enableBalloonReflex ? "radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.5), transparent 70%)" : "unset"};
     filter: {$gameSettings.enableBalloonReflex ? "brightness(1.2)" : "unset"};"
 >
-    {#if balloon.isSpecial && balloon.innerFigType == innerFigureOptions.LETTER.value}
+    {#if balloon.isSpecial && balloon.innerFigType == popElmntInnerFigs.LETTER}
         <Letter popElmnt={balloon} />
-    {:else if balloon.isSpecial && balloon.innerFigType == innerFigureOptions.DISC.value}
+    {:else if balloon.isSpecial && balloon.innerFigType == popElmntInnerFigs.DISC}
         <Disc popElmnt={balloon} />
     {/if}
     <div class="string not-selectable {balloon.isSpecial ? 'special-string' : ''}" style:transform='translateX(-50%) rotate({10+balloon.rotation}deg)'></div>

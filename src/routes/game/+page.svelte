@@ -3,20 +3,20 @@
     import { onMount } from 'svelte';
     import { deepCopy, getRandomFrom, getRandomHexColor } from '$lib/utils';
     import { addLog } from "$lib/logService";
-    import { appSettings, gameSettings, isLoggedIn, user, popElmntSizeOpts, gameDirection, menuSettings, subjectName, popElmntSpeedOpts, popElmntType, popElmntShape } from '../../stores.js';
+    import { appSettings, gameSettings, isLoggedIn, user, popElmntSizeOpts, gameDirection, menuSettings, subjectName, popElmntShapes, popElmntTypes, popElmntSpeedsOpts } from '../../stores.js';
     import SubjectNavBar from '../../components/SubjectNavBar.svelte';
 
     let popElmnts = [];
     let PopElmntIdCounter = 1;
     let balloonKnotHeightPercent;
-    const popElmntSpeed = popElmntSpeedOpts[$gameSettings.popElmntSpeed];
+    const popElmntSpeed = popElmntSpeedsOpts[$gameSettings.popElmntSpeed];
     const popElmntSize = popElmntSizeOpts[$gameSettings.popElmntSize];
     let currentRampageChain = 0;
 
     //Max quantities of special popElmnts
     const specialPopElmntsMaxQuantities = Object.fromEntries(
-        Object.values(popElmntType)
-            .filter(type => type !== popElmntType.NORMAL) // exclude 'NORMAL'
+        Object.values(popElmntTypes)
+            .filter(type => type !== popElmntTypes.NORMAL) // exclude 'NORMAL'
             .map(type => [
                 type,
                 Math.floor($gameSettings.popElmntConfig[type].proportion / 100 * $gameSettings.maxPopElmntQty)
@@ -26,7 +26,7 @@
     const specialPopElmntsMaxQuantity = Object.values(specialPopElmntsMaxQuantities).reduce((sum, value) => sum + value, 0);
 
     function getAditionalHeight(type, height){
-        if($gameSettings.popElmntConfig[type].shape !== popElmntShape.BALLOON) return 0;
+        if($gameSettings.popElmntConfig[type].shape !== popElmntShapes.BALLOON) return 0;
 
         return height * balloonKnotHeightPercent;
     }
@@ -49,7 +49,7 @@
 
         const id = PopElmntIdCounter++;
         const isSpecial = popElmnts.filter(popElmnt => popElmnt.isSpecial).length < specialPopElmntsMaxQuantity;
-        const type = isSpecial ? setSpecialType() : popElmntType.NORMAL;
+        const type = isSpecial ? setSpecialType() : popElmntTypes.NORMAL;
         const { x, y } = getInitialPosition($gameDirection, popElmntSize, type);
         const speed = getRandomSpeed();
         const size = popElmntSize;
@@ -73,7 +73,7 @@
 
     function addInitialPopElmnts() {
         //Initial special popElmnts quantities (initial: 0 for each type)
-        let specialPopElmntsQuantities = Object.fromEntries(Object.values(popElmntType).map(type => [type, 0]));
+        let specialPopElmntsQuantities = Object.fromEntries(Object.values(popElmntTypes).map(type => [type, 0]));
         //Total special popElmnts quantity (initial: 0)
         let specialPopElmntsTotalQty = 0;
 
@@ -86,7 +86,7 @@
             const direction = $gameDirection;
             const rotation = Math.random() * 20 - 10;
             const isSpecial = specialPopElmntsTotalQty < specialPopElmntsMaxQuantity;
-            const type = isSpecial ? setInitialSpecialType(specialPopElmntsQuantities) : popElmntType.NORMAL;
+            const type = isSpecial ? setInitialSpecialType(specialPopElmntsQuantities) : popElmntTypes.NORMAL;
             const innerFigType = isSpecial ? $gameSettings.popElmntConfig[type].innerFigType : '';
             const shape = $gameSettings.popElmntConfig[type].shape;
 
@@ -139,27 +139,45 @@
         return popElmntsOnScreen;
     }
 
-    function poppedElmntLogs(popElmnt){
-        const now = new Date();
+    function setGeneralLogs(action){
+        const now = new Date;
         const generalLogs = {
-            timestamp: "2024-03-22T17:13:45.706Z",
-            user: "Anonymous",
-            userId: "90ae7b8d-f0f6-4cf9-8f27-2ee61d9f80ff",
+            timestamp: now,
+            user: $user ? $user.displayName : "Anonymous",
+            userId: $user ? $user.uid : null,
             date: now.toISOString().slice(0, 10),
             time: now.toISOString().slice(11, 19),
             teacher: $appSettings.instructorName,
-            action: "Popped element",
+            action: action.toString(),
             subject: $subjectName,
         }
+        return generalLogs;
+    }
+
+    function setOnScreenElmntsLogs(){
         const onScreen = onScreenPopElmnts(popElmnts); 
         const specialPopElmntsQtyOnScreen = Object.fromEntries(
-            Object.values(popElmntType)
-                .filter(type => type !== popElmntType.NORMAL) // exclude 'NORMAL'
+            Object.values(popElmntTypes)
+                .filter(type => type !== popElmntTypes.NORMAL) // exclude 'NORMAL'
                 .map(type => [
                     type + 'Qty',
                     onScreen.filter(popElmnt => popElmnt.type === type).length
                 ])
         );
+        const onScreenElmntsLogs = {
+            screenElmnts: onScreenPopElmnts(popElmnts).length,
+            specialPopElmntsQty: Object.values(specialPopElmntsQtyOnScreen).reduce((sum, value) => sum + value, 0),
+            ...specialPopElmntsQtyOnScreen,
+            onScreenElmntsColors: onScreen.map(popElmnt => popElmnt.color),
+            onScreenElmtsInnerFigColors: onScreen.filter(popElmnt => popElmnt.type != popElmntTypes.NORMAL).map(popElmnt => popElmnt.innerFigColor),
+            onScrenElmntsInnerFigTypes: onScreen.filter(popElmnt => popElmnt.type != popElmntTypes.NORMAL).map(popElmnt => popElmnt.innerFigType),
+        }
+        return onScreenElmntsLogs;
+    }
+
+    function poppedElmntLogs(popElmnt){
+        const generalLogs = setGeneralLogs('Popped element');
+        const onScreenElmntsLogs = setOnScreenElmntsLogs();
         let specialDetails = {};
         if(popElmnt.isSpecial){
             specialDetails = {
@@ -172,58 +190,55 @@
             color: popElmnt.color,
             x: popElmnt.x,
             y: popElmnt.y,
-            speed: popElmnt.speed,
+            speed: $gameSettings.popElmntSpeed,
+            size: $gameSettings.popElmntSize,
             direction: popElmnt.direction,
-            size: popElmnt.size,
             isSpecial: popElmnt.isSpecial,
             type: popElmnt.type,
-            ...specialDetails,
+            shape: popElmnt.shape,
             currentRampageChain: currentRampageChain,
             rampageChainForExcellent: $gameSettings.rampageModeChain,
-            shape: popElmnt.shape,
-            screenElmnts: onScreenPopElmnts(popElmnts).length,
-            specialPopElmntsQty: Object.values(specialPopElmntsQtyOnScreen).reduce((sum, value) => sum + value, 0),
-            ...specialPopElmntsQtyOnScreen,
             backgroundColor: $gameSettings.gameBackgroundColor,
+            ...specialDetails,
+            ...onScreenElmntsLogs,
+        }
+        return {...generalLogs, details: detailLogs};
+    }
+
+    function backgroundClickLogs(event){
+        const generalLogs = setGeneralLogs('Game background click');
+        const onScreenElmntsLogs = setOnScreenElmntsLogs();
+        const detailLogs = {
+            x: event.clientX,
+            y: event.clientY,
+            backgroundColor: $gameSettings.gameBackgroundColor,
+            ...onScreenElmntsLogs,
+        }
+        return {...generalLogs, details: detailLogs};
+    }
+
+    function ExitClickLogs(){
+        const generalLogs = setGeneralLogs('Exit game');
+        const onScreenElmntsLogs = setOnScreenElmntsLogs();
+        const detailLogs = {
+            backgroundColor: $gameSettings.gameBackgroundColor,
+            ...onScreenElmntsLogs,
         }
         return {...generalLogs, details: detailLogs};
     }
 
     function handleClick(event) {
-        console.log('Popped element:', event.detail);
-        const clickedPopElmntId = event.detail.id;
-        addLog(
-            'Popped element', 
-            {...deepCopy(event.detail),
-                onScreenPopElmnts: deepCopy(popElmnts),
-                gameDirection: deepCopy($gameDirection),
-                ...deepCopy($gameSettings),
-                ...deepCopy($appSettings),
-                ...deepCopy($menuSettings),
-                subjectName: deepCopy($subjectName),
-            },
-            $isLoggedIn ? deepCopy($user.uid) : null
-        );
         if($gameSettings.enableRampageMode) rampageChainUpdate(event.detail);
-        console.log(poppedElmntLogs(event.detail));
-        destroyPopElmnt(clickedPopElmntId);
+        addLog(poppedElmntLogs(event.detail));
+        destroyPopElmnt(event.detail.id);
     }
 
     function handleBackgroundClick(event){
-        const { target, clientX, clientY } = event;
-        addLog(
-            'Game background click', 
-            {onScreenPopElmnts: deepCopy(popElmnts),
-                gameDirection: deepCopy($gameDirection),
-                ...deepCopy($gameSettings),
-                ...deepCopy($appSettings),
-                ...deepCopy($menuSettings),
-                x: deepCopy(clientX),
-                y: deepCopy(clientY),
-                subjectName: deepCopy($subjectName),
-            },
-            $isLoggedIn ? deepCopy($user.uid) : null
-        );
+        addLog(backgroundClickLogs(event));
+    }
+
+    function handleExitClick(){
+        addLog(ExitClickLogs());
     }
 
     function handleBackgroundKeyboard(event){
@@ -303,7 +318,7 @@
     }
     
     onMount(() => {
-        const areBalloons = Object.values($gameSettings.popElmntConfig).some(popElmnt => popElmnt.shape === popElmntShape.BALLOON);
+        const areBalloons = Object.values($gameSettings.popElmntConfig).some(popElmnt => popElmnt.shape === popElmntShapes.BALLOON);
         if(areBalloons){
             const root = document.documentElement;
             balloonKnotHeightPercent = getComputedStyle(root).getPropertyValue('--balloon-knot-height');
@@ -342,7 +357,7 @@
 
 <div role="presentation" aria-label="Popping balloons game" on:click={handleBackgroundClick} on:keypress={handleBackgroundKeyboard}>
     <main class="not-selectable" style:background-color = {$gameSettings.gameBackgroundColor} >
-        <SubjectNavBar {popElmnts}/>
+        <SubjectNavBar on:exit={handleExitClick} />
         {#each popElmnts as popElmnt (popElmnt.id)}
             <Balloon balloon={popElmnt} {currentRampageChain} on:balloonClicked={handleClick} />
         {/each}

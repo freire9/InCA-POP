@@ -10,32 +10,48 @@ export const modifyingConfig = writable(true);
 export const isFullScreen = writable(false);
 
 // Pop element types: NORMAL AND SPECIAL (EXP, CTRL, etc.)
-export const popElmntType = {
+export const popElmntTypes = {
     NORMAL: 'normal',
     EXP: 'experimental',
     CTRL: 'control',
 }
 // Pop element shapes: BALLOON, etc.
-export const popElmntShape = {
+export const popElmntShapes = {
     BALLOON: 'balloon',
 }
+// Pop element speeds: SLOW, NORMAL, FAST
+export const popElmntSpeeds = {
+    SLOW: 'slow',
+    NORMAL: 'normal',
+    FAST: 'fast',
+}
+// Pop element sizes: SMALL, NORMAL, BIG
+export const popElmntSizes = {
+    SMALL: 'small',
+    NORMAL: 'normal',
+    BIG: 'big',
+}
+// Special pop elements inner figure types: LETTER, DISC
+export const popElmntInnerFigs = {
+    LETTER: 'letter',
+    DISC: 'disc',
+}
 
-export const popElmntSpeedOpts = {
-    SLOW: {min: 0.08, max: 0.2, label: 'SLOW'},
-    NORMAL: {min: 0.2, max: 0.4, label: 'NORMAL'},
-    FAST: {min: 0.4, max: 0.6, label: 'FAST'},
+// Speed values for different pop element speeds
+export const popElmntSpeedsOpts = {
+    [popElmntSpeeds.SLOW]: {min: 0.08, max: 0.2},
+    [popElmntSpeeds.NORMAL]: {min: 0.2, max: 0.4},
+    [popElmntSpeeds.FAST]: {min: 0.4, max: 0.6},
 };
+
+// Size values for different pop element sizes
 export const popElmntSizeOpts = {
-    SMALL: {width: 40, height: 50, label: 'SMALL'},
-    NORMAL: {width: 80, height: 100, label: 'NORMAL'},
-    BIG: {width: 120, height: 145, label: 'BIG'},
+    [popElmntSizes.SMALL]: {width: 40, height: 50},
+    [popElmntSizes.NORMAL]: {width: 80, height: 100},
+    [popElmntSizes.BIG]: {width: 120, height: 145},
 };
 
-export const innerFigureOptions = {
-    LETTER: {label: 'Letter', value: 'LETTER'},
-    DISC: {label: 'Disc', value: 'DISC'},
-};
-
+// Default interpolated colors for pop elements and inner figures
 const dfltPopElmntInterColors = [ "#ff0000", "#e61a00", "#cc3300", "#b34d00", "#996600", "#808000", "#669900", "#4db300", "#33cc00", "#1ae600" ];
 const dfltInnerFigInterpColors = [ "#000000", "#1a1a1a", "#333333", "#4d4d4d", "#666666", "#808080", "#999999", "#b3b3b3", "#cccccc", "#e6e6e6" ];
 
@@ -77,7 +93,7 @@ const normalPopElmntSettings = {
     colorRangeDef: 10,
     interpColors: deepCopy(dfltPopElmntInterColors),
     color: '#ff0000',
-    shape: popElmntShape.BALLOON,
+    shape: popElmntShapes.BALLOON,
 };
 
 const expPopElmntSettings = {
@@ -88,8 +104,8 @@ const expPopElmntSettings = {
     colorRangeDef: 10,
     interpColors: deepCopy(dfltPopElmntInterColors),
     color: '#ff0000',
-    shape: popElmntShape.BALLOON,
-    innerFigType: innerFigureOptions.DISC.value,
+    shape: popElmntShapes.BALLOON,
+    innerFigType: popElmntInnerFigs.DISC,
     innerFigColor: '#f82383',
     enableInnerFigRangeColor: false,
     innerFigRangeColor1:'#000000',
@@ -108,8 +124,8 @@ const ctrlPopElmntSettings = {
     colorRangeDef: 10,
     interpColors: deepCopy(dfltPopElmntInterColors),
     color: '#ff0000',
-    shape: popElmntShape.BALLOON,
-    innerFigType: innerFigureOptions.DISC.value,
+    shape: popElmntShapes.BALLOON,
+    innerFigType: popElmntInnerFigs.DISC,
     innerFigColor: '#000000',
     enableInnerFigRangeColor: false,
     innerFigRangeColor1:'#000000',
@@ -128,8 +144,8 @@ const availableModes = {
 };
 
 export const gameSettingsDEFAULT = {
-    popElmntSpeed: popElmntSpeedOpts.NORMAL.label,
-    popElmntSize: popElmntSizeOpts.NORMAL.label,
+    popElmntSpeed: popElmntSpeeds.NORMAL,
+    popElmntSize: popElmntSizes.NORMAL,
     maxPopElmntQty: 8,
     gameBackgroundColor: '#add8e6',
     availableModes: deepCopy(availableModes),
@@ -137,9 +153,9 @@ export const gameSettingsDEFAULT = {
     enableRampageMode: true,
     rampageModeChain: 3,
     popElmntConfig: {
-        [popElmntType.NORMAL]: deepCopy(normalPopElmntSettings),
-        [popElmntType.EXP]: deepCopy(expPopElmntSettings),
-        [popElmntType.CTRL]: deepCopy(ctrlPopElmntSettings),
+        [popElmntTypes.NORMAL]: deepCopy(normalPopElmntSettings),
+        [popElmntTypes.EXP]: deepCopy(expPopElmntSettings),
+        [popElmntTypes.CTRL]: deepCopy(ctrlPopElmntSettings),
     },
 };
 
