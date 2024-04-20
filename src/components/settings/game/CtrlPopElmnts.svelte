@@ -1,5 +1,6 @@
 <script>
-    import { calculateInterpolatedColors, handleUpdateRemotePreferences, updateRemotePreferences } from "$lib/utils";
+	import { handleUpdateRemotePreferences, updateRemotePreferences } from "$lib/firebaseFunctions";
+    import { calculateInterpolatedColors, capitalizeFirstLetter } from "$lib/utils";
     import { gameSettings, isLoggedIn, popElmntInnerFigs, popElmntTypes, user } from "../../../stores";
     import lodash from 'lodash';
     
@@ -7,7 +8,7 @@
     const handleColorChange = debounce(setCtrlInterpolatedColors, 500);
     const handleCtrlInnerFigColorChange = debounce(setCtrlInnerFigInterpolatedColors, 500);
     const ctrlLabel = popElmntTypes.CTRL;
-    const ctrlLabelUp = ctrlLabel.charAt(0).toUpperCase() + ctrlLabel.slice(1);
+    const ctrlLabelUp = capitalizeFirstLetter(ctrlLabel);
     let ctrlPopElmntLabel;
 
     $: ctrlPopElmntLabel = $gameSettings.popElmntConfig[popElmntTypes.CTRL].shape;
@@ -83,7 +84,7 @@
 <select id="ctrlInnerFigSelect" bind:value={$gameSettings.popElmntConfig[popElmntTypes.CTRL].innerFigType} on:input={handleUpdateRemotePreferences}>
     {#each Object.values(popElmntInnerFigs) as innerFigOption}
         <option value={innerFigOption}>
-            {innerFigOption.charAt(0).toUpperCase() + innerFigOption.slice(1).toLowerCase()}
+            {capitalizeFirstLetter(innerFigOption)}
         </option>
     {/each}
 </select>

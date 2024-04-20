@@ -6,7 +6,7 @@
     import { doc, getDoc } from 'firebase/firestore';
 	import { onMount } from 'svelte';
     import packageJson from '../../package.json';
-	import { updateRemotePreferences } from '$lib/utils';
+	import { updateRemotePreferences } from '$lib/firebaseFunctions';
 
     const appVersion = packageJson.version;
 
@@ -43,6 +43,8 @@
             console.log('User preferences loaded');
 
             if(appSettingsHasChanged || gameSettingsHasChanged || menuSettingsHasChanged) updateRemotePreferences();
+        } else{ //if user has no preferences, update database with default settings
+            updateRemotePreferences();
         }
     }
 

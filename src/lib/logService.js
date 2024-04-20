@@ -2,7 +2,10 @@ import { db } from "$lib/firebaseConfig";
 import { addDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { deepCopy } from "./utils";
 
+// Logs array
 let logs = [];
+
+// Check if is client side
 const isClient = !import.meta.env.SSR;
 if (isClient) logs = JSON.parse(sessionStorage.getItem('logs')) || [];
 
@@ -17,6 +20,7 @@ const addRemoteLog = async (dataLogs) => {
   }
 };
 
+// Function to add a log
 export const addLog = (dataLogs) => {
   const logEntry = deepCopy(dataLogs);
   logs.push(logEntry);
@@ -25,31 +29,38 @@ export const addLog = (dataLogs) => {
   if (dataLogs.userId != null) addRemoteLog(dataLogs);
 };
 
+// Function to get logs (local)
 export const getLogs = () => {
   if (isClient) return JSON.parse(sessionStorage.getItem('logs')) || [];
 
   return logs;
 };
 
+// Function to get logs (remote: Firestore)
 export const getRemoteLogs = async (userUid) => {
   try {
-    const q = query(collection(db, 'usageLogs'), where('userUid', '==', userUid));
-    const querySnapshot = await getDocs(q);
-
+    const qUid = query(collection(db, 'usageLogs'), where('userUid', '==', userUid));
+    const qId = query(collection(db, 'usageLogs'), where('userId', '==', userUid));
+    const uidQuerySnapshot = await getDocs(qUid);
+    const idQuerySnapshot = await getDocs(qId);
     let remoteLogs = [];
-
-    querySnapshot.forEach((doc) => {
+    uidQuerySnapshot.forEach((doc) => {
       remoteLogs.push({...doc.data(), id: doc.id});
     });
-
+    idQuerySnapshot.forEach((doc) => {
+      const exist = remoteLogs.some(log => log.id === doc.id);
+      if(!exist) remoteLogs.push({...doc.data(), id: doc.id});
+    });
     console.log('User logs: ', remoteLogs);
     return remoteLogs;
+
   } catch (error) {
     console.error('Error at obtain user logs: ', error);
     return null;
   }
 };
 
+// Function to convert logs to CSV
 export function convertToCSV(data) {
   const csvRows = [];
 
@@ -88,4 +99,54 @@ export function convertToCSV(data) {
   }
 
   return csvRows.join('\n');
+}
+
+// Function to download logs in JSON or CSV format and from local or remote (Firestore)
+export async function downloadLogs(format = 'json', userUid = null) {
+  const logs = userUid ? (await getRemoteLogs(userUid) || []) : getLogs();
+  let data;
+  let filename;
+  let mimeType;
+  if(!logs) return;
+  if(format === 'json'){
+      data = JSON.stringify(logs, null, 2);
+      filename = 'logs.json';
+      mimeType = 'application/json';
+  } else if(format === 'csv'){
+      data = convertToCSV(logs);
+      filename = 'logs.csv';
+      mimeType = 'text/csv';
+  } else{
+      throw new Error('Not valid format. Must be "json" or "csv".');
+  }
+
+  const blob = new Blob([data], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+// Handler for download local logs in JSON format
+export function downloadJsonLocal(){
+  return downloadLogs('json');
+}
+
+// Handler for download local logs in CSV format
+export function downloadCsvLocal(){
+  return downloadLogs('csv');
+}
+
+// Handler for download remote(Firestore) logs in JSON format
+export function downloadJsonRemote(userUid){
+  return downloadLogs('json', userUid);
+}
+
+// Handler for download remote(Firestore) logs in CSV format
+export function downloadCsvRemote(userUid){
+  return downloadLogs('csv', userUid);
 }

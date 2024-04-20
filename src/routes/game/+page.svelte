@@ -1,9 +1,9 @@
 <script>
     import Balloon from '../../components/Balloon.svelte';;
     import { onMount } from 'svelte';
-    import { deepCopy, getRandomFrom, getRandomHexColor } from '$lib/utils';
+    import { getRandomFrom, getRandomHexColor } from '$lib/utils';
     import { addLog } from "$lib/logService";
-    import { appSettings, gameSettings, isLoggedIn, user, popElmntSizeOpts, gameDirection, menuSettings, subjectName, popElmntShapes, popElmntTypes, popElmntSpeedsOpts } from '../../stores.js';
+    import { appSettings, gameSettings, user, popElmntSizeOpts, gameDirection, subjectName, popElmntShapes, popElmntTypes, popElmntSpeedsOpts, popElmntDirections } from '../../stores.js';
     import SubjectNavBar from '../../components/SubjectNavBar.svelte';
 
     let popElmnts = [];
@@ -124,13 +124,13 @@
     function onScreenPopElmnts(popElmnts){
         const popElmntsOnScreen = popElmnts.filter(popElmnt => {
             switch (popElmnt.direction) {
-                case 'leftToRight':
+                case popElmntDirections.LEFT_TO_RIGHT:
                     return popElmnt.x <= window.innerWidth && popElmnt.x >= 0;
-                case 'rightToLeft':
+                case popElmntDirections.RIGHT_TO_LEFT:
                     return popElmnt.x <= window.innerWidth && popElmnt.x >= 0 - popElmnt.size.width;
-                case 'topToBottom':
+                case popElmntDirections.TOP_TO_BOTTOM:
                     return popElmnt.y <= window.innerHeight && popElmnt.y >= 0;
-                case 'bottomToTop':
+                case popElmntDirections.BOTTOM_TO_TOP:
                     return popElmnt.y <= window.innerHeight + popElmnt.size.height && popElmnt.y >= 0 - (popElmnt.size.height - getAditionalHeight(popElmnt.type, popElmnt.size.height));
                 default:
                     return false;
@@ -263,13 +263,13 @@
 
     function getInitialPosition(direction, size, type) {
         switch (direction) {
-            case 'leftToRight':
+            case popElmntDirections.LEFT_TO_RIGHT:
                 return { x: 0 - size.width, y: getRandomYPosition(size) };
-            case 'rightToLeft':
+            case popElmntDirections.RIGHT_TO_LEFT:
                 return { x: window.innerWidth, y: getRandomYPosition(size) };
-            case 'topToBottom':
+            case popElmntDirections.TOP_TO_BOTTOM:
                 return { x: getRandomXPosition(size), y: 0 - size.height - getAditionalHeight(type, size.height)};
-            case 'bottomToTop':
+            case popElmntDirections.BOTTOM_TO_TOP:
                 return { x: getRandomXPosition(size), y: window.innerHeight};
             default:
                 return { x: 0, y: 0 };
@@ -291,13 +291,13 @@
             const rotDesviation = enableRotDesviation ? angleDesviation : 0;
 
             switch (popElmnt.direction) {
-                case 'leftToRight':
+                case popElmntDirections.LEFT_TO_RIGHT:
                     return { ...popElmnt, x: popElmnt.x + speed, y: popElmnt.y + verticalDesviation, rotation: popElmnt.rotation + rotDesviation };
-                case 'rightToLeft':
+                case popElmntDirections.RIGHT_TO_LEFT:
                     return { ...popElmnt, x: popElmnt.x - speed, y: popElmnt.y + verticalDesviation, rotation: popElmnt.rotation + rotDesviation };
-                case 'topToBottom':
+                case popElmntDirections.TOP_TO_BOTTOM:
                     return { ...popElmnt, y: popElmnt.y + speed, x: popElmnt.x + horizontalDesviation, rotation: popElmnt.rotation + rotDesviation };
-                case 'bottomToTop':
+                case popElmntDirections.BOTTOM_TO_TOP:
                     return { ...popElmnt, y: popElmnt.y - speed, x: popElmnt.x + horizontalDesviation, rotation: popElmnt.rotation + rotDesviation };
                 default:
                     return popElmnt;
@@ -305,7 +305,7 @@
         });
         
         popElmnts = popElmnts.filter(popElmnt => {
-            if (popElmnt.direction === 'leftToRight' || popElmnt.direction === 'rightToLeft') {
+            if (popElmnt.direction === popElmntDirections.LEFT_TO_RIGHT || popElmnt.direction === popElmntDirections.RIGHT_TO_LEFT) {
                 return popElmnt.x <= window.innerWidth + popElmnt.size.width && popElmnt.x >= 0 - popElmnt.size.width * 2;
             } else {
                 return popElmnt.y <= window.innerHeight + popElmnt.size.height && popElmnt.y >= 0 - (popElmnt.size.height - getAditionalHeight(popElmnt.type, popElmnt.size.height)) * 2;

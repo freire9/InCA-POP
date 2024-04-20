@@ -5,7 +5,6 @@ export const isIphone = writable(false);
 export const isFirefox = writable(false);
 export const user = writable({});
 export const isLoggedIn = writable(false);
-export const gameDirection = writable('leftToRight');
 export const modifyingConfig = writable(true);
 export const isFullScreen = writable(false);
 
@@ -36,6 +35,14 @@ export const popElmntInnerFigs = {
     LETTER: 'letter',
     DISC: 'disc',
 }
+// Pop element directions (game modes): LEFT_TO_RIGHT, RIGHT_TO_LEFT, BOTTOM_TO_TOP, TOP_TO_BOTTOM
+export const popElmntDirections ={
+    LEFT_TO_RIGHT: 'left to right',
+    RIGHT_TO_LEFT: 'right to left',
+    BOTTOM_TO_TOP: 'bottom to top',
+    TOP_TO_BOTTOM: 'top to bottom',
+}
+export const gameDirection = writable(popElmntDirections.LEFT_TO_RIGHT);
 
 // Speed values for different pop element speeds
 export const popElmntSpeedsOpts = {
@@ -137,10 +144,10 @@ const ctrlPopElmntSettings = {
 };
 
 const availableModes = {
-    'rightToLeft': {label: 'Right to left', enabled: true, icon: 'faLeftLong', color: '#ff0000'},
-    'bottomToTop': {label: 'Bottom to top', enabled: true, icon: 'faUpLong', color: '#22d933'},
-    'topToBottom': {label: 'Top to bottom', enabled: true, icon: 'faDownLong', color: '#2665ea'},
-    'leftToRight': {label: 'Left to right', enabled: true, icon: 'faRightLong', color: '#eacf26'},
+    [popElmntDirections.RIGHT_TO_LEFT]: { enabled: true, icon: 'faLeftLong', color: '#ff0000'},
+    [popElmntDirections.BOTTOM_TO_TOP]: { enabled: true, icon: 'faUpLong', color: '#22d933'},
+    [popElmntDirections.TOP_TO_BOTTOM]: { enabled: true, icon: 'faDownLong', color: '#2665ea'},
+    [popElmntDirections.LEFT_TO_RIGHT]: { enabled: true, icon: 'faRightLong', color: '#eacf26'},
 };
 
 export const gameSettingsDEFAULT = {

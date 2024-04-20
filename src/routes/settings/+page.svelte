@@ -1,14 +1,15 @@
 <script>
-    import { gameSettings, appSettings, menuSettings, isLoggedIn, user, isFullScreen, menuSettingsDEFAULT, appSettingsDEFAULT, gameSettingsDEFAULT, subjectName, popElmntSpeeds, popElmntSizes} from '../../stores.js';
-    import { downloadJsonLocal, downloadJsonRemote, downloadCsvLocal, downloadCsvRemote, deepCopy, handleUpdateRemotePreferences, updateRemotePreferences } from '$lib/utils.js'
+    import { gameSettings, appSettings, menuSettings, isLoggedIn, user, isFullScreen, menuSettingsDEFAULT, appSettingsDEFAULT, gameSettingsDEFAULT, subjectName, popElmntSpeeds, popElmntSizes, popElmntDirections} from '../../stores.js';
+    import { deepCopy, toCamelCase, capitalizeFirstLetter } from '$lib/utils.js'
     import { Fa } from 'inca-utils';
     import { faFileArrowDown } from '@fortawesome/free-solid-svg-icons';
     import Profile from '../../components/settings/Profile.svelte';
     import UserNavBar from '../../components/UserNavBar.svelte';
     import PopElmntsTabs from '../../components/settings/game/PopElmntsTabs.svelte';
-
 	import Speeches from '../../components/settings/Speeches.svelte';
     import lodash from 'lodash';
+	import { handleUpdateRemotePreferences, updateRemotePreferences } from '$lib/firebaseFunctions.js';
+	import { downloadCsvLocal, downloadCsvRemote, downloadJsonLocal, downloadJsonRemote } from '$lib/logService.js';
 
     const { debounce } = lodash;
 
@@ -96,7 +97,7 @@
             <select id="popElmntSpeedSelect" bind:value={$gameSettings.popElmntSpeed} on:input={handleUpdateRemotePreferences}>
                 {#each Object.values(popElmntSpeeds) as speedOption}
                     <option value={speedOption}>
-                        {speedOption.charAt(0).toUpperCase() + speedOption.slice(1).toLowerCase()}
+                        {capitalizeFirstLetter(speedOption)}
                     </option>
                 {/each}
             </select>
@@ -105,7 +106,7 @@
             <select id="popElmntSizeInput" bind:value={$gameSettings.popElmntSize} on:input={handleUpdateRemotePreferences}>
                 {#each Object.values(popElmntSizes) as sizeOption}
                     <option value={sizeOption}>
-                        {sizeOption.charAt(0).toUpperCase() + sizeOption.slice(1).toLowerCase()}
+                        {capitalizeFirstLetter(sizeOption)}
                     </option>
                 {/each}
             </select>
@@ -142,10 +143,10 @@
             <p>Game modes to display (direction of pop elements):</p>
             <div class="flex-column">
                 <div class="game-modes-container">
-                    {#each Object.keys($gameSettings.availableModes) as mode}
+                    {#each Object.values(popElmntDirections) as mode}
                         <div class="checkbox-flex">
-                            <label for={"gameMode" + mode + "Checkbox"}>{$gameSettings.availableModes[mode].label}:</label>
-                            <input id={"gameMode" + mode + "Checkbox"} type="checkbox" bind:checked={$gameSettings.availableModes[mode].enabled} on:input={handleUpdateRemotePreferences}>
+                            <label for={"gameMode" + toCamelCase(mode) + "Checkbox"}>{capitalizeFirstLetter(mode)}:</label>
+                            <input id={"gameMode" + toCamelCase(mode) + "Checkbox"} type="checkbox" bind:checked={$gameSettings.availableModes[mode].enabled} on:input={handleUpdateRemotePreferences}>
         
                             {#if !$menuSettings.mainMenuRandomColors}
                                 <div class="color-flex">

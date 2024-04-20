@@ -1,10 +1,10 @@
 <script>
-    import { gameSettings, menuSettings, appSettings, isLoggedIn, user, gameDirection, isIphone, modifyingConfig, subjectName } from "../stores";
+    import { gameSettings, menuSettings, appSettings, user, gameDirection, isIphone, modifyingConfig, subjectName, popElmntDirections } from "../stores";
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
     import { TrainerButton, Fa } from 'inca-utils';
     import { faGear, faExpand, faInfo, faLeftLong, faRightLong, faUpLong, faDownLong } from '@fortawesome/free-solid-svg-icons';
-    import { deepCopy, getRandomHexColor, toogleFullscreen } from "$lib/utils";
+    import { getRandomHexColor, toogleFullscreen } from "$lib/utils";
     import StaticBalloon from "../components/StaticBalloon.svelte";
     import { addLog } from "$lib/logService";
 
@@ -22,7 +22,7 @@
 
     function handleAuthFinally(){
         if($menuSettings.mainMenuRandomColors){
-            Object.keys($gameSettings.availableModes).forEach(function(mode) {
+            Object.values(popElmntDirections).forEach(function(mode) {
                 $gameSettings.availableModes[mode].color = getRandomHexColor();
             });
         }
@@ -139,7 +139,7 @@
             </nav>
         </header>
         <div class="game-modes">
-            {#each Object.keys($gameSettings.availableModes) as mode}
+            {#each Object.values(popElmntDirections) as mode}
                 {#if $gameSettings.availableModes[mode].enabled}
                     <StaticBalloon 
                         on:modeClicked={handleClick}

@@ -3,14 +3,15 @@
     import NormalPopElmnts from "./NormalPopElmnts.svelte";
     import CtrlPopElmnts from "./CtrlPopElmnts.svelte";
     import ExpPopElmnts from "./ExpPopElmnts.svelte";
+	import { capitalizeFirstLetter } from "$lib/utils";
 
     let activeTabValue = 1;
 
     const handleClick = tabValue => () => (activeTabValue = tabValue);
 
-    const normalLabelUp = popElmntTypes.NORMAL.charAt(0).toUpperCase() + popElmntTypes.NORMAL.slice(1);
-    const ctrlLabelUp = popElmntTypes.CTRL.charAt(0).toUpperCase() + popElmntTypes.CTRL.slice(1);
-    const expLabelUp = popElmntTypes.EXP.charAt(0).toUpperCase() + popElmntTypes.EXP.slice(1);
+    const normalLabelUp = capitalizeFirstLetter(popElmntTypes.NORMAL);
+    const ctrlLabelUp = capitalizeFirstLetter(popElmntTypes.CTRL);
+    const expLabelUp = capitalizeFirstLetter(popElmntTypes.EXP);
     let normalPopElmntLabel;
     let ctrlPopElmntLabel;
     let expPopElmntLabel;

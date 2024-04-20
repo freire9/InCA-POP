@@ -1,12 +1,13 @@
 <script>
-    import { calculateInterpolatedColors, handleUpdateRemotePreferences, updateRemotePreferences } from "$lib/utils";
+	import { handleUpdateRemotePreferences, updateRemotePreferences } from "$lib/firebaseFunctions";
+    import { calculateInterpolatedColors, capitalizeFirstLetter } from "$lib/utils";
     import { gameSettings, isLoggedIn, user, popElmntTypes } from "../../../stores";
     import lodash from 'lodash';
     
     const { debounce } = lodash;
     const handleColorChange = debounce(setNormalInterpolatedColors, 500);
     const normalLabel = popElmntTypes.NORMAL;
-    const normalLabelUp = normalLabel.charAt(0).toUpperCase() + normalLabel.slice(1);
+    const normalLabelUp = capitalizeFirstLetter(normalLabel);
     let normalPopElmntLabel;
 
     $: normalPopElmntLabel = $gameSettings.popElmntConfig[popElmntTypes.NORMAL].shape;
