@@ -62,6 +62,11 @@ export const getRemoteLogs = async (userUid) => {
 
 // Function to convert logs to CSV
 export function convertToCSV(data) {
+  data = data.map(log => {
+    const {details, ...rest} = log;
+    return {...rest, ...details};
+  });
+  
   const csvRows = [];
 
   // Obtain all unique keys

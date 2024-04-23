@@ -44,12 +44,14 @@
     }
 
     function handleClick(event){
-        addLog({...setGeneralLogs('Game started'), gameDirection: event.detail});
+        const gameStartedLog = {...setGeneralLogs('Game started'), details: {gameDirection: event.detail, backgroundColor: $menuSettings.menuBackgroundColor, color: $gameSettings.availableModes[event.detail].color}};
+        addLog(gameStartedLog);
         startGame(event.detail);
     }
 
     function handleBackgroundClick(event){
-        addLog({...setGeneralLogs('Menu background click'), x: event.clientX, y: event.clientY});
+        const backgroundClickLog = {...setGeneralLogs('Menu background click'), details: {x: event.clientX, y: event.clientY, backgroundColor: $menuSettings.menuBackgroundColor}};
+        addLog(backgroundClickLog);
     }
 
     function handleBackgroundKeyboard(event){

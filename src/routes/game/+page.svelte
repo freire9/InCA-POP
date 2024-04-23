@@ -165,7 +165,7 @@
                 ])
         );
         const onScreenElmntsLogs = {
-            screenElmnts: onScreenPopElmnts(popElmnts).length,
+            screenElmnts: onScreen.length,
             specialPopElmntsQty: Object.values(specialPopElmntsQtyOnScreen).reduce((sum, value) => sum + value, 0),
             ...specialPopElmntsQtyOnScreen,
             onScreenElmntsColors: onScreen.map(popElmnt => popElmnt.color),
@@ -186,10 +186,9 @@
             }
         }
         const detailLogs = {
-            id: popElmnt.id,
             color: popElmnt.color,
-            x: popElmnt.x,
-            y: popElmnt.y,
+            x: Math.floor(popElmnt.x),
+            y: Math.floor(popElmnt.y),
             speed: $gameSettings.popElmntSpeed,
             size: $gameSettings.popElmntSize,
             direction: popElmnt.direction,
@@ -199,6 +198,7 @@
             currentRampageChain: currentRampageChain,
             rampageChainForExcellent: $gameSettings.rampageModeChain,
             backgroundColor: $gameSettings.gameBackgroundColor,
+            gameDirection: $gameDirection,
             ...specialDetails,
             ...onScreenElmntsLogs,
         }
@@ -212,6 +212,7 @@
             x: event.clientX,
             y: event.clientY,
             backgroundColor: $gameSettings.gameBackgroundColor,
+            gameDirection: $gameDirection,
             ...onScreenElmntsLogs,
         }
         return {...generalLogs, details: detailLogs};
@@ -222,6 +223,7 @@
         const onScreenElmntsLogs = setOnScreenElmntsLogs();
         const detailLogs = {
             backgroundColor: $gameSettings.gameBackgroundColor,
+            gameDirection: $gameDirection,
             ...onScreenElmntsLogs,
         }
         return {...generalLogs, details: detailLogs};
