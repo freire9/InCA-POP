@@ -1,5 +1,5 @@
 <script>
-    import { auth, db } from '$lib/firebaseConfig';
+    import { auth, db, dbUsersCollectionName } from '$lib/firebaseConfig';
     import { GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
     import { isLoggedIn, localUserId, user } from "../../stores";
 	import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
@@ -12,7 +12,7 @@
             $user = res.user;
             $isLoggedIn = true;
 
-            const userDocRef = doc(db, 'users', res.user.uid);
+            const userDocRef = doc(db, dbUsersCollectionName, res.user.uid);
 
             const existingDoc = await getDoc(userDocRef);
 

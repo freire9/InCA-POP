@@ -1,5 +1,5 @@
 <script>
-    import { gameSettings, menuSettings, appSettings, user, gameDirection, isIphone, modifyingConfig, subjectName, popElmntDirections, localUserId } from "../stores";
+    import { gameSettings, menuSettings, appSettings, user, gameDirection, isIphone, modifyingConfig, subjectName, popElmntDirections, localUserId, isLoggedIn } from "../stores";
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
     import { TrainerButton, Fa } from 'inca-utils';
@@ -32,8 +32,8 @@
         const now = new Date;
         const generalLogs = {
             timestamp: now,
-            user: $user ? $user.displayName : "Anonymous",
-            userId: $user ? $user.uid : $localUserId,
+            user: ($user && $isLoggedIn) ? $user.displayName : "Anonymous",
+            userId: ($user && $isLoggedIn) ? $user.uid : $localUserId,
             date: now.toLocaleDateString(),
             time: now.toLocaleTimeString(),
             teacher: $appSettings.instructorName,
@@ -45,13 +45,13 @@
 
     function handleClick(event){
         const gameStartedLog = {...setGeneralLogs('Game started'), details: {gameDirection: event.detail, backgroundColor: $menuSettings.menuBackgroundColor, color: $gameSettings.availableModes[event.detail].color}};
-        addLog(gameStartedLog, {remote: $user ? true : false});
+        addLog(gameStartedLog);
         startGame(event.detail);
     }
 
     function handleBackgroundClick(event){
         const backgroundClickLog = {...setGeneralLogs('Menu background click'), details: {x: event.clientX, y: event.clientY, backgroundColor: $menuSettings.menuBackgroundColor}};
-        addLog(backgroundClickLog, {remote: $user ? true : false});
+        addLog(backgroundClickLog);
     }
 
     function handleBackgroundKeyboard(event){

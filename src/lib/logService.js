@@ -1,4 +1,4 @@
-import { db } from "$lib/firebaseConfig";
+import { db, dbLogsCollectionName } from "$lib/firebaseConfig";
 import { addDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { deepCopy } from "./utils";
 
@@ -12,7 +12,7 @@ if (isClient) logs = JSON.parse(sessionStorage.getItem('logs')) || [];
 // Function for send log to Firestore
 const addRemoteLog = async (dataLogs) => {
   try {
-    const logsCollection = collection(db, 'usageLogs');
+    const logsCollection = collection(db, dbLogsCollectionName);
     const docRef = await addDoc(logsCollection, dataLogs);
     console.log('Log save with ID: ', docRef.id);
   } catch (error) {
@@ -21,12 +21,12 @@ const addRemoteLog = async (dataLogs) => {
 };
 
 // Function to add a log
-export const addLog = (dataLogs, {remote = false} = {}) => {
+export const addLog = (dataLogs) => {
   const logEntry = deepCopy(dataLogs);
   logs.push(logEntry);
   console.log('Data saved in logs: ', logEntry);
   if (isClient) sessionStorage.setItem('logs', JSON.stringify(logs));
-  if (remote) addRemoteLog(dataLogs);
+  addRemoteLog(logEntry);
 };
 
 // Function to get logs (local)
@@ -39,8 +39,8 @@ export const getLogs = () => {
 // Function to get logs (remote: Firestore)
 export const getRemoteLogs = async (userUid) => {
   try {
-    const qUid = query(collection(db, 'usageLogs'), where('userUid', '==', userUid));
-    const qId = query(collection(db, 'usageLogs'), where('userId', '==', userUid));
+    const qUid = query(collection(db, dbLogsCollectionName), where('userUid', '==', userUid));
+    const qId = query(collection(db, dbLogsCollectionName), where('userId', '==', userUid));
     const uidQuerySnapshot = await getDocs(qUid);
     const idQuerySnapshot = await getDocs(qId);
     let remoteLogs = [];

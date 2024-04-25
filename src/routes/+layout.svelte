@@ -1,7 +1,7 @@
 <script>
     import 'inca-utils/styles.css';
     import { user, isLoggedIn, gameSettings, menuSettings, appSettings, isIphone, isFirefox, modifyingConfig, appSettingsDEFAULT, menuSettingsDEFAULT, gameSettingsDEFAULT, speechCorrect, speechSettings, speechExcellent, voices, subjectName, localUserId } from '../stores';
-    import { auth, db } from '$lib/firebaseConfig';
+    import { auth, db, dbUsersCollectionName } from '$lib/firebaseConfig';
     import { onAuthStateChanged } from 'firebase/auth';
     import { doc, getDoc } from 'firebase/firestore';
 	import { onMount } from 'svelte';
@@ -51,9 +51,11 @@
     async function syncPreferencesFromFirestore() {
         if ($user && $isLoggedIn) {
             $modifyingConfig = true;
-            const userDocRef = doc(db, 'users', $user.uid);
+            const userDocRef = doc(db, dbUsersCollectionName, $user.uid);
             const docSnapshot = await getDoc(userDocRef);
             const userData = docSnapshot.data();
+            
+            if(!userData) return;
 
             syncPreferencesToStores(userData);
         }
