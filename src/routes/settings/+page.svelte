@@ -1,34 +1,17 @@
 <script>
-    import { balloonSizeOptions, balloonSpeedOptions, gameSettings, appSettings, menuSettings, isLoggedIn, user, isFullScreen, menuSettingsDEFAULT, appSettingsDEFAULT, gameSettingsDEFAULT, subjectName} from '../../stores.js';
-    import { downloadJsonLocal, downloadJsonRemote, downloadCsvLocal, downloadCsvRemote, deepCopy, handleUpdateRemotePreferences, updateRemotePreferences } from '$lib/utils.js'
+    import { gameSettings, appSettings, menuSettings, isLoggedIn, user, isFullScreen, menuSettingsDEFAULT, appSettingsDEFAULT, gameSettingsDEFAULT, subjectName, popElmntSpeeds, popElmntSizes, popElmntDirections} from '../../stores.js';
+    import { deepCopy, toCamelCase, capitalizeFirstLetter } from '$lib/utils.js'
     import { Fa } from 'inca-utils';
     import { faFileArrowDown } from '@fortawesome/free-solid-svg-icons';
     import Profile from '../../components/settings/Profile.svelte';
     import UserNavBar from '../../components/UserNavBar.svelte';
-    import NormalBalloons from '../../components/settings/game/NormalBalloons.svelte';
-    import CtrlBalloons from '../../components/settings/game/CtrlBalloons.svelte';
-    import ExpBalloons from '../../components/settings/game/ExpBalloons.svelte';
-    import BalloonsTabs from '../../components/settings/game/BalloonsTabs.svelte';
+    import PopElmntsTabs from '../../components/settings/game/PopElmntsTabs.svelte';
 	import Speeches from '../../components/settings/Speeches.svelte';
     import lodash from 'lodash';
+	import { handleUpdateRemotePreferences, updateRemotePreferences } from '$lib/firebaseFunctions.js';
+	import { downloadCsvLocal, downloadCsvRemote, downloadJsonLocal, downloadJsonRemote } from '$lib/logService.js';
 
     const { debounce } = lodash;
-
-    // List of tab balloons with labels, values and assigned components
-    let balloonTypes = [
-        { label: "Normal balloons",
-            value: 1,
-            component: NormalBalloons
-        },
-        { label: "Control balloons",
-            value: 2,
-            component: CtrlBalloons
-        },
-        { label: "Experimental balloons",
-            value: 3,
-            component: ExpBalloons
-        }
-    ];
 
     function handleRemoteJsonDownload (){
         if ($isLoggedIn && $user) downloadJsonRemote($user.uid);
@@ -105,31 +88,31 @@
 
             <h2>Global game</h2>
             <div class="range-input">
-                <label for="maxBalloonsInput">Max balloons quantity on screen:</label>
-                <p>{$gameSettings.maxBalloonsQuantity}</p>
+                <label for="maxPopElmntQtyInput">Max pop elements quantity on screen:</label>
+                <p>{$gameSettings.maxPopElmntQty}</p>
             </div>
-            <input id="maxBalloonsInput" min="1" max="50" step="1" type="range" bind:value={$gameSettings.maxBalloonsQuantity} on:input={handleUpdateRemotePreferences}>
+            <input id="maxPopElmntQtyInput" min="1" max="50" step="1" type="range" bind:value={$gameSettings.maxPopElmntQty} on:input={handleUpdateRemotePreferences}>
 
-            <label for="balloonSpeedSelect">Balloon Speed:</label>
-            <select id="balloonSpeedSelect" bind:value={$gameSettings.balloonSpeed} on:input={handleUpdateRemotePreferences}>
-                {#each Object.keys(balloonSpeedOptions) as speedOptionKey}
-                    <option value={speedOptionKey}>
-                        {speedOptionKey.charAt(0).toUpperCase() + speedOptionKey.slice(1).toLowerCase()}
+            <label for="popElmntSpeedSelect">Pop element speed:</label>
+            <select id="popElmntSpeedSelect" bind:value={$gameSettings.popElmntSpeed} on:input={handleUpdateRemotePreferences}>
+                {#each Object.values(popElmntSpeeds) as speedOption}
+                    <option value={speedOption}>
+                        {capitalizeFirstLetter(speedOption)}
                     </option>
                 {/each}
             </select>
 
-            <label for="balloonSizeInput">Balloon size:</label>
-            <select id="balloonSizeInput" bind:value={$gameSettings.balloonSize} on:input={handleUpdateRemotePreferences}>
-                {#each Object.keys(balloonSizeOptions) as sizeOptionKey}
-                    <option value={sizeOptionKey}>
-                        {sizeOptionKey.charAt(0).toUpperCase() + sizeOptionKey.slice(1).toLowerCase()}
+            <label for="popElmntSizeInput">Pop element size:</label>
+            <select id="popElmntSizeInput" bind:value={$gameSettings.popElmntSize} on:input={handleUpdateRemotePreferences}>
+                {#each Object.values(popElmntSizes) as sizeOption}
+                    <option value={sizeOption}>
+                        {capitalizeFirstLetter(sizeOption)}
                     </option>
                 {/each}
             </select>
 
             <div class="checkbox-flex">
-                <label for="enableRampageMode">Enable rampage mode (chain a number of special balloons):</label>
+                <label for="enableRampageMode">Enable rampage mode (chain a number of special pop elements):</label>
                 <input id="enableRampageMode" type="checkbox" bind:checked={$gameSettings.enableRampageMode} on:input={handleUpdateRemotePreferences}>
             </div>
 
@@ -144,7 +127,7 @@
             {/if}
 
             <div class="checkbox-flex">
-                <label for="enableBalloonReflex">Enable balloon reflex effect (only aesthetic, slight discrepancies between what is seen and what is logged):</label>
+                <label for="enableBalloonReflex">Enable pop element reflex effect (only aesthetic in pop element type balloon, slight discrepancies between what is seen and what is logged):</label>
                 <input id="enableBalloonReflex" type="checkbox" bind:checked={$gameSettings.enableBalloonReflex} on:input={handleUpdateRemotePreferences}>
             </div>
             
@@ -153,17 +136,17 @@
                 <input id="gameBackgroundColorInput" class="color-input" type="color" bind:value={$gameSettings.gameBackgroundColor} on:input={handleUpdateRemotePreferences}>
             </div>
 
-            <h2>Balloons</h2>
-            <BalloonsTabs {balloonTypes} />
+            <h2>Pop elements</h2>
+            <PopElmntsTabs />
     
             <h2>Main menu</h2>
-            <p>Game Modes to display (Direction of balloons):</p>
+            <p>Game modes to display (direction of pop elements):</p>
             <div class="flex-column">
                 <div class="game-modes-container">
-                    {#each Object.keys($gameSettings.availableModes) as mode}
+                    {#each Object.values(popElmntDirections) as mode}
                         <div class="checkbox-flex">
-                            <label for={"gameMode" + mode + "Checkbox"}>{$gameSettings.availableModes[mode].label}:</label>
-                            <input id={"gameMode" + mode + "Checkbox"} type="checkbox" bind:checked={$gameSettings.availableModes[mode].enabled} on:input={handleUpdateRemotePreferences}>
+                            <label for={"gameMode" + toCamelCase(mode) + "Checkbox"}>{capitalizeFirstLetter(mode)}:</label>
+                            <input id={"gameMode" + toCamelCase(mode) + "Checkbox"} type="checkbox" bind:checked={$gameSettings.availableModes[mode].enabled} on:input={handleUpdateRemotePreferences}>
         
                             {#if !$menuSettings.mainMenuRandomColors}
                                 <div class="color-flex">

@@ -1,7 +1,7 @@
 <script>
     import { auth, db } from '$lib/firebaseConfig';
     import { GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
-    import { isLoggedIn, user } from "../../stores";
+    import { isLoggedIn, localUserId, user } from "../../stores";
 	import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
     import { gameSettings, appSettings, menuSettings } from '../../stores';
 
@@ -18,7 +18,7 @@
 
             if (existingDoc.exists()){
                 await updateDoc(userDocRef, {
-                    lastAccessed: new Date(),
+                    lastAccess: new Date(),
                 });
             } else {
                 await setDoc(userDocRef, {
@@ -30,7 +30,7 @@
                     appSettings: $appSettings, 
                     menuSettings: $menuSettings,
                 },
-                lastAccesed: new Date(),
+                lastAccess: new Date(),
                 });
             }
         } catch (error) {
@@ -95,6 +95,7 @@
 
 {#if !$isLoggedIn}
     <p>Log in to register/restore your configuration preferences:</p>
+    <p><strong>Local user ID:</strong> {$localUserId}</p>
     <button class="log-in-btn" on:click={login}>Login with google</button>
 {:else}
     <div class="profile-container">
@@ -102,6 +103,7 @@
             <img src={$user.photoURL} alt={$user.displayName}>
             <h4>{$user.displayName}</h4>
             <p>{$user.email}</p>
+            <p><strong>User ID:</strong> {$user.uid}</p>
         </div>
         <button class="log-out-btn" on:click={logout}>Log out</button>
     </div>

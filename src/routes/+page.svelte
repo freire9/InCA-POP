@@ -1,10 +1,10 @@
 <script>
-    import { gameSettings, menuSettings, appSettings, isLoggedIn, user, gameDirection, isIphone, modifyingConfig, subjectName } from "../stores";
+    import { gameSettings, menuSettings, appSettings, user, gameDirection, isIphone, modifyingConfig, subjectName, popElmntDirections, localUserId } from "../stores";
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
     import { TrainerButton, Fa } from 'inca-utils';
     import { faGear, faExpand, faInfo, faLeftLong, faRightLong, faUpLong, faDownLong } from '@fortawesome/free-solid-svg-icons';
-    import { deepCopy, getRandomHexColor, toogleFullscreen } from "$lib/utils";
+    import { getRandomHexColor, toogleFullscreen } from "$lib/utils";
     import StaticBalloon from "../components/StaticBalloon.svelte";
     import { addLog } from "$lib/logService";
 
@@ -22,37 +22,36 @@
 
     function handleAuthFinally(){
         if($menuSettings.mainMenuRandomColors){
-            Object.keys($gameSettings.availableModes).forEach(function(mode) {
+            Object.values(popElmntDirections).forEach(function(mode) {
                 $gameSettings.availableModes[mode].color = getRandomHexColor();
             });
         }
     }
 
-    function handleClick(event){
-        addLog(
-            'Game started', 
-            {gameDirection: deepCopy(event.detail), 
-                ...deepCopy($gameSettings), 
-                ...deepCopy($menuSettings), 
-                ...deepCopy($appSettings),
-                subjectName: deepCopy($subjectName),
-            },
-            $isLoggedIn ? deepCopy($user.uid) : null
-        );
+    function setGeneralLogs(action){
+        const now = new Date;
+        const generalLogs = {
+            timestamp: now,
+            user: $user ? $user.displayName : "Anonymous",
+            userId: $user ? $user.uid : $localUserId,
+            date: now.toLocaleDateString(),
+            time: now.toLocaleTimeString(),
+            teacher: $appSettings.instructorName,
+            action: action.toString(),
+            subject: $subjectName,
+        }
+        return generalLogs;
+    }
 
+    function handleClick(event){
+        const gameStartedLog = {...setGeneralLogs('Game started'), details: {gameDirection: event.detail, backgroundColor: $menuSettings.menuBackgroundColor, color: $gameSettings.availableModes[event.detail].color}};
+        addLog(gameStartedLog, {remote: $user ? true : false});
         startGame(event.detail);
     }
 
     function handleBackgroundClick(event){
-        addLog(
-            'Menu background click', 
-            {...deepCopy($gameSettings),
-                ...deepCopy($menuSettings),
-                ...deepCopy($appSettings),
-                subjectName: deepCopy($subjectName),
-            },
-            $isLoggedIn ? deepCopy($user.uid) : null
-        );
+        const backgroundClickLog = {...setGeneralLogs('Menu background click'), details: {x: event.clientX, y: event.clientY, backgroundColor: $menuSettings.menuBackgroundColor}};
+        addLog(backgroundClickLog, {remote: $user ? true : false});
     }
 
     function handleBackgroundKeyboard(event){
@@ -142,7 +141,7 @@
             </nav>
         </header>
         <div class="game-modes">
-            {#each Object.keys($gameSettings.availableModes) as mode}
+            {#each Object.values(popElmntDirections) as mode}
                 {#if $gameSettings.availableModes[mode].enabled}
                     <StaticBalloon 
                         on:modeClicked={handleClick}

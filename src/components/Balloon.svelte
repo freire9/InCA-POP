@@ -1,6 +1,6 @@
 <script>
     import { createEventDispatcher } from 'svelte'
-    import { appSettings, gameSettings, innerFigureOptions, speechCorrect, speechExcellent } from '../stores';
+    import { appSettings, gameSettings, popElmntInnerFigs, speechCorrect, speechExcellent } from '../stores';
 	import Letter from './inner_figures/Letter.svelte';
 	import Disc from './inner_figures/Disc.svelte';
 
@@ -12,7 +12,7 @@
     const rampageSound = new Audio('/sounds/rampage.mp3');
 
     function isRampage(){
-        return $gameSettings.enableRampageMode && balloon.isSpecial && currentRampageChain >= $gameSettings.rampageModeChain - 1;
+        return $gameSettings.enableRampageMode && balloon.isSpecial && ((currentRampageChain + 1) % $gameSettings.rampageModeChain === 0);
     }
 
     function playCustomCorrect(){
@@ -123,10 +123,10 @@
     "background: {$gameSettings.enableBalloonReflex ? "radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.5), transparent 70%)" : "unset"};
     filter: {$gameSettings.enableBalloonReflex ? "brightness(1.2)" : "unset"};"
 >
-    {#if balloon.isSpecial && balloon.innerFigType == innerFigureOptions.LETTER.value}
-        <Letter {balloon} />
-    {:else if balloon.isSpecial && balloon.innerFigType == innerFigureOptions.DISC.value}
-        <Disc {balloon} />
+    {#if balloon.isSpecial && balloon.innerFigType == popElmntInnerFigs.LETTER}
+        <Letter popElmnt={balloon} />
+    {:else if balloon.isSpecial && balloon.innerFigType == popElmntInnerFigs.DISC}
+        <Disc popElmnt={balloon} />
     {/if}
     <div class="string not-selectable {balloon.isSpecial ? 'special-string' : ''}" style:transform='translateX(-50%) rotate({10+balloon.rotation}deg)'></div>
 </button>

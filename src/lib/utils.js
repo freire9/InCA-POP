@@ -1,24 +1,18 @@
-import { getLogs, getRemoteLogs, convertToCSV} from "$lib/logService";
-import { doc, updateDoc } from "firebase/firestore";
-import { isFullScreen, isLoggedIn, user, appSettings, menuSettings, gameSettings } from "../stores";
-import { db } from "./firebaseConfig";
-import lodash from 'lodash';
+import { isFullScreen } from "../stores";
 
-const { debounce } = lodash;
-
-// Function to calculate intermediate colors
+// Function to calculate the interpolated colors between two colors
 export function calculateInterpolatedColors(steps, color1, color2) {
     const colors = [];
 
     for (let i = 0; i < steps; i++) {
-    const ratio = i / steps;
-    const interpolatedColor = interpolateColor(color1, color2, ratio);
-    colors.push(interpolatedColor);
+        const ratio = i / steps;
+        const interpolatedColor = interpolateColor(color1, color2, ratio);
+        colors.push(interpolatedColor);
     }
     return colors;
 }
 
-// Function for interpolating between two colors in RGB space
+// Function to interpolate colors, return HEX color
 function interpolateColor(color1, color2, ratio) {
     const hexToRgb = hex => ({
     r: parseInt(hex.slice(1, 3), 16),
@@ -40,6 +34,7 @@ function interpolateColor(color1, color2, ratio) {
     return rgbToHex(rgb);
 }
 
+// Function to get a random hex color
 export function getRandomHexColor(){
     const red = Math.floor(Math.random() * 256);
     const green = Math.floor(Math.random() * 256);
@@ -50,53 +45,12 @@ export function getRandomHexColor(){
     return rgbToHex(rgbColor);
 }
 
-export async function downloadLogs(format = 'json', userUid = null) {
-    const logs = userUid ? await getRemoteLogs(userUid) : getLogs();
-    let data;
-    let filename;
-    let mimeType;
-
-    if(format === 'json'){
-        data = JSON.stringify(logs, null, 2);
-        filename = 'logs.json';
-        mimeType = 'application/json';
-    } else if(format === 'csv'){
-        data = convertToCSV(logs);
-        filename = 'logs.csv';
-        mimeType = 'text/csv';
-    } else{
-        throw new Error('Not valid format. Must be "json" or "csv".');
-    }
-
-    const blob = new Blob([data], { type: mimeType });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-}
-
-export function downloadJsonLocal(){
-    return downloadLogs('json');
-}
-export function downloadCsvLocal(){
-    return downloadLogs('csv');
-}
-
-export function downloadJsonRemote(userUid){
-    return downloadLogs('json', userUid);
-}
-export function downloadCsvRemote(userUid){
-    return downloadLogs('csv', userUid);
-}
-
+// Function to deep copy an object
 export function deepCopy(obj){
     return JSON.parse(JSON.stringify(obj));
 }
 
+// Function to toggle fullscreen mode
 export function toogleFullscreen(fullscreenEvent){
     fullscreenEvent();
     document.addEventListener('fullscreenchange', handleFullscreenChange);
@@ -105,37 +59,24 @@ export function toogleFullscreen(fullscreenEvent){
     document.addEventListener('MSFullscreenChange', handleFullscreenChange);
 }
 
+// Function to handle the fullscreen change event
 function handleFullscreenChange(){
     isFullScreen.update(currentValue => !currentValue);
 }
 
+// Function to get a random element from an array
 export function getRandomFrom(array){
     return array[Math.floor(Math.random() * array.length)];
 }
 
-export async function updateRemotePreferences(){
-    let isLoggedIn_value, user_value, gameSettings_value, appSettings_value, menuSettings_value;
-    const unsubscribeLoggedIn = isLoggedIn.subscribe((value) => isLoggedIn_value = value);
-    const unsubscribeUser = user.subscribe((value) => user_value = value);
-    const unsubscribAappSettings = appSettings.subscribe((value) => appSettings_value = value);
-    const unsubscribeMenuSettings = menuSettings.subscribe((value) => menuSettings_value = value);
-    const unsubscribeGameSettings = gameSettings.subscribe((value) => gameSettings_value = value);
-
-    if (!isLoggedIn_value || !user_value) return;
-        const userDocRef = doc(db, 'users', user_value.uid);
-        await updateDoc(userDocRef, {
-            preferences: { 
-                gameSettings: deepCopy(gameSettings_value),
-                appSettings: deepCopy(appSettings_value),
-                menuSettings: deepCopy(menuSettings_value)},
-        });
-        console.log('Settings updated');
-
-    unsubscribeLoggedIn();
-    unsubscribeUser();
-    unsubscribAappSettings();
-    unsubscribeMenuSettings();
-    unsubscribeGameSettings();
+// Function to capitalize the first letter of a string
+export function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-export const handleUpdateRemotePreferences = debounce(updateRemotePreferences, 500);
+// Function to convert a string to camelCase
+export function toCamelCase(str) {
+    return str.replace(/([-_ ])([a-z])/ig, (_, sep, char) => {
+        return char.toUpperCase();
+    }).replace(/[\s_-]+/g, '');
+}
