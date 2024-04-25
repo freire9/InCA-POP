@@ -18,7 +18,7 @@
 
             if (existingDoc.exists()){
                 await updateDoc(userDocRef, {
-                    lastAccessed: new Date(),
+                    lastAccess: new Date(),
                 });
             } else {
                 await setDoc(userDocRef, {
@@ -30,7 +30,7 @@
                     appSettings: $appSettings, 
                     menuSettings: $menuSettings,
                 },
-                lastAccesed: new Date(),
+                lastAccess: new Date(),
                 });
             }
         } catch (error) {
