@@ -7,6 +7,7 @@ export const user = writable({});
 export const isLoggedIn = writable(false);
 export const modifyingConfig = writable(true);
 export const isFullScreen = writable(false);
+export const localUserId = writable('');
 
 // Pop element types: NORMAL AND SPECIAL (EXP, CTRL, etc.)
 export const popElmntTypes = {

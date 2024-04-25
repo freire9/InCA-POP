@@ -21,12 +21,12 @@ const addRemoteLog = async (dataLogs) => {
 };
 
 // Function to add a log
-export const addLog = (dataLogs) => {
+export const addLog = (dataLogs, {remote = false} = {}) => {
   const logEntry = deepCopy(dataLogs);
   logs.push(logEntry);
   console.log('Data saved in logs: ', logEntry);
   if (isClient) sessionStorage.setItem('logs', JSON.stringify(logs));
-  if (dataLogs.userId != null) addRemoteLog(dataLogs);
+  if (remote) addRemoteLog(dataLogs);
 };
 
 // Function to get logs (local)

@@ -18,3 +18,7 @@ button:focus-visible{
 button:focus:not(:focus-visible) {
     outline: unset;
 }
+
+strong {
+    all: revert;
+}

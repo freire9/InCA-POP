@@ -3,7 +3,7 @@
     import { onMount } from 'svelte';
     import { getRandomFrom, getRandomHexColor } from '$lib/utils';
     import { addLog } from "$lib/logService";
-    import { appSettings, gameSettings, user, popElmntSizeOpts, gameDirection, subjectName, popElmntShapes, popElmntTypes, popElmntSpeedsOpts, popElmntDirections } from '../../stores.js';
+    import { appSettings, gameSettings, user, popElmntSizeOpts, gameDirection, subjectName, popElmntShapes, popElmntTypes, popElmntSpeedsOpts, popElmntDirections, localUserId } from '../../stores.js';
     import SubjectNavBar from '../../components/SubjectNavBar.svelte';
 
     let popElmnts = [];
@@ -144,7 +144,7 @@
         const generalLogs = {
             timestamp: now,
             user: $user ? $user.displayName : "Anonymous",
-            userId: $user ? $user.uid : null,
+            userId: $user ? $user.uid : $localUserId,
             date: now.toISOString().slice(0, 10),
             time: now.toISOString().slice(11, 19),
             teacher: $appSettings.instructorName,
@@ -231,16 +231,16 @@
 
     function handleClick(event) {
         if($gameSettings.enableRampageMode) rampageChainUpdate(event.detail);
-        addLog(poppedElmntLogs(event.detail));
+        addLog(poppedElmntLogs(event.detail), {remote: $user ? true : false});
         destroyPopElmnt(event.detail.id);
     }
 
     function handleBackgroundClick(event){
-        addLog(backgroundClickLogs(event));
+        addLog(backgroundClickLogs(event), {remote: $user ? true : false});
     }
 
     function handleExitClick(){
-        addLog(ExitClickLogs());
+        addLog(ExitClickLogs(), {remote: $user ? true : false});
     }
 
     function handleBackgroundKeyboard(event){
