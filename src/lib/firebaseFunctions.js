@@ -29,7 +29,8 @@ export async function updateRemotePreferences(){
             menuSettings: deepCopy(menuSettings_value)},
     });
     console.log('Settings updated');
-
+    unsubscribeLoggedIn();
+    unsubscribeUser();
     unsubscribAappSettings();
     unsubscribeMenuSettings();
     unsubscribeGameSettings();
