@@ -1,7 +1,7 @@
 <script>
     import Balloon from '../../components/Balloon.svelte';;
     import { onMount } from 'svelte';
-    import { getRandomFrom, getRandomHexColor } from '$lib/utils';
+    import { capitalizeFirstLetter, getRandomFrom, getRandomHexColor } from '$lib/utils';
     import { addLog } from "$lib/logService";
     import { appSettings, gameSettings, user, popElmntSizeOpts, gameDirection, subjectName, popElmntShapes, popElmntTypes, popElmntSpeedsOpts, popElmntDirections, localUserId, isLoggedIn } from '../../stores.js';
     import SubjectNavBar from '../../components/SubjectNavBar.svelte';
@@ -140,7 +140,7 @@
     }
 
     function setGeneralLogs(action){
-        const now = new Date;
+        const now = new Date();
         const generalLogs = {
             timestamp: now,
             user: ($user && $isLoggedIn) ? $user.displayName : "Anonymous",
@@ -160,13 +160,13 @@
             Object.values(popElmntTypes)
                 .filter(type => type !== popElmntTypes.NORMAL) // exclude 'NORMAL'
                 .map(type => [
-                    type + 'Qty',
+                    'onScreen' + capitalizeFirstLetter(type) + 'Elmnts',
                     onScreen.filter(popElmnt => popElmnt.type === type).length
                 ])
         );
         const onScreenElmntsLogs = {
-            screenElmnts: onScreen.length,
-            specialPopElmntsQty: Object.values(specialPopElmntsQtyOnScreen).reduce((sum, value) => sum + value, 0),
+            onScreenElmnts: onScreen.length,
+            onScreenSpecialElmnts: Object.values(specialPopElmntsQtyOnScreen).reduce((sum, value) => sum + value, 0),
             ...specialPopElmntsQtyOnScreen,
             onScreenElmntsColors: onScreen.map(popElmnt => popElmnt.color),
             onScreenElmtsInnerFigColors: onScreen.filter(popElmnt => popElmnt.type != popElmntTypes.NORMAL).map(popElmnt => popElmnt.innerFigColor),
@@ -191,13 +191,12 @@
             y: Math.floor(popElmnt.y),
             speed: $gameSettings.popElmntSpeed,
             size: $gameSettings.popElmntSize,
-            direction: popElmnt.direction,
             isSpecial: popElmnt.isSpecial,
             type: popElmnt.type,
             shape: popElmnt.shape,
             currentRampageChain: currentRampageChain,
             rampageChainForExcellent: $gameSettings.rampageModeChain,
-            backgroundColor: $gameSettings.gameBackgroundColor,
+            gameBackgroundColor: $gameSettings.gameBackgroundColor,
             gameDirection: $gameDirection,
             ...specialDetails,
             ...onScreenElmntsLogs,
@@ -211,7 +210,7 @@
         const detailLogs = {
             x: event.clientX,
             y: event.clientY,
-            backgroundColor: $gameSettings.gameBackgroundColor,
+            gameBackgroundColor: $gameSettings.gameBackgroundColor,
             gameDirection: $gameDirection,
             ...onScreenElmntsLogs,
         }
@@ -222,7 +221,7 @@
         const generalLogs = setGeneralLogs('Exit game');
         const onScreenElmntsLogs = setOnScreenElmntsLogs();
         const detailLogs = {
-            backgroundColor: $gameSettings.gameBackgroundColor,
+            gameBackgroundColor: $gameSettings.gameBackgroundColor,
             gameDirection: $gameDirection,
             ...onScreenElmntsLogs,
         }

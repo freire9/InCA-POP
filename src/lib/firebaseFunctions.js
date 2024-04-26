@@ -23,7 +23,7 @@ export async function updateRemotePreferences(){
 
     const userDocRef = doc(db, dbUsersCollectionName, user_value.uid);
     await updateDoc(userDocRef, {
-        preferences: { 
+        incaPopPreferences: { 
             gameSettings: deepCopy(gameSettings_value),
             appSettings: deepCopy(appSettings_value),
             menuSettings: deepCopy(menuSettings_value)},
@@ -36,4 +36,4 @@ export async function updateRemotePreferences(){
 }
 
 // Debounce the function to avoid multiple calls
-export const handleUpdateRemotePreferences = debounce(updateRemotePreferences, 500);
+export const handleUpdateRemotePreferences = debounce(updateRemotePreferences, 1000);

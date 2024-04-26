@@ -29,7 +29,7 @@
     }
 
     function setGeneralLogs(action){
-        const now = new Date;
+        const now = new Date();
         const generalLogs = {
             timestamp: now,
             user: ($user && $isLoggedIn) ? $user.displayName : "Anonymous",
@@ -44,13 +44,13 @@
     }
 
     function handleClick(event){
-        const gameStartedLog = {...setGeneralLogs('Game started'), details: {gameDirection: event.detail, backgroundColor: $menuSettings.menuBackgroundColor, color: $gameSettings.availableModes[event.detail].color}};
+        const gameStartedLog = {...setGeneralLogs('Game started'), details: {gameDirection: event.detail, menuBackgroundColor: $menuSettings.menuBackgroundColor, color: $gameSettings.availableModes[event.detail].color}};
         addLog(gameStartedLog);
         startGame(event.detail);
     }
 
     function handleBackgroundClick(event){
-        const backgroundClickLog = {...setGeneralLogs('Menu background click'), details: {x: event.clientX, y: event.clientY, backgroundColor: $menuSettings.menuBackgroundColor}};
+        const backgroundClickLog = {...setGeneralLogs('Menu background click'), details: {x: event.clientX, y: event.clientY, menuBackgroundColor: $menuSettings.menuBackgroundColor}};
         addLog(backgroundClickLog);
     }
 

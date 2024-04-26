@@ -1,5 +1,5 @@
 <script>
-    import { gameSettings, appSettings, menuSettings, isLoggedIn, user, isFullScreen, menuSettingsDEFAULT, appSettingsDEFAULT, gameSettingsDEFAULT, subjectName, popElmntSpeeds, popElmntSizes, popElmntDirections} from '../../stores.js';
+    import { gameSettings, appSettings, menuSettings, isLoggedIn, user, isFullScreen, menuSettingsDEFAULT, appSettingsDEFAULT, gameSettingsDEFAULT, subjectName, popElmntSpeeds, popElmntSizes, popElmntDirections, localUserId } from '../../stores.js';
     import { deepCopy, toCamelCase, capitalizeFirstLetter } from '$lib/utils.js'
     import { Fa } from 'inca-utils';
     import { faFileArrowDown } from '@fortawesome/free-solid-svg-icons';
@@ -9,15 +9,19 @@
 	import Speeches from '../../components/settings/Speeches.svelte';
     import lodash from 'lodash';
 	import { handleUpdateRemotePreferences, updateRemotePreferences } from '$lib/firebaseFunctions.js';
-	import { downloadCsvLocal, downloadCsvRemote, downloadJsonLocal, downloadJsonRemote } from '$lib/logService.js';
+	import { downloadLogs } from '$lib/logService.js';
+	import { arrayUnion, doc, getDoc, updateDoc } from 'firebase/firestore';
+	import { db, dbUsersCollectionName } from '$lib/firebaseConfig.js';
 
     const { debounce } = lodash;
 
     function handleRemoteJsonDownload (){
-        if ($isLoggedIn && $user) downloadJsonRemote($user.uid);
+        if ($isLoggedIn && $user) downloadLogs('json', $user.uid);
+        else downloadLogs('json', $localUserId);
     }
     function handleRemoteCsvDownload(){
-        if ($isLoggedIn && $user) downloadCsvRemote($user.uid);
+        if ($isLoggedIn && $user) downloadLogs('csv', $user.uid);
+        else downloadLogs('csv', $localUserId);
     }
 
     function handleRestoreDefaults(){
@@ -34,12 +38,40 @@
         }
     }
 
-    function saveSubjectNameLocal(){
+    async function saveSubjectName(){
         localStorage.setItem('subjectName', $subjectName);
         console.log('Subject name saved to local storage')
+        if($isLoggedIn && $user) {
+            const userDocRef = doc(db, dbUsersCollectionName, $user.uid);
+            const userDoc = await getDoc(userDocRef);
+            if(!userDoc.data().learners || !userDoc.data().learners.includes($subjectName)){
+                    await updateDoc(userDocRef, {
+                        learners: arrayUnion($subjectName),
+                    });
+                }
+        }
     }
 
-    const handleSaveSubjectLocal = debounce(saveSubjectNameLocal, 500);
+    async function saveInstructorName(){
+        if($isLoggedIn && $user) {
+            const userDocRef = doc(db, dbUsersCollectionName, $user.uid);
+            const userDoc = await getDoc(userDocRef);
+            let forUpdateData = {
+                incaPopPreferences: {
+                    appSettings: {
+                        instructorName: $appSettings.instructorName,
+                    }
+                }
+            };
+            if(!userDoc.data().teachers || !userDoc.data().teachers.includes($appSettings.instructorName)){
+                forUpdateData.teachers = arrayUnion($appSettings.instructorName);
+            }
+            await updateDoc(userDocRef, forUpdateData);
+        }
+    }
+
+    const handleSaveSubject = debounce(saveSubjectName, 1500);
+    const handleSaveInstructor = debounce(saveInstructorName, 1500);
 </script>
 
 <div class="settings {$isFullScreen ? 'fullscreen' : ''}">
@@ -51,41 +83,24 @@
             
             <h2>Profile</h2>
             <Profile />
-
-            <button class="restore-btn" on:click={handleRestoreDefaultsWarning}>Restore default settings</button>
             
             <label for="subjectNameInput">Subject's name:</label>
-            <input id="subjectNameInput" type='text' bind:value={$subjectName} on:input={handleSaveSubjectLocal}/>
+            <input id="subjectNameInput" type='text' bind:value={$subjectName} on:input={handleSaveSubject}/>
             
             <label for="instructorNameInput">Instructor's name:</label>
-            <input id="instructorNameInput" type="text" bind:value={$appSettings.instructorName} on:input={handleUpdateRemotePreferences}>
+            <input id="instructorNameInput" type="text" bind:value={$appSettings.instructorName} on:input={handleSaveInstructor}>
             
             <h2>Logs</h2>
-            <div class="logs-container">
-                <div class="local-logs-container">
-                    <button class="download-logs-btn" on:click={downloadJsonLocal}>
-                        <Fa icon={faFileArrowDown} />
-                        Download local logs file (JSON)
-                    </button>
-                    <button class="download-logs-btn" on:click={downloadCsvLocal}>
-                        <Fa icon={faFileArrowDown} />
-                        Download local logs file (CSV)
-                    </button>
-                </div>
-                {#if $isLoggedIn && $user}
-                    <div class="remote-logs-container">
-                        <button class="download-logs-btn" on:click={handleRemoteJsonDownload}>
-                            <Fa icon={faFileArrowDown} />
-                            Download remote database logs file (JSON)
-                        </button>
-                        <button class="download-logs-btn" on:click={handleRemoteCsvDownload}>
-                            <Fa icon={faFileArrowDown} />
-                            Download remote database logs file (CSV)
-                        </button>
-                    </div>
-                {/if}
+            <div class="remote-logs-container">
+                <button class="download-logs-btn" on:click={handleRemoteJsonDownload}>
+                    <Fa icon={faFileArrowDown} />
+                    Download remote database logs file (JSON)
+                </button>
+                <button class="download-logs-btn" on:click={handleRemoteCsvDownload}>
+                    <Fa icon={faFileArrowDown} />
+                    Download remote database logs file (CSV)
+                </button>
             </div>
-
             <h2>Global game</h2>
             <div class="range-input">
                 <label for="maxPopElmntQtyInput">Max pop elements quantity on screen:</label>
@@ -171,6 +186,8 @@
 
             <h2>Speeches</h2>
             <Speeches />
+
+            <button class="restore-btn" on:click={handleRestoreDefaultsWarning}><strong>Restore default settings</strong></button>
         </div>
     </main>
 </div>
@@ -203,17 +220,18 @@
     .color-flex label{
         margin-bottom: 0px;
     }
-    .logs-container{
-        display: flex;
-    }
-
     button.download-logs-btn,
     button.restore-btn{
         background-color: beige;
         border-radius: 10px;
         padding: 10px;
-        margin-bottom: 10px;
         text-align: center;
+    }
+    button.download-logs-btn{
+        margin-top: 10px;
+    }
+    button.restore-btn{
+        margin-top: 70px;
     }
 
     button.download-logs-btn:hover,
@@ -231,9 +249,10 @@
         border: 1px solid black;
     }
     
-    .local-logs-container,
     .remote-logs-container{
-        display: grid;
+        display: flex;
+        flex-direction: row;
+        gap: 50px;
     }
 
     .game-modes-container,
@@ -251,26 +270,20 @@
         margin: 0px;
     }
     @media (max-width: 600px) {
-        .logs-container{
-            flex-direction: column;
-            gap: 20px;
-        }
         button.download-logs-btn{
             width: 220px;
         }
+        .remote-logs-container{
+            flex-direction: column;
+            gap: 10px;
+        }
     }
     @media (min-width: 600px) and (max-width: 1024px) {
-        .logs-container{
-            gap: 50px;
-        }
         button.download-logs-btn{
             width: 230px;
         }
     }
     @media (min-width: 1024px){
-        .logs-container{
-            gap: 100px;
-        }
         button.download-logs-btn{
             width: 300px;
         }

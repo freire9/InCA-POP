@@ -1,9 +1,10 @@
 <script>
     import { auth, db, dbUsersCollectionName } from '$lib/firebaseConfig';
     import { GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
-    import { isLoggedIn, localUserId, user } from "../../stores";
-	import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+    import { isLoggedIn, localUserId, subjectName, user } from "../../stores";
+	import { arrayUnion, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
     import { gameSettings, appSettings, menuSettings } from '../../stores';
+	import { deepCopy } from '$lib/utils';
 
     const login = async () => {
         try {
@@ -17,20 +18,42 @@
             const existingDoc = await getDoc(userDocRef);
 
             if (existingDoc.exists()){
-                await updateDoc(userDocRef, {
+
+                let forUpdateData = {
                     lastAccess: new Date(),
-                });
+                };
+                
+                if(!existingDoc.data().incaPopPreferences){
+                    forUpdateData.incaPopPreferences = {
+                        gameSettings: deepCopy($gameSettings),
+                        appSettings: deepCopy($appSettings),
+                        menuSettings: deepCopy($menuSettings),
+                    };
+                }
+
+                if(!existingDoc.data().learners || !existingDoc.data().learners.includes($subjectName)){
+                    forUpdateData.learners = arrayUnion($subjectName);
+                }
+
+                if(!existingDoc.data().teachers || !existingDoc.data().teachers.includes($appSettings.instructorName)){
+                    forUpdateData.teachers = arrayUnion($appSettings.instructorName);
+                }
+
+                await updateDoc(userDocRef, forUpdateData);
+
             } else {
                 await setDoc(userDocRef, {
-                name: res.user.displayName,
-                email: res.user.email,
-                uid: res.user.uid,
-                preferences:{
-                    gameSettings: $gameSettings, 
-                    appSettings: $appSettings, 
-                    menuSettings: $menuSettings,
-                },
-                lastAccess: new Date(),
+                    name: res.user.displayName,
+                    role: 'usuario',
+                    email: res.user.email,
+                    teachers: [$appSettings.instructorName],
+                    learners: [$subjectName],
+                    lastAccess: new Date(),
+                    incaPopPreferences:{
+                        gameSettings: $gameSettings, 
+                        appSettings: $appSettings, 
+                        menuSettings: $menuSettings,
+                    },
                 });
             }
         } catch (error) {
@@ -91,11 +114,21 @@
             text-align: center;
         }
     }
+    .login-p{
+        margin-top: 20px;
+    }
+    .local-id-warning-p{
+        font-size: 0.6rem;
+        color: red;
+    }
 </style>
 
 {#if !$isLoggedIn}
-    <p>Log in to register/restore your configuration preferences:</p>
-    <p><strong>Local user ID:</strong> {$localUserId}</p>
+    <p><strong>Local user ID*:</strong> {$localUserId}</p>
+    <p class="local-id-warning-p"><strong>*: This is a local ID saved in your browser.
+        If you delete local storage the logs saved in remote DB will be unreachable.
+        Always preffer login with Google account.</strong></p>
+    <p class="login-p">Log in to register/restore your configuration preferences:</p>
     <button class="log-in-btn" on:click={login}>Login with google</button>
 {:else}
     <div class="profile-container">
