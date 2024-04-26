@@ -1,12 +1,12 @@
 <script>
     import 'inca-utils/styles.css';
-    import { user, isLoggedIn, gameSettings, menuSettings, appSettings, isIphone, isFirefox, modifyingConfig, appSettingsDEFAULT, menuSettingsDEFAULT, gameSettingsDEFAULT, speechCorrect, speechSettings, speechExcellent, voices, subjectName } from '../stores';
-    import { auth, db } from '$lib/firebaseConfig';
+    import { user, isLoggedIn, gameSettings, menuSettings, appSettings, isIphone, isFirefox, modifyingConfig, appSettingsDEFAULT, menuSettingsDEFAULT, gameSettingsDEFAULT, speechCorrect, speechSettings, speechExcellent, voices, subjectName, localUserId } from '../stores';
+    import { auth, db, dbUsersCollectionName } from '$lib/firebaseConfig';
     import { onAuthStateChanged } from 'firebase/auth';
     import { doc, getDoc } from 'firebase/firestore';
 	import { onMount } from 'svelte';
     import packageJson from '../../package.json';
-	import { updateRemotePreferences } from '$lib/utils';
+	import { updateRemotePreferences } from '$lib/firebaseFunctions';
 
     const appVersion = packageJson.version;
 
@@ -31,10 +31,10 @@
     }
 
     function syncPreferencesToStores(userData) {
-        if (userData && userData.preferences) {
-            const { settings: updatedAppSettings, hasChanged: appSettingsHasChanged } = updateSettingsWithDefault(appSettingsDEFAULT, userData.preferences.appSettings);
-            const { settings: updatedGameSettings, hasChanged: gameSettingsHasChanged } = updateSettingsWithDefault(gameSettingsDEFAULT, userData.preferences.gameSettings);
-            const { settings: updatedMenuSettings, hasChanged: menuSettingsHasChanged } = updateSettingsWithDefault(menuSettingsDEFAULT, userData.preferences.menuSettings);
+        if (userData && userData.incaPopPreferences) {
+            const { settings: updatedAppSettings, hasChanged: appSettingsHasChanged } = updateSettingsWithDefault(appSettingsDEFAULT, userData.incaPopPreferences.appSettings || {});
+            const { settings: updatedGameSettings, hasChanged: gameSettingsHasChanged } = updateSettingsWithDefault(gameSettingsDEFAULT, userData.incaPopPreferences.gameSettings || {});
+            const { settings: updatedMenuSettings, hasChanged: menuSettingsHasChanged } = updateSettingsWithDefault(menuSettingsDEFAULT, userData.incaPopPreferences.menuSettings || {});
 
             gameSettings.set(updatedGameSettings);
             menuSettings.set(updatedMenuSettings);
@@ -43,15 +43,19 @@
             console.log('User preferences loaded');
 
             if(appSettingsHasChanged || gameSettingsHasChanged || menuSettingsHasChanged) updateRemotePreferences();
+        } else{ //if user has no preferences, update database with default settings
+            updateRemotePreferences();
         }
     }
 
     async function syncPreferencesFromFirestore() {
         if ($user && $isLoggedIn) {
             $modifyingConfig = true;
-            const userDocRef = doc(db, 'users', $user.uid);
+            const userDocRef = doc(db, dbUsersCollectionName, $user.uid);
             const docSnapshot = await getDoc(userDocRef);
             const userData = docSnapshot.data();
+            
+            if(!userData) return;
 
             syncPreferencesToStores(userData);
         }
@@ -118,6 +122,15 @@
         console.log('Subject name loaded from local storage')
     }
 
+    function setLocalUserId(){
+        $localUserId = localStorage.getItem('localUserId');
+        if(!$localUserId){
+            const new_id = crypto.randomUUID();
+            localStorage.setItem('localUserId', new_id);
+            $localUserId = new_id;
+        }
+    }
+
     onMount(() => {
         const userAgent = navigator.userAgent.toLowerCase();
         $isIphone = /iphone/.test(userAgent);
@@ -130,6 +143,7 @@
             $speechExcellent.rate = $speechSettings.rate;
         }
         loadSubjectNameLocal();
+        setLocalUserId();
     });
 </script>
 

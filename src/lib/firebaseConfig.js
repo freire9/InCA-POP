@@ -23,3 +23,7 @@ if(!getApps().length) {
 
 export const db = getFirestore(fireBaseApp);
 export const auth = getAuth(fireBaseApp);
+const envMode = import.meta.env.VITE_MODE;
+const envDBBreakingLogsV = import.meta.env.VITE_APP_BREAKING_LOGS_VERSION;
+export const dbLogsCollectionName = 'inca-pop' + (envMode === 'development' ? '-dev' : '') + '-' + envDBBreakingLogsV;
+export const dbUsersCollectionName = envMode === 'development' ? ('inca-pop-users-dev-' + envDBBreakingLogsV) : 'users';

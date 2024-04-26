@@ -1,15 +1,14 @@
 <script>
     import { ActionButton, TrainerButton } from "inca-utils";
     import { faExpand } from '@fortawesome/free-solid-svg-icons';
-    import { appSettings, gameDirection, gameSettings, menuSettings, isIphone, isLoggedIn, user, subjectName } from "../stores";
+    import { isIphone } from "../stores";
     import { Fa }  from "inca-utils";
-    import { onMount } from "svelte";
+    import { createEventDispatcher, onMount } from "svelte";
 	import { goto } from "$app/navigation";
-	import { addLog } from "$lib/logService";
-	import { deepCopy, toogleFullscreen } from "$lib/utils";
+	import { toogleFullscreen } from "$lib/utils";
 
     let fullscreen;
-    export let balloons;
+    const dispatch = createEventDispatcher();
 
     onMount(async () => {
         ({fullscreen} = await import('inca-utils/api'));
@@ -17,17 +16,7 @@
 
     function handleExitClick(event){
         event.stopPropagation();
-        addLog(
-            'Exit game', 
-            {onScreenBalloons: deepCopy(balloons),
-                gameDirection: deepCopy($gameDirection),
-                ...deepCopy($gameSettings),
-                ...deepCopy($appSettings),
-                ...deepCopy($menuSettings),
-                subjectName: deepCopy($subjectName),
-            },
-            $isLoggedIn ? deepCopy($user.uid) : null
-        );
+        dispatch('exit');
         goto('/');
     }
 </script>

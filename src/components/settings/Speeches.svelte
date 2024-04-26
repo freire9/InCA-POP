@@ -1,7 +1,7 @@
 <script>
     import { onMount } from 'svelte';
 	import { appSettings, speechCorrect, speechExcellent, speechSettings, voices } from '../../stores';
-	import { handleUpdateRemotePreferences } from '$lib/utils';
+	import { handleUpdateRemotePreferences } from '$lib/firebaseFunctions';
     import { Fa } from 'inca-utils';
     import { faPlay } from '@fortawesome/free-solid-svg-icons';
     import lodash from 'lodash';
