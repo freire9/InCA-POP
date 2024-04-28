@@ -8,6 +8,9 @@ export const isLoggedIn = writable(false);
 export const modifyingConfig = writable(true);
 export const isFullScreen = writable(false);
 export const localUserId = writable('');
+export const syncPreferencesFromRemote = writable(false);
+export const subjectName = writable('subject-name');
+export const fluidTransitions = writable(false);
 
 // Pop element types: NORMAL AND SPECIAL (EXP, CTRL, etc.)
 export const popElmntTypes = {
@@ -87,10 +90,8 @@ if (isClient) {
     speechExcellent = writable(new SpeechSynthesisUtterance('Excellent!'));
 }
 
-export const subjectName = writable('subject-name');
 export const appSettingsDEFAULT = {
     instructorName: 'instructor-name',
-    fluidTransitions: false,
     enableCustomSpeeches: true,
 };
 
