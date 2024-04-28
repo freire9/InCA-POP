@@ -5,6 +5,7 @@
     import { addLog } from "$lib/logService";
     import { appSettings, gameSettings, user, popElmntSizeOpts, gameDirection, subjectName, popElmntShapes, popElmntTypes, popElmntSpeedsOpts, popElmntDirections, localUserId, isLoggedIn } from '../../stores.js';
     import SubjectNavBar from '../../components/SubjectNavBar.svelte';
+	import InGameStats from '../../components/InGameStats.svelte';
 
     let popElmnts = [];
     let PopElmntIdCounter = 1;
@@ -12,6 +13,7 @@
     const popElmntSpeed = popElmntSpeedsOpts[$gameSettings.popElmntSpeed];
     const popElmntSize = popElmntSizeOpts[$gameSettings.popElmntSize];
     let currentRampageChain = 0;
+    let currentStats = Object.fromEntries(Object.values(popElmntTypes).map(type => [type, { popped: 0, total: 0 }]));
 
     //Max quantities of special popElmnts
     const specialPopElmntsMaxQuantities = Object.fromEntries(
@@ -69,6 +71,7 @@
         const popElmnt = { id, color, innerFigType, innerFigColor, x, y, speed, direction, size, rotation, isSpecial, type, shape};
 
         popElmnts = [...popElmnts, popElmnt];
+        currentStats[type].total += 1;
     }
 
     function addInitialPopElmnts() {
@@ -106,6 +109,7 @@
             const popElmnt = { id, color, innerFigType, innerFigColor, x, y, speed, direction, size, rotation, isSpecial, type, shape};
 
             popElmnts = [...popElmnts, popElmnt];
+            currentStats[type].total += 1;
         }
     }
     
@@ -220,10 +224,24 @@
     function ExitClickLogs(){
         const generalLogs = setGeneralLogs('Exit game');
         const onScreenElmntsLogs = setOnScreenElmntsLogs();
+        const poppedStatsLogs = Object.fromEntries(
+            Object.values(popElmntTypes).map(type => [
+                type + 'PoppedTotal',
+                currentStats[type].popped
+            ])
+        );
+        const totalStatsLogs = Object.fromEntries(
+            Object.values(popElmntTypes).map(type => [
+                type + 'Total',
+                currentStats[type].total
+            ])
+        );
         const detailLogs = {
             gameBackgroundColor: $gameSettings.gameBackgroundColor,
             gameDirection: $gameDirection,
             ...onScreenElmntsLogs,
+            ...poppedStatsLogs,
+            ...totalStatsLogs,
         }
         return {...generalLogs, details: detailLogs};
     }
@@ -231,6 +249,7 @@
     function handleClick(event) {
         if($gameSettings.enableRampageMode) rampageChainUpdate(event.detail);
         addLog(poppedElmntLogs(event.detail));
+        currentStats[event.detail.type].popped += 1;
         destroyPopElmnt(event.detail.id);
     }
 
@@ -362,5 +381,6 @@
         {#each popElmnts as popElmnt (popElmnt.id)}
             <Balloon balloon={popElmnt} {currentRampageChain} on:balloonClicked={handleClick} />
         {/each}
+        <InGameStats stats = {currentStats} />
     </main>
 </div>
