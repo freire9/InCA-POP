@@ -10,12 +10,11 @@
 
 <style>
     p{
-        position: absolute;
+        position: fixed;
         bottom: 0;
         width: 100%;
         text-align: center;
         font-size: x-small;
-        z-index: 1;
     }
     span{
         margin: 2px;
