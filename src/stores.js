@@ -15,6 +15,12 @@ export const popElmntTypes = {
     EXP: 'experimental',
     CTRL: 'control',
 }
+// Pop element types short labels: Norm., Exp., Ctrl.
+export const popElmntTypesShort = {
+    [popElmntTypes.NORMAL]: 'Norm.',
+    [popElmntTypes.EXP]: 'Exp.',
+    [popElmntTypes.CTRL]: 'Ctrl.',
+};
 // Pop element shapes: BALLOON, etc.
 export const popElmntShapes = {
     BALLOON: 'balloon',
