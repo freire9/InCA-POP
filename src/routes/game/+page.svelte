@@ -8,7 +8,7 @@
 	import InGameStats from '../../components/InGameStats.svelte';
 
     let lastFrameTime = performance.now(); //ms
-    const frameRate = 30;
+    const frameRate = 60;
     const frameDuration = 1000 / frameRate; //ms
     let animationFrameId;
     const popElmntInterval = 500; //ms
@@ -373,7 +373,8 @@
     });
 
     onDestroy(() => {
-        cancelAnimationFrame(animationFrameId);
+        const isClient = !import.meta.env.SSR;
+        if(isClient) cancelAnimationFrame(animationFrameId);
     });
 </script>
   
