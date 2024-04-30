@@ -25,7 +25,6 @@
     }
 
     onAuthStateChanged(auth, async authUser => {
-        if(!$syncPreferencesFromRemote) return;
         
         $user = authUser;
         $isLoggedIn = !!authUser;
@@ -33,9 +32,9 @@
             $modifyingConfig = false;
             return;
         }
-
+        
         try {
-            await syncPreferencesFromFirestore();
+            if($syncPreferencesFromRemote) await syncPreferencesFromFirestore();
         } catch(error) {
             console.error(error);
         } finally{
