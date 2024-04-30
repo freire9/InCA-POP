@@ -7,8 +7,6 @@ const addRemoteLog = async (dataLogs) => {
   try {
     const logsCollection = collection(db, dbLogsCollectionName);
     const docRef = await addDoc(logsCollection, dataLogs);
-    console.log('Data saved in remote logs: ', dataLogs);
-    console.log('Log save with ID: ', docRef.id);
   } catch (error) {
     console.error('Error at saving log: ', error);
   }

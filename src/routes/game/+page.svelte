@@ -1,13 +1,18 @@
 <script>
     import Balloon from '../../components/Balloon.svelte';;
-    import { onMount } from 'svelte';
+    import { onDestroy, onMount } from 'svelte';
     import { capitalizeFirstLetter, getRandomFrom, getRandomHexColor } from '$lib/utils';
     import { addLog } from "$lib/logService";
     import { appSettings, gameSettings, user, popElmntSizeOpts, gameDirection, subjectName, popElmntShapes, popElmntTypes, popElmntSpeedsOpts, popElmntDirections, localUserId, isLoggedIn, fluidTransitions } from '../../stores.js';
     import SubjectNavBar from '../../components/SubjectNavBar.svelte';
 	import InGameStats from '../../components/InGameStats.svelte';
 
-    let lastFrameTime = performance.now();
+    let lastFrameTime = performance.now(); //ms
+    const frameRate = 30;
+    const frameDuration = 1000 / frameRate; //ms
+    let animationFrameId;
+    const popElmntInterval = 500; //ms
+    let timeForNextPopElmnt = 0; //ms
     let popElmnts = [];
     let PopElmntIdCounter = 1;
     let balloonKnotHeightPercent;
@@ -297,10 +302,8 @@
         }
     }
 
-    function animatePopElmnts() {
-        function movePopElmnts() {
-        const currentTime = performance.now();
-        const deltaTime = (currentTime - lastFrameTime) / 1000; //to seconds
+    function movePopElmnts(timestamp) {
+        const deltaTime = (timestamp - lastFrameTime) / 1000; //to seconds
         popElmnts = popElmnts.map(popElmnt => {
             const speed = popElmnt.speed;
             const distance = speed * deltaTime;
@@ -327,7 +330,7 @@
                     return popElmnt;
             }
         });
-        
+    
         popElmnts = popElmnts.filter(popElmnt => {
             if (popElmnt.direction === popElmntDirections.LEFT_TO_RIGHT || popElmnt.direction === popElmntDirections.RIGHT_TO_LEFT) {
                 return popElmnt.x <= window.innerWidth + popElmnt.size.width && popElmnt.x >= 0 - popElmnt.size.width * 2;
@@ -335,13 +338,26 @@
                 return popElmnt.y <= window.innerHeight + popElmnt.size.height && popElmnt.y >= 0 - (popElmnt.size.height - getAditionalHeight(popElmnt.type, popElmnt.size.height)) * 2;
             }
         });
-        
-        lastFrameTime = currentTime;
-        requestAnimationFrame(movePopElmnts);
-        }
-        requestAnimationFrame(movePopElmnts);
     }
     
+    function gameLoop(timestamp){
+        const elapsedTime = timestamp - lastFrameTime; //ms
+        timeForNextPopElmnt += elapsedTime;
+        if(elapsedTime > frameDuration) {//limit frame rate
+            if(timeForNextPopElmnt >= popElmntInterval){
+                addPopElmnt();
+                timeForNextPopElmnt = 0;
+            }
+            movePopElmnts(timestamp);
+
+            //(elapsedTime % frameDuration) time passed since last frame that was not rendered due to frame rate limit
+            //timestamp - (elapsedTime % frameDuration) is the moment of time when the last frame was supposed to be rendered
+            //this is for mantain the frame rate limit for soft and consistent animations
+            lastFrameTime = timestamp - (elapsedTime % frameDuration);
+        }
+        animationFrameId = requestAnimationFrame(gameLoop);
+    }
+
     onMount(() => {
         const areBalloons = Object.values($gameSettings.popElmntConfig).some(popElmnt => popElmnt.shape === popElmntShapes.BALLOON);
         if(areBalloons){
@@ -352,14 +368,12 @@
 
         addInitialPopElmnts();
 
-        // add popElmnts with time interval 0.5s
-        const intervalId = setInterval(addPopElmnt, 500);
-
         // start popElmnt animation
-        animatePopElmnts();
+        gameLoop(performance.now())
+    });
 
-        // clean interval when component is destroyed
-        return () => clearInterval(intervalId);
+    onDestroy(() => {
+        cancelAnimationFrame(animationFrameId);
     });
 </script>
   
