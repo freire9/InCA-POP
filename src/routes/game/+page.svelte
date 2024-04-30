@@ -353,7 +353,8 @@
             //(elapsedTime % frameDuration) time passed since last frame that was not rendered due to frame rate limit
             //timestamp - (elapsedTime % frameDuration) is the moment of time when the last frame was supposed to be rendered
             //this is for mantain the frame rate limit for soft and consistent animations
-            lastFrameTime = timestamp;
+            lastFrameTime = timestamp ;
+        }
         animationFrameId = requestAnimationFrame(gameLoop);
     }
 
