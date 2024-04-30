@@ -9,12 +9,12 @@ export function updateSettingsWithDefault(settingsDEFAULT, userPreferences) {
     for (const key in userPreferences) {
         if (updatedSettings.hasOwnProperty(key)) {
             updatedSettings[key] = userPreferences[key];
-        } else{ //if remote settings has a key that is not in the default settings, mark for update
+        } else{ //if preferences has a key that is not in the default settings, mark for update
             hasChanged = true;
         }
     }
 
-    //if remote settings has less keys than the default settings, mark for update
+    //if preferences has less keys than the default settings, mark for update
     if(Object.keys(userPreferences).length !== Object.keys(updatedSettings).length){
         hasChanged = true;
     }
