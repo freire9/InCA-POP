@@ -7,6 +7,7 @@
     import SubjectNavBar from '../../components/SubjectNavBar.svelte';
 	import InGameStats from '../../components/InGameStats.svelte';
 
+    let lastFrameTime = performance.now();
     let popElmnts = [];
     let PopElmntIdCounter = 1;
     let balloonKnotHeightPercent;
@@ -298,8 +299,11 @@
 
     function animatePopElmnts() {
         function movePopElmnts() {
+        const currentTime = performance.now();
+        const deltaTime = (currentTime - lastFrameTime) / 1000; //to seconds
         popElmnts = popElmnts.map(popElmnt => {
             const speed = popElmnt.speed;
+            const distance = speed * deltaTime;
             const enableMoveDesviation = Math.random() > 0.6;
             const enableRotDesviation = enableMoveDesviation;
 
@@ -312,14 +316,14 @@
 
             switch (popElmnt.direction) {
                 case popElmntDirections.LEFT_TO_RIGHT:
-                    return { ...popElmnt, x: popElmnt.x + speed, y: popElmnt.y + verticalDesviation, rotation: popElmnt.rotation + rotDesviation };
-                case popElmntDirections.RIGHT_TO_LEFT:
-                    return { ...popElmnt, x: popElmnt.x - speed, y: popElmnt.y + verticalDesviation, rotation: popElmnt.rotation + rotDesviation };
-                case popElmntDirections.TOP_TO_BOTTOM:
-                    return { ...popElmnt, y: popElmnt.y + speed, x: popElmnt.x + horizontalDesviation, rotation: popElmnt.rotation + rotDesviation };
-                case popElmntDirections.BOTTOM_TO_TOP:
-                    return { ...popElmnt, y: popElmnt.y - speed, x: popElmnt.x + horizontalDesviation, rotation: popElmnt.rotation + rotDesviation };
-                default:
+                    return { ...popElmnt, x: popElmnt.x + distance, y: popElmnt.y + verticalDesviation, rotation: popElmnt.rotation + rotDesviation };
+                    case popElmntDirections.RIGHT_TO_LEFT:
+                        return { ...popElmnt, x: popElmnt.x - distance, y: popElmnt.y + verticalDesviation, rotation: popElmnt.rotation + rotDesviation };
+                        case popElmntDirections.TOP_TO_BOTTOM:
+                            return { ...popElmnt, y: popElmnt.y + distance, x: popElmnt.x + horizontalDesviation, rotation: popElmnt.rotation + rotDesviation };
+                            case popElmntDirections.BOTTOM_TO_TOP:
+                                return { ...popElmnt, y: popElmnt.y - distance, x: popElmnt.x + horizontalDesviation, rotation: popElmnt.rotation + rotDesviation };
+                                default:
                     return popElmnt;
             }
         });
@@ -332,6 +336,7 @@
             }
         });
         
+        lastFrameTime = currentTime;
         requestAnimationFrame(movePopElmnts);
         }
         requestAnimationFrame(movePopElmnts);
