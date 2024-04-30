@@ -1,52 +1,15 @@
 <script>
     import 'inca-utils/styles.css';
-    import { user, isLoggedIn, gameSettings, menuSettings, appSettings, isIphone, isFirefox, modifyingConfig, appSettingsDEFAULT, menuSettingsDEFAULT, gameSettingsDEFAULT, speechCorrect, speechSettings, speechExcellent, voices, subjectName, localUserId } from '../stores';
+    import { user, isLoggedIn, appSettings, isIphone, isFirefox, modifyingConfig, speechCorrect, speechSettings, speechExcellent, voices, syncPreferencesFromRemote, fluidTransitions } from '../stores';
     import { auth, db, dbUsersCollectionName } from '$lib/firebaseConfig';
     import { onAuthStateChanged } from 'firebase/auth';
     import { doc, getDoc } from 'firebase/firestore';
 	import { onMount } from 'svelte';
     import packageJson from '../../package.json';
-	import { updateRemotePreferences } from '$lib/firebaseFunctions';
+	import { syncPreferencesToStores } from '$lib/firebaseFunctions';
+	import { loadSubjectNameLocal, setLocalPreferencesToStores, setLocalUserId } from '$lib/localPreferences';
 
     const appVersion = packageJson.version;
-
-    function updateSettingsWithDefault(settingsDEFAULT, userPreferences) {
-        const updatedSettings = { ...settingsDEFAULT };
-        let hasChanged = false;
-
-        for (const key in userPreferences) {
-            if (updatedSettings.hasOwnProperty(key)) {
-                updatedSettings[key] = userPreferences[key];
-            } else{ //if remote settings has a key that is not in the default settings, mark for update
-                hasChanged = true;
-            }
-        }
-
-        //if remote settings has less keys than the default settings, mark for update
-        if(Object.keys(userPreferences).length !== Object.keys(updatedSettings).length){
-            hasChanged = true;
-        }
-
-        return { settings: updatedSettings, hasChanged };
-    }
-
-    function syncPreferencesToStores(userData) {
-        if (userData && userData.incaPopPreferences) {
-            const { settings: updatedAppSettings, hasChanged: appSettingsHasChanged } = updateSettingsWithDefault(appSettingsDEFAULT, userData.incaPopPreferences.appSettings || {});
-            const { settings: updatedGameSettings, hasChanged: gameSettingsHasChanged } = updateSettingsWithDefault(gameSettingsDEFAULT, userData.incaPopPreferences.gameSettings || {});
-            const { settings: updatedMenuSettings, hasChanged: menuSettingsHasChanged } = updateSettingsWithDefault(menuSettingsDEFAULT, userData.incaPopPreferences.menuSettings || {});
-
-            gameSettings.set(updatedGameSettings);
-            menuSettings.set(updatedMenuSettings);
-            appSettings.set(updatedAppSettings);
-            
-            console.log('User preferences loaded');
-
-            if(appSettingsHasChanged || gameSettingsHasChanged || menuSettingsHasChanged) updateRemotePreferences();
-        } else{ //if user has no preferences, update database with default settings
-            updateRemotePreferences();
-        }
-    }
 
     async function syncPreferencesFromFirestore() {
         if ($user && $isLoggedIn) {
@@ -62,15 +25,16 @@
     }
 
     onAuthStateChanged(auth, async authUser => {
+        
         $user = authUser;
         $isLoggedIn = !!authUser;
         if (!$user || !$isLoggedIn) {
             $modifyingConfig = false;
             return;
         }
-
+        
         try {
-            await syncPreferencesFromFirestore();
+            if($syncPreferencesFromRemote) await syncPreferencesFromFirestore();
         } catch(error) {
             console.error(error);
         } finally{
@@ -113,29 +77,11 @@
         }
     }
 
-    function loadSubjectNameLocal(){
-        const name = localStorage.getItem('subjectName');
-        if(name){
-            $subjectName = name;
-        }
-
-        console.log('Subject name loaded from local storage')
-    }
-
-    function setLocalUserId(){
-        $localUserId = localStorage.getItem('localUserId');
-        if(!$localUserId){
-            const new_id = crypto.randomUUID();
-            localStorage.setItem('localUserId', new_id);
-            $localUserId = new_id;
-        }
-    }
-
     onMount(() => {
         const userAgent = navigator.userAgent.toLowerCase();
         $isIphone = /iphone/.test(userAgent);
         $isFirefox = userAgent.indexOf('firefox') > -1;
-        $appSettings.fluidTransitions = $isFirefox ? false : true;
+        $fluidTransitions = $isFirefox ? false : true;
         loadVoices();
         window.speechSynthesis.onvoiceschanged = loadVoices;
         if($speechCorrect.rate != $speechSettings.rate || $speechExcellent.rate != $speechSettings.rate){
@@ -144,6 +90,7 @@
         }
         loadSubjectNameLocal();
         setLocalUserId();
+        if(!$syncPreferencesFromRemote) setLocalPreferencesToStores();
     });
 </script>
 

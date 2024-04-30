@@ -1,8 +1,9 @@
 import { doc, updateDoc } from "firebase/firestore";
-import { appSettings, gameSettings, isLoggedIn, menuSettings, user } from "../stores";
+import { appSettings, appSettingsDEFAULT, gameSettings, gameSettingsDEFAULT, isLoggedIn, menuSettings, menuSettingsDEFAULT, user } from "../stores";
 import { deepCopy } from "./utils";
 import lodash from 'lodash';
 import { db, dbUsersCollectionName } from "./firebaseConfig";
+import { updateSettingsWithDefault } from "./preferences";
 
 const { debounce } = lodash;
 
@@ -34,6 +35,24 @@ export async function updateRemotePreferences(){
     unsubscribAappSettings();
     unsubscribeMenuSettings();
     unsubscribeGameSettings();
+}
+
+export function syncPreferencesToStores(userData) {
+    if (userData && userData.incaPopPreferences) {
+        const { settings: updatedAppSettings, hasChanged: appSettingsHasChanged } = updateSettingsWithDefault(appSettingsDEFAULT, userData.incaPopPreferences.appSettings || {});
+        const { settings: updatedGameSettings, hasChanged: gameSettingsHasChanged } = updateSettingsWithDefault(gameSettingsDEFAULT, userData.incaPopPreferences.gameSettings || {});
+        const { settings: updatedMenuSettings, hasChanged: menuSettingsHasChanged } = updateSettingsWithDefault(menuSettingsDEFAULT, userData.incaPopPreferences.menuSettings || {});
+
+        gameSettings.set(updatedGameSettings);
+        menuSettings.set(updatedMenuSettings);
+        appSettings.set(updatedAppSettings);
+        
+        console.log('User preferences loaded');
+
+        if(appSettingsHasChanged || gameSettingsHasChanged || menuSettingsHasChanged) updateRemotePreferences();
+    } else{ //if user has no preferences, update database with default settings
+        updateRemotePreferences();
+    }
 }
 
 // Debounce the function to avoid multiple calls

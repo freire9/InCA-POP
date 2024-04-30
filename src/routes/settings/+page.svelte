@@ -6,13 +6,13 @@
     import Profile from '../../components/settings/Profile.svelte';
     import UserNavBar from '../../components/UserNavBar.svelte';
     import PopElmntsTabs from '../../components/settings/game/PopElmntsTabs.svelte';
-	import Speeches from '../../components/settings/Speeches.svelte';
+    import Speeches from '../../components/settings/Speeches.svelte';
     import lodash from 'lodash';
-	import { handleUpdateRemotePreferences, updateRemotePreferences } from '$lib/firebaseFunctions.js';
-	import { downloadLogs } from '$lib/logService.js';
-	import { arrayUnion, doc, getDoc, updateDoc } from 'firebase/firestore';
-	import { db, dbUsersCollectionName } from '$lib/firebaseConfig.js';
-
+    import { downloadLogs } from '$lib/logService.js';
+    import { arrayUnion, doc, getDoc, updateDoc } from 'firebase/firestore';
+    import { db, dbUsersCollectionName } from '$lib/firebaseConfig.js';
+    import { updatePreferences } from '$lib/preferences.js';
+    
     const { debounce } = lodash;
 
     function handleRemoteJsonDownload (){
@@ -29,7 +29,7 @@
         appSettings.set(deepCopy(appSettingsDEFAULT));
         menuSettings.set(deepCopy(menuSettingsDEFAULT));
         console.log('Default settings restored')
-        if ($isLoggedIn && $user) updateRemotePreferences();
+        updatePreferences();
     }
 
     function handleRestoreDefaultsWarning(){
@@ -106,10 +106,10 @@
                 <label for="maxPopElmntQtyInput">Max pop elements quantity on screen:</label>
                 <p>{$gameSettings.maxPopElmntQty}</p>
             </div>
-            <input id="maxPopElmntQtyInput" min="1" max="50" step="1" type="range" bind:value={$gameSettings.maxPopElmntQty} on:input={handleUpdateRemotePreferences}>
+            <input id="maxPopElmntQtyInput" min="1" max="50" step="1" type="range" bind:value={$gameSettings.maxPopElmntQty} on:input={updatePreferences}>
 
             <label for="popElmntSpeedSelect">Pop element speed:</label>
-            <select id="popElmntSpeedSelect" bind:value={$gameSettings.popElmntSpeed} on:input={handleUpdateRemotePreferences}>
+            <select id="popElmntSpeedSelect" bind:value={$gameSettings.popElmntSpeed} on:input={updatePreferences}>
                 {#each Object.values(popElmntSpeeds) as speedOption}
                     <option value={speedOption}>
                         {capitalizeFirstLetter(speedOption)}
@@ -118,7 +118,7 @@
             </select>
 
             <label for="popElmntSizeInput">Pop element size:</label>
-            <select id="popElmntSizeInput" bind:value={$gameSettings.popElmntSize} on:input={handleUpdateRemotePreferences}>
+            <select id="popElmntSizeInput" bind:value={$gameSettings.popElmntSize} on:input={updatePreferences}>
                 {#each Object.values(popElmntSizes) as sizeOption}
                     <option value={sizeOption}>
                         {capitalizeFirstLetter(sizeOption)}
@@ -128,7 +128,7 @@
 
             <div class="checkbox-flex">
                 <label for="enableRampageMode">Enable rampage mode (chain a number of special pop elements):</label>
-                <input id="enableRampageMode" type="checkbox" bind:checked={$gameSettings.enableRampageMode} on:input={handleUpdateRemotePreferences}>
+                <input id="enableRampageMode" type="checkbox" bind:checked={$gameSettings.enableRampageMode} on:input={updatePreferences}>
             </div>
 
             {#if $gameSettings.enableRampageMode}
@@ -137,18 +137,18 @@
                         <label for="rampageModeLength">Rampage mode chain length:</label>
                         <p>{$gameSettings.rampageModeChain}</p>
                     </div>
-                    <input type="range" min="2" max="50" step="1" bind:value={$gameSettings.rampageModeChain} on:input={handleUpdateRemotePreferences}>
+                    <input type="range" min="2" max="50" step="1" bind:value={$gameSettings.rampageModeChain} on:input={updatePreferences}>
                 </div>
             {/if}
 
             <div class="checkbox-flex">
                 <label for="enableBalloonReflex">Enable pop element reflex effect (only aesthetic in pop element type balloon, slight discrepancies between what is seen and what is logged):</label>
-                <input id="enableBalloonReflex" type="checkbox" bind:checked={$gameSettings.enableBalloonReflex} on:input={handleUpdateRemotePreferences}>
+                <input id="enableBalloonReflex" type="checkbox" bind:checked={$gameSettings.enableBalloonReflex} on:input={updatePreferences}>
             </div>
             
             <div class="color-flex">
                 <label for="gameBackgroundColorInput">Game background color:</label>
-                <input id="gameBackgroundColorInput" class="color-input" type="color" bind:value={$gameSettings.gameBackgroundColor} on:input={handleUpdateRemotePreferences}>
+                <input id="gameBackgroundColorInput" class="color-input" type="color" bind:value={$gameSettings.gameBackgroundColor} on:input={updatePreferences}>
             </div>
 
             <h2>Pop elements</h2>
@@ -161,12 +161,12 @@
                     {#each Object.values(popElmntDirections) as mode}
                         <div class="checkbox-flex">
                             <label for={"gameMode" + toCamelCase(mode) + "Checkbox"}>{capitalizeFirstLetter(mode)}:</label>
-                            <input id={"gameMode" + toCamelCase(mode) + "Checkbox"} type="checkbox" bind:checked={$gameSettings.availableModes[mode].enabled} on:input={handleUpdateRemotePreferences}>
+                            <input id={"gameMode" + toCamelCase(mode) + "Checkbox"} type="checkbox" bind:checked={$gameSettings.availableModes[mode].enabled} on:input={updatePreferences}>
         
                             {#if !$menuSettings.mainMenuRandomColors}
                                 <div class="color-flex">
                                     <label for={"gameMode" + mode + "ColorInput"}>Color:</label>
-                                    <input id={"gameMode" + mode + "ColorInput"} class="color-input" type="color" bind:value={$gameSettings.availableModes[mode].color} on:input={handleUpdateRemotePreferences}>
+                                    <input id={"gameMode" + mode + "ColorInput"} class="color-input" type="color" bind:value={$gameSettings.availableModes[mode].color} on:input={updatePreferences}>
                                 </div>
                             {/if}
                         </div>
@@ -175,12 +175,12 @@
     
                 <div class="checkbox-flex">
                     <label for="modeRandomColorsCheckbox">Enable random colors in mode representations:</label>
-                    <input id="modeRandomColorsCheckbox" type="checkbox" bind:checked={$menuSettings.mainMenuRandomColors} on:input={handleUpdateRemotePreferences}>
+                    <input id="modeRandomColorsCheckbox" type="checkbox" bind:checked={$menuSettings.mainMenuRandomColors} on:input={updatePreferences}>
                 </div>
 
                 <div class="color-flex">
                     <label for="menuBackgroundColor">Main menu background color:</label>
-                    <input id="menuBackgroundColor" class="color-input" type="color" bind:value={$menuSettings.menuBackgroundColor} on:input={handleUpdateRemotePreferences}>
+                    <input id="menuBackgroundColor" class="color-input" type="color" bind:value={$menuSettings.menuBackgroundColor} on:input={updatePreferences}>
                 </div>
             </div>
 

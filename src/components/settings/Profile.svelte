@@ -128,7 +128,7 @@
     <p class="local-id-warning-p"><strong>*: This is a local ID saved in your browser.
         If you delete local storage the logs saved in remote DB will be unreachable.
         Always preffer login with Google account.</strong></p>
-    <p class="login-p">Log in to register/restore your configuration preferences:</p>
+    <p class="login-p">Log in to associate the interaction logs to an account:</p>
     <button class="log-in-btn" on:click={login}>Login with google</button>
 {:else}
     <div class="profile-container">

@@ -1,7 +1,7 @@
 <script>
-	import { handleUpdateRemotePreferences, updateRemotePreferences } from "$lib/firebaseFunctions";
+    import { updatePreferences } from "$lib/preferences";
     import { calculateInterpolatedColors, capitalizeFirstLetter } from "$lib/utils";
-    import { gameSettings, isLoggedIn, popElmntInnerFigs, popElmntTypes, user } from "../../../stores";
+    import { gameSettings, popElmntInnerFigs, popElmntTypes } from "../../../stores";
     import lodash from 'lodash';
     
     const { debounce } = lodash;
@@ -16,13 +16,13 @@
     function setCtrlInnerFigInterpolatedColors(){
         const colors = calculateInterpolatedColors($gameSettings.popElmntConfig[popElmntTypes.CTRL].innerFigColorRangeDef, $gameSettings.popElmntConfig[popElmntTypes.CTRL].innerFigRangeColor1, $gameSettings.popElmntConfig[popElmntTypes.CTRL].innerFigRangeColor2);
         $gameSettings.popElmntConfig[popElmntTypes.CTRL].innerFigInterpColors = colors;
-        if ($isLoggedIn && $user) updateRemotePreferences();
+        updatePreferences();
     }
     
     function setCtrlInterpolatedColors(){
         const colors = calculateInterpolatedColors($gameSettings.popElmntConfig[popElmntTypes.CTRL].colorRangeDef, $gameSettings.popElmntConfig[popElmntTypes.CTRL].rangeColor1, $gameSettings.popElmntConfig[popElmntTypes.CTRL].rangeColor2);
         $gameSettings.popElmntConfig[popElmntTypes.CTRL].interpColors = colors;
-        if ($isLoggedIn && $user) updateRemotePreferences();
+        updatePreferences();
     }
 </script>
 
@@ -30,23 +30,23 @@
     <label for="ctrlPopElmntPropInput">Proportion of {ctrlLabel} {ctrlPopElmntLabel}:</label>
     <p>{$gameSettings.popElmntConfig[popElmntTypes.CTRL].proportion}% ({Math.floor($gameSettings.popElmntConfig[popElmntTypes.CTRL].proportion/100 * $gameSettings.maxPopElmntQty)}/{$gameSettings.maxPopElmntQty}) (Floor rounded)</p>
 </div>
-<input id="ctrlPopElmntPropInput" min="0" max="{100 - $gameSettings.popElmntConfig[popElmntTypes.CTRL].proportion}" step="1" type="range" bind:value={$gameSettings.popElmntConfig[popElmntTypes.CTRL].proportion} on:input={handleUpdateRemotePreferences}>
+<input id="ctrlPopElmntPropInput" min="0" max="{100 - $gameSettings.popElmntConfig[popElmntTypes.CTRL].proportion}" step="1" type="range" bind:value={$gameSettings.popElmntConfig[popElmntTypes.CTRL].proportion} on:input={updatePreferences}>
 
 <div class="checkbox-flex">
     <label for="randomizeCtrlColorsCheckbox">Randomize {ctrlLabel} {ctrlPopElmntLabel} colors?</label>
-    <input id="randomizeCtrlColorsCheckbox" type="checkbox" bind:checked={$gameSettings.popElmntConfig[popElmntTypes.CTRL].enableRandColor} on:input={handleUpdateRemotePreferences}>
+    <input id="randomizeCtrlColorsCheckbox" type="checkbox" bind:checked={$gameSettings.popElmntConfig[popElmntTypes.CTRL].enableRandColor} on:input={updatePreferences}>
 </div>
 
 {#if !$gameSettings.popElmntConfig[popElmntTypes.CTRL].enableRandColor}
     <div class="checkbox-flex">
         <label for="ctrlColorRangeCheckbox">Enable {ctrlLabel} {ctrlPopElmntLabel} range color?</label>
-        <input id="ctrlColorRangeCheckbox" type="checkbox" bind:checked={$gameSettings.popElmntConfig[popElmntTypes.CTRL].enableRangeColor} on:input={handleUpdateRemotePreferences}>
+        <input id="ctrlColorRangeCheckbox" type="checkbox" bind:checked={$gameSettings.popElmntConfig[popElmntTypes.CTRL].enableRangeColor} on:input={updatePreferences}>
     </div>
 
     {#if !$gameSettings.popElmntConfig[popElmntTypes.CTRL].enableRangeColor}
         <div class="color-flex">
             <label for="ctrlPopElmntColorInput">{ctrlLabelUp} {ctrlPopElmntLabel} color:</label>
-            <input id="ctrlPopElmntColorInput" class="color-input" type="color" bind:value={$gameSettings.popElmntConfig[popElmntTypes.CTRL].color} on:input={handleUpdateRemotePreferences}>
+            <input id="ctrlPopElmntColorInput" class="color-input" type="color" bind:value={$gameSettings.popElmntConfig[popElmntTypes.CTRL].color} on:input={updatePreferences}>
         </div>
     {:else}
         <div class="pop-elmnt-range-color-container">
@@ -77,11 +77,11 @@
 
 <div class="checkbox-flex">
     <label for="enableCtrlPopElmntInnerFigContour">Enable {ctrlLabel} {ctrlPopElmntLabel} inner figure contour:</label>
-    <input id="enableCtrlPopElmntInnerFigContour" type="checkbox" bind:checked={$gameSettings.popElmntConfig[popElmntTypes.CTRL].enableInnerFigContour} on:input={handleUpdateRemotePreferences}>
+    <input id="enableCtrlPopElmntInnerFigContour" type="checkbox" bind:checked={$gameSettings.popElmntConfig[popElmntTypes.CTRL].enableInnerFigContour} on:input={updatePreferences}>
 </div>
 
 <label for="ctrlInnerFigSelect">{ctrlLabelUp} {ctrlPopElmntLabel} inner figure type:</label>
-<select id="ctrlInnerFigSelect" bind:value={$gameSettings.popElmntConfig[popElmntTypes.CTRL].innerFigType} on:input={handleUpdateRemotePreferences}>
+<select id="ctrlInnerFigSelect" bind:value={$gameSettings.popElmntConfig[popElmntTypes.CTRL].innerFigType} on:input={updatePreferences}>
     {#each Object.values(popElmntInnerFigs) as innerFigOption}
         <option value={innerFigOption}>
             {capitalizeFirstLetter(innerFigOption)}
@@ -91,7 +91,7 @@
 
 <div class="checkbox-flex">
     <label for="colorRangeCtrlInnerFigCheckbox">Enable {ctrlLabel} inner figure range color?</label>
-    <input id="colorRangeCtrlInnerFigCheckbox" type="checkbox" bind:checked={$gameSettings.popElmntConfig[popElmntTypes.CTRL].enableInnerFigRangeColor} on:input={handleUpdateRemotePreferences}>
+    <input id="colorRangeCtrlInnerFigCheckbox" type="checkbox" bind:checked={$gameSettings.popElmntConfig[popElmntTypes.CTRL].enableInnerFigRangeColor} on:input={updatePreferences}>
 </div>
 {#if $gameSettings.popElmntConfig[popElmntTypes.CTRL].enableInnerFigRangeColor}
     <div class="inner-fig-range-color-container">
@@ -118,7 +118,7 @@
 {:else}
     <div class="color-flex">
         <label for="ctrlPopElmntInnerFigColorInput">{ctrlLabelUp} {ctrlPopElmntLabel} inner figure color:</label>
-        <input id="ctrlPopElmntInnerFigColorInput" class="color-input" type="color" bind:value={$gameSettings.popElmntConfig[popElmntTypes.CTRL].innerFigColor} on:input={handleUpdateRemotePreferences}>
+        <input id="ctrlPopElmntInnerFigColorInput" class="color-input" type="color" bind:value={$gameSettings.popElmntConfig[popElmntTypes.CTRL].innerFigColor} on:input={updatePreferences}>
     </div>
 {/if}
 

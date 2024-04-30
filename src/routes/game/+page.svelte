@@ -3,7 +3,7 @@
     import { onMount } from 'svelte';
     import { capitalizeFirstLetter, getRandomFrom, getRandomHexColor } from '$lib/utils';
     import { addLog } from "$lib/logService";
-    import { appSettings, gameSettings, user, popElmntSizeOpts, gameDirection, subjectName, popElmntShapes, popElmntTypes, popElmntSpeedsOpts, popElmntDirections, localUserId, isLoggedIn } from '../../stores.js';
+    import { appSettings, gameSettings, user, popElmntSizeOpts, gameDirection, subjectName, popElmntShapes, popElmntTypes, popElmntSpeedsOpts, popElmntDirections, localUserId, isLoggedIn, fluidTransitions } from '../../stores.js';
     import SubjectNavBar from '../../components/SubjectNavBar.svelte';
 	import InGameStats from '../../components/InGameStats.svelte';
 
@@ -304,8 +304,8 @@
             const enableRotDesviation = enableMoveDesviation;
 
             //FOR TRANSITION-CLICK BUG FIREFOX transition: transform 0.3s ease;
-            const axisDesviation = $appSettings.fluidTransitions ? Math.random() * 2 - 1 : Math.random() * 0.3 - 0.15;
-            const angleDesviation = $appSettings.fluidTransitions ? Math.random() * 1 - 0.5 : Math.random() * 0.5 - 0.25;
+            const axisDesviation = $fluidTransitions ? Math.random() * 2 - 1 : Math.random() * 0.3 - 0.15;
+            const angleDesviation = $fluidTransitions ? Math.random() * 1 - 0.5 : Math.random() * 0.5 - 0.25;
             const horizontalDesviation = enableMoveDesviation ? axisDesviation : 0;
             const verticalDesviation = enableMoveDesviation ? axisDesviation : 0;
             const rotDesviation = enableRotDesviation ? angleDesviation : 0;

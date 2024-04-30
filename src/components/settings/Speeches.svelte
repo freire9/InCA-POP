@@ -1,10 +1,10 @@
 <script>
     import { onMount } from 'svelte';
 	import { appSettings, speechCorrect, speechExcellent, speechSettings, voices } from '../../stores';
-	import { handleUpdateRemotePreferences } from '$lib/firebaseFunctions';
     import { Fa } from 'inca-utils';
     import { faPlay } from '@fortawesome/free-solid-svg-icons';
     import lodash from 'lodash';
+	import { updatePreferences } from '$lib/preferences';
 
     const { debounce } = lodash;
     let noCustomCorrect;
@@ -85,7 +85,7 @@
 
 <div class="checkbox-flex">
     <label for="enableCustomSpeechesCheckbox">Enable custom speeches:</label>
-    <input id="enableCustomSpeechesCheckbox" type="checkbox" bind:checked={$appSettings.enableCustomSpeeches} on:input={handleUpdateRemotePreferences}>
+    <input id="enableCustomSpeechesCheckbox" type="checkbox" bind:checked={$appSettings.enableCustomSpeeches} on:input={updatePreferences}>
 </div>
 {#if $appSettings.enableCustomSpeeches}
     <div>

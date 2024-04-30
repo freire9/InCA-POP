@@ -1,6 +1,6 @@
 <script>
     import { createEventDispatcher } from 'svelte'
-    import { appSettings, gameSettings, popElmntInnerFigs, speechCorrect, speechExcellent } from '../stores';
+    import { appSettings, fluidTransitions, gameSettings, popElmntInnerFigs, speechCorrect, speechExcellent } from '../stores';
 	import Letter from './inner_figures/Letter.svelte';
 	import Disc from './inner_figures/Disc.svelte';
 
@@ -118,7 +118,7 @@
   style:width = '{balloon.size.width}px'
   style:height = '{balloon.size.height}px'
   style:--bg-pseudo= '{balloon.color}'
-  style:transition={$appSettings.fluidTransitions ? 'transform 0.3s ease' : ''}
+  style:transition={$fluidTransitions ? 'transform 0.3s ease' : ''}
   style=
     "background: {$gameSettings.enableBalloonReflex ? "radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.5), transparent 70%)" : "unset"};
     filter: {$gameSettings.enableBalloonReflex ? "brightness(1.2)" : "unset"};"
