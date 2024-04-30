@@ -61,9 +61,7 @@
         z-index: 2;
         cursor: pointer;
         position: absolute;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        text-align: center;
         border-radius: 100% / 80% 80% 120% 120%;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         /* filter: brightness(1.2); */
