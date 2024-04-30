@@ -8,7 +8,7 @@
 	import InGameStats from '../../components/InGameStats.svelte';
 
     let lastFrameTime = performance.now(); //ms
-    const frameRate = 60;
+    const frameRate = 120;
     const frameDuration = 1000 / frameRate; //ms
     let animationFrameId;
     const popElmntInterval = 500; //ms
