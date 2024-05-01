@@ -8,8 +8,6 @@
 	import InGameStats from '../../components/InGameStats.svelte';
 
     let lastFrameTime = performance.now(); //ms
-    const frameRate = 200;
-    const frameDuration = 1000 / frameRate; //ms
     let animationFrameId;
     const popElmntInterval = 500; //ms
     let timeForNextPopElmnt = 0; //ms
@@ -343,18 +341,12 @@
     function gameLoop(timestamp){
         const elapsedTime = timestamp - lastFrameTime; //ms
         timeForNextPopElmnt += elapsedTime;
-        if(elapsedTime > frameDuration) {//limit frame rate
-            if(timeForNextPopElmnt >= popElmntInterval){
-                addPopElmnt();
-                timeForNextPopElmnt = 0;
-            }
-            movePopElmnts(timestamp);
-
-            //(elapsedTime % frameDuration) time passed since last frame that was not rendered due to frame rate limit
-            //timestamp - (elapsedTime % frameDuration) is the moment of time when the last frame was supposed to be rendered
-            //this is for mantain the frame rate limit for soft and consistent animations
-            lastFrameTime = timestamp ;
+        if(timeForNextPopElmnt >= popElmntInterval){
+            addPopElmnt();
+            timeForNextPopElmnt = 0;
         }
+        movePopElmnts(timestamp);
+        lastFrameTime = timestamp ;
         animationFrameId = requestAnimationFrame(gameLoop);
     }
 
