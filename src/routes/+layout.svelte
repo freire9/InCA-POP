@@ -1,6 +1,6 @@
 <script>
     import 'inca-utils/styles.css';
-    import { user, isLoggedIn, appSettings, isIphone, isFirefox, modifyingConfig, speechCorrect, speechSettings, speechExcellent, voices, syncPreferencesFromRemote, fluidTransitions } from '../stores';
+    import { user, isLoggedIn, appSettings, isIphone, modifyingConfig, speechCorrect, speechSettings, speechExcellent, voices, syncPreferencesFromRemote } from '../stores';
     import { auth, db, dbUsersCollectionName } from '$lib/firebaseConfig';
     import { onAuthStateChanged } from 'firebase/auth';
     import { doc, getDoc } from 'firebase/firestore';
@@ -80,8 +80,6 @@
     onMount(() => {
         const userAgent = navigator.userAgent.toLowerCase();
         $isIphone = /iphone/.test(userAgent);
-        $isFirefox = userAgent.indexOf('firefox') > -1;
-        // $fluidTransitions = $isFirefox ? false : true;
         loadVoices();
         window.speechSynthesis.onvoiceschanged = loadVoices;
         if($speechCorrect.rate != $speechSettings.rate || $speechExcellent.rate != $speechSettings.rate){
