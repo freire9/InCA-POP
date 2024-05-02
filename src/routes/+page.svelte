@@ -43,18 +43,18 @@
         return generalLogs;
     }
 
-    function handleClick(event){
+    async function handleClick(event){
         const gameStartedLog = {...setGeneralLogs('Game started'), details: {gameDirection: event.detail, menuBackgroundColor: $menuSettings.menuBackgroundColor, color: $gameSettings.availableModes[event.detail].color}};
         addLog(gameStartedLog);
         startGame(event.detail);
     }
 
-    function handleBackgroundClick(event){
+    async function handleBackgroundClick(event){
         const backgroundClickLog = {...setGeneralLogs('Menu background click'), details: {x: event.clientX, y: event.clientY, menuBackgroundColor: $menuSettings.menuBackgroundColor}};
         addLog(backgroundClickLog);
     }
 
-    function handleBackgroundKeyboard(event){
+    async function handleBackgroundKeyboard(event){
         return;
     }
 

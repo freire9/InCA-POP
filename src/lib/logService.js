@@ -13,7 +13,7 @@ const addRemoteLog = async (dataLogs) => {
 };
 
 // Function to add a log
-export const addLog = (dataLogs) => {
+export const addLog = async (dataLogs) => {
   const logEntry = deepCopy(dataLogs);
   addRemoteLog(logEntry);
 };
