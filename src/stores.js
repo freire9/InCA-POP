@@ -56,9 +56,9 @@ export const gameDirection = writable(popElmntDirections.LEFT_TO_RIGHT);
 
 // Speed values for different pop element speeds (px per frame)
 export const popElmntSpeedsOpts = {
-    [popElmntSpeeds.SLOW]: {min: 40, max: 70},
-    [popElmntSpeeds.NORMAL]: {min: 70, max: 110},
-    [popElmntSpeeds.FAST]: {min: 110, max: 150},
+    [popElmntSpeeds.SLOW]: {min: 1, max: 3},
+    [popElmntSpeeds.NORMAL]: {min: 3, max: 5},
+    [popElmntSpeeds.FAST]: {min: 5, max: 8},
 };
 
 // Size values for different pop element sizes

@@ -81,7 +81,7 @@
         const userAgent = navigator.userAgent.toLowerCase();
         $isIphone = /iphone/.test(userAgent);
         $isFirefox = userAgent.indexOf('firefox') > -1;
-        $fluidTransitions = $isFirefox ? false : true;
+        // $fluidTransitions = $isFirefox ? false : true;
         loadVoices();
         window.speechSynthesis.onvoiceschanged = loadVoices;
         if($speechCorrect.rate != $speechSettings.rate || $speechExcellent.rate != $speechSettings.rate){

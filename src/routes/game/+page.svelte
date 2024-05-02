@@ -8,6 +8,8 @@
 	import InGameStats from '../../components/InGameStats.svelte';
 
     let lastFrameTime = performance.now(); //ms
+    const fps = 60;
+    const frameInterval = 1000 / fps;
     let animationFrameId;
     const popElmntInterval = 500; //ms
     let timeForNextPopElmnt = 0; //ms
@@ -301,10 +303,10 @@
     }
 
     function movePopElmnts(timestamp) {
-        const deltaTime = (timestamp - lastFrameTime) / 1000; //to seconds
+        const deltaTime = timestamp - lastFrameTime;
+        const deltaTimeMultiplier = deltaTime / frameInterval;
         popElmnts = popElmnts.map(popElmnt => {
-            const speed = popElmnt.speed;
-            const distance = speed * deltaTime;
+            const distance = popElmnt.speed * deltaTimeMultiplier;
             const enableMoveDesviation = Math.random() > 0.6;
             const enableRotDesviation = enableMoveDesviation;
 
@@ -339,8 +341,8 @@
     }
     
     function gameLoop(timestamp){
-        const elapsedTime = timestamp - lastFrameTime; //ms
-        timeForNextPopElmnt += elapsedTime;
+        const deltaTime = timestamp - lastFrameTime; //ms
+        timeForNextPopElmnt += deltaTime;
         if(timeForNextPopElmnt >= popElmntInterval){
             addPopElmnt();
             timeForNextPopElmnt = 0;
