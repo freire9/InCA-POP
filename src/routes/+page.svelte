@@ -1,5 +1,5 @@
 <script>
-    import { gameSettings, menuSettings, appSettings, user, gameDirection, isIphone, modifyingConfig, subjectName, popElmntDirections, localUserId, isLoggedIn } from "../stores";
+    import { gameSettings, menuSettings, appSettings, user, gameDirection, isIphone, modifyingConfig, subjectName, popElmntDirections, localUserId, isLoggedIn, gameId } from "../stores";
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
     import { TrainerButton, Fa } from 'inca-utils';
@@ -60,6 +60,7 @@
 
     function startGame(mode){
         $gameDirection = mode;
+        $gameId = crypto.randomUUID();
         goto('/game');
     }
 

@@ -51,6 +51,21 @@ export const popElmntDirections ={
     TOP_TO_BOTTOM: 'top to bottom',
 }
 export const gameDirection = writable(popElmntDirections.LEFT_TO_RIGHT);
+export const gameId = writable('');
+
+export const endGameConditionsOpts = {
+    TIME: 'time',
+    POP_ELMNTS_POPPED: 'pop elements popped',
+    SPECIAL_POP_ELMNTS_POPPED: 'special pop elements popped',
+}
+
+const specialPopElmnts = Object.values(popElmntTypes).filter(type => type !== popElmntTypes.NORMAL);
+
+export const endGameConditionsTooltip = {
+    [endGameConditionsOpts.TIME]: 'Time limit from game start to game end (in seconds).',
+    [endGameConditionsOpts.POP_ELMNTS_POPPED]: 'Pop elements quantity limit (total).',
+    [endGameConditionsOpts.SPECIAL_POP_ELMNTS_POPPED]: 'Special pop elements quantity limit (' + specialPopElmnts.map(type => `${popElmntTypesShort[type]}`).join(' + ') + ').',
+};
 
 // Speed values for different pop element speeds (px per frame usign 60fps as reference)
 export const popElmntSpeedsOpts = {
@@ -156,6 +171,12 @@ const availableModes = {
     [popElmntDirections.LEFT_TO_RIGHT]: { enabled: true, icon: 'faRightLong', color: '#eacf26'},
 };
 
+export const endGameConditions = {
+    [endGameConditionsOpts.TIME]: { enabled: true, value: 300 }, // in seconds
+    [endGameConditionsOpts.POP_ELMNTS_POPPED]: { enabled: true, value: 50 }, // elements popped
+    [endGameConditionsOpts.SPECIAL_POP_ELMNTS_POPPED]: { enabled: true, value: 20 }, // special elements popped
+};
+
 export const gameSettingsDEFAULT = {
     popElmntSpeed: popElmntSpeeds.NORMAL,
     popElmntSize: popElmntSizes.NORMAL,
@@ -170,6 +191,7 @@ export const gameSettingsDEFAULT = {
         [popElmntTypes.EXP]: deepCopy(expPopElmntSettings),
         [popElmntTypes.CTRL]: deepCopy(ctrlPopElmntSettings),
     },
+    endGameConditions: deepCopy(endGameConditions),
 };
 
 export const appSettings = writable(deepCopy(appSettingsDEFAULT));
