@@ -2,7 +2,6 @@ import { deepCopy } from '$lib/utils';
 import { writable} from 'svelte/store';
 
 export const isIphone = writable(false);
-export const isFirefox = writable(false);
 export const user = writable({});
 export const isLoggedIn = writable(false);
 export const modifyingConfig = writable(true);
@@ -10,7 +9,6 @@ export const isFullScreen = writable(false);
 export const localUserId = writable('');
 export const syncPreferencesFromRemote = writable(false);
 export const subjectName = writable('subject-name');
-export const fluidTransitions = writable(false);
 
 // Pop element types: NORMAL AND SPECIAL (EXP, CTRL, etc.)
 export const popElmntTypes = {
@@ -54,11 +52,11 @@ export const popElmntDirections ={
 }
 export const gameDirection = writable(popElmntDirections.LEFT_TO_RIGHT);
 
-// Speed values for different pop element speeds
+// Speed values for different pop element speeds (px per frame usign 60fps as reference)
 export const popElmntSpeedsOpts = {
-    [popElmntSpeeds.SLOW]: {min: 0.08, max: 0.2},
-    [popElmntSpeeds.NORMAL]: {min: 0.2, max: 0.4},
-    [popElmntSpeeds.FAST]: {min: 0.4, max: 0.6},
+    [popElmntSpeeds.SLOW]: {min: 1, max: 2},
+    [popElmntSpeeds.NORMAL]: {min: 2, max: 3},
+    [popElmntSpeeds.FAST]: {min: 3, max: 4},
 };
 
 // Size values for different pop element sizes

@@ -1,8 +1,8 @@
 <script>
     import { createEventDispatcher } from 'svelte'
-    import { appSettings, fluidTransitions, gameSettings, popElmntInnerFigs, speechCorrect, speechExcellent } from '../stores';
-	import Letter from './inner_figures/Letter.svelte';
-	import Disc from './inner_figures/Disc.svelte';
+    import { appSettings, gameSettings, popElmntInnerFigs, speechCorrect, speechExcellent } from '../stores';
+    import Letter from './inner_figures/Letter.svelte';
+    import Disc from './inner_figures/Disc.svelte';
 
     export let balloon;
     export let currentRampageChain;
@@ -61,17 +61,12 @@
         z-index: 2;
         cursor: pointer;
         position: absolute;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        text-align: center;
         border-radius: 100% / 80% 80% 120% 120%;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         /* filter: brightness(1.2); */
         /* background: radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.5), transparent 70%); */
         /* background: radial-gradient(circle at 25% 25%, #fff7 12%, #0000 12.5%),radial-gradient(circle at 12% 40%, #fff7 5%, #0000 5.5%),#c47; */
-    }
-    .balloon.special{
-        z-index: 3;
     }
     .balloon::before {
         z-index: 2;
@@ -90,9 +85,6 @@
         -ms-user-select: none;
         user-select: none;
     }
-    .balloon.special::before {
-        z-index: 3;
-    }
     .string {
         z-index: 2;
         position: absolute;
@@ -103,22 +95,18 @@
         left: 48%;
         border-bottom-left-radius: 50%;
     }
-    .string.special-string{
-        z-index: 3;
-    }
     button:focus-visible,
     button:focus-visible::before{
         outline: 2px solid blue;
     }
 </style>
 
-<button id= "{balloon.id}" class="balloon not-selectable {balloon.isSpecial ? 'special' : ''}" on:click|stopPropagation={handleClick}
+<button id="{balloon.id}" class="balloon not-selectable" on:click|stopPropagation={handleClick}
   style:transform = 'translate({balloon.x}px, {balloon.y}px) rotate({balloon.rotation}deg)'
   style:background-color = '{balloon.color}'
   style:width = '{balloon.size.width}px'
   style:height = '{balloon.size.height}px'
   style:--bg-pseudo= '{balloon.color}'
-  style:transition={$fluidTransitions ? 'transform 0.3s ease' : ''}
   style=
     "background: {$gameSettings.enableBalloonReflex ? "radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.5), transparent 70%)" : "unset"};
     filter: {$gameSettings.enableBalloonReflex ? "brightness(1.2)" : "unset"};"
@@ -128,5 +116,5 @@
     {:else if balloon.isSpecial && balloon.innerFigType == popElmntInnerFigs.DISC}
         <Disc popElmnt={balloon} />
     {/if}
-    <div class="string not-selectable {balloon.isSpecial ? 'special-string' : ''}" style:transform='translateX(-50%) rotate({10+balloon.rotation}deg)'></div>
+    <div class="string not-selectable" style:transform='translateX(-50%) rotate({10+balloon.rotation}deg)'></div>
 </button>
