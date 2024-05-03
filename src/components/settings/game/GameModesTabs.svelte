@@ -1,55 +1,49 @@
 <script>
-    import { gameSettings, popElmntTypes } from "../../../stores";
-    import NormalPopElmnts from "./NormalPopElmnts.svelte";
-    import CtrlPopElmnts from "./CtrlPopElmnts.svelte";
-    import ExpPopElmnts from "./ExpPopElmnts.svelte";
 	import { capitalizeFirstLetter } from "$lib/utils";
+	import { popElmntDirections } from "../../../stores";
+    import Game from "./Game.svelte";
 
-    export let gameMode;
     let activeTabValue = 1;
 
     const handleClick = tabValue => () => (activeTabValue = tabValue);
 
-    const normalLabelUp = capitalizeFirstLetter(popElmntTypes.NORMAL);
-    const ctrlLabelUp = capitalizeFirstLetter(popElmntTypes.CTRL);
-    const expLabelUp = capitalizeFirstLetter(popElmntTypes.EXP);
-    let normalPopElmntLabel;
-    let ctrlPopElmntLabel;
-    let expPopElmntLabel;
-    let tabs;
-
-    $: normalPopElmntLabel = $gameSettings[gameMode].popElmntConfig[popElmntTypes.NORMAL].shape;
-    $: ctrlPopElmntLabel = $gameSettings[gameMode].popElmntConfig[popElmntTypes.CTRL].shape;
-    $: expPopElmntLabel = $gameSettings[gameMode].popElmntConfig[popElmntTypes.EXP].shape;
-
-    // List of tab pop elements with labels, values and assigned components
-    $: tabs = [
-        { label: `${normalLabelUp} ${normalPopElmntLabel}`,
+    let gameModeTabs;
+    // List of tab game modes, values and assigned components
+    $: gameModeTabs = [
+        { label: capitalizeFirstLetter(popElmntDirections.BOTTOM_TO_TOP),
             value: 1,
-            component: NormalPopElmnts
+            component: Game,
+            mode: popElmntDirections.BOTTOM_TO_TOP
         },
-        { label: `${ctrlLabelUp} ${ctrlPopElmntLabel}`,
+        { label: capitalizeFirstLetter(popElmntDirections.TOP_TO_BOTTOM),
             value: 2,
-            component: CtrlPopElmnts
+            component: Game,
+            mode: popElmntDirections.TOP_TO_BOTTOM
         },
-        { label: `${expLabelUp} ${expPopElmntLabel}`,
+        { label: capitalizeFirstLetter(popElmntDirections.LEFT_TO_RIGHT),
             value: 3,
-            component: ExpPopElmnts
-        }
+            component: Game,
+            mode: popElmntDirections.LEFT_TO_RIGHT
+        },
+        { label: capitalizeFirstLetter(popElmntDirections.RIGHT_TO_LEFT),
+            value: 4,
+            component: Game,
+            mode: popElmntDirections.RIGHT_TO_LEFT
+        },
     ];
 </script>
-  
+
 <ul>
-    {#each tabs as tab}
+    {#each gameModeTabs as tab}
         <li class={activeTabValue === tab.value ? 'active' : ''}>
             <button on:click={handleClick(tab.value)}>{tab.label}</button>
         </li>
     {/each}
 </ul>
-{#each tabs as tab}
+{#each gameModeTabs as tab}
     {#if activeTabValue == tab.value}
         <div class="box">
-            <svelte:component this={tab.component} gameMode={gameMode}/>
+            <svelte:component this={tab.component} mode={tab.mode}/>
         </div>
     {/if}
 {/each}

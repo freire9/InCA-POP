@@ -1,5 +1,5 @@
 <script>
-    import { gameSettings, menuSettings, appSettings, user, gameDirection, isIphone, modifyingConfig, subjectName, popElmntDirections, localUserId, isLoggedIn, gameId } from "../stores";
+    import { menuSettings, appSettings, user, gameDirection, isIphone, modifyingConfig, subjectName, popElmntDirections, localUserId, isLoggedIn, gameId } from "../stores";
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
     import { TrainerButton, Fa } from 'inca-utils';
@@ -23,7 +23,7 @@
     function handleAuthFinally(){
         if($menuSettings.mainMenuRandomColors){
             Object.values(popElmntDirections).forEach(function(mode) {
-                $gameSettings.availableModes[mode].color = getRandomHexColor();
+                $menuSettings.availableModes[mode].color = getRandomHexColor();
             });
         }
     }
@@ -44,7 +44,7 @@
     }
 
     async function handleClick(event){
-        const gameStartedLog = {...setGeneralLogs('Game started'), details: {gameDirection: event.detail, menuBackgroundColor: $menuSettings.menuBackgroundColor, color: $gameSettings.availableModes[event.detail].color}};
+        const gameStartedLog = {...setGeneralLogs('Game started'), details: {gameDirection: event.detail, menuBackgroundColor: $menuSettings.menuBackgroundColor, color: $menuSettings.availableModes[event.detail].color}};
         addLog(gameStartedLog);
         startGame(event.detail);
     }
@@ -143,11 +143,11 @@
         </header>
         <div class="game-modes">
             {#each Object.values(popElmntDirections) as mode}
-                {#if $gameSettings.availableModes[mode].enabled}
+                {#if $menuSettings.availableModes[mode].enabled}
                     <StaticBalloon 
                         on:modeClicked={handleClick}
                         mode={mode}
-                        icon={icons[$gameSettings.availableModes[mode].icon]} --bg-pseudo={$gameSettings.availableModes[mode].color} 
+                        icon={icons[$menuSettings.availableModes[mode].icon]} --bg-pseudo={$menuSettings.availableModes[mode].color} 
                     />
                 {/if}
             {/each}

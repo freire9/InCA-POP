@@ -6,25 +6,26 @@
     import { appSettings, gameSettings, user, popElmntSizeOpts, gameDirection, subjectName, popElmntShapes, popElmntTypes, popElmntSpeedsOpts, popElmntDirections, localUserId, isLoggedIn, endGameConditionsOpts, gameId } from '../../stores.js';
     import SubjectNavBar from '../../components/SubjectNavBar.svelte';
     import InGameStats from '../../components/InGameStats.svelte';
-	import { goto } from '$app/navigation';
+    import { goto } from '$app/navigation';
 
     //app constants
-    const popElmntSpeed = popElmntSpeedsOpts[$gameSettings.popElmntSpeed];
-    const popElmntSize = popElmntSizeOpts[$gameSettings.popElmntSize];
     const currentGameDirection = $gameDirection;
-    const gameBackgroundColor = $gameSettings.gameBackgroundColor;
-    const maxPopElmntQty = $gameSettings.maxPopElmntQty;
-    const popElmntConfig = $gameSettings.popElmntConfig;
+    const gameMode = currentGameDirection;
+    const popElmntSpeed = popElmntSpeedsOpts[$gameSettings[gameMode].popElmntSpeed];
+    const popElmntSize = popElmntSizeOpts[$gameSettings[gameMode].popElmntSize];
+    const gameBackgroundColor = $gameSettings[gameMode].gameBackgroundColor;
+    const maxPopElmntQty = $gameSettings[gameMode].maxPopElmntQty;
+    const popElmntConfig = $gameSettings[gameMode].popElmntConfig;
     const instructorName = $appSettings.instructorName;
     const subjectNameValue = $subjectName;
     const localId = $localUserId;
-    const rampageModeChain = $gameSettings.rampageModeChain;
-    const enableRampageMode = $gameSettings.enableRampageMode;
-    const endGameTimeEnabled = $gameSettings.endGameConditions[endGameConditionsOpts.TIME].enabled;
-    const maxPoppedCondEnabled = $gameSettings.endGameConditions[endGameConditionsOpts.POP_ELMNTS_POPPED].enabled;
-    const maxPoppedCondValue = $gameSettings.endGameConditions[endGameConditionsOpts.POP_ELMNTS_POPPED].value;
-    const specialPoppedCondEnabled = $gameSettings.endGameConditions[endGameConditionsOpts.SPECIAL_POP_ELMNTS_POPPED].enabled;
-    const specialPoppedCondValue = $gameSettings.endGameConditions[endGameConditionsOpts.SPECIAL_POP_ELMNTS_POPPED].value;
+    const rampageModeChain = $gameSettings[gameMode].rampageModeChain;
+    const enableRampageMode = $gameSettings[gameMode].enableRampageMode;
+    const endGameTimeEnabled = $gameSettings[gameMode].endGameConditions[endGameConditionsOpts.TIME].enabled;
+    const maxPoppedCondEnabled = $gameSettings[gameMode].endGameConditions[endGameConditionsOpts.POP_ELMNTS_POPPED].enabled;
+    const maxPoppedCondValue = $gameSettings[gameMode].endGameConditions[endGameConditionsOpts.POP_ELMNTS_POPPED].value;
+    const specialPoppedCondEnabled = $gameSettings[gameMode].endGameConditions[endGameConditionsOpts.SPECIAL_POP_ELMNTS_POPPED].enabled;
+    const specialPoppedCondValue = $gameSettings[gameMode].endGameConditions[endGameConditionsOpts.SPECIAL_POP_ELMNTS_POPPED].value;
     const actualGameId = $gameId;
 
     let lastFrameTime = performance.now(); //ms
@@ -62,7 +63,7 @@
     }
 
     function getAditionalHeight(type, height){
-        if($gameSettings.popElmntConfig[type].shape !== popElmntShapes.BALLOON) return 0;
+        if($gameSettings[gameMode].popElmntConfig[type].shape !== popElmntShapes.BALLOON) return 0;
 
         return height * balloonKnotHeightPercent;
     }
@@ -435,7 +436,7 @@
         }
 
         if(endGameTimeEnabled){
-            const time = $gameSettings.endGameConditions[endGameConditionsOpts.TIME].value
+            const time = $gameSettings[gameMode].endGameConditions[endGameConditionsOpts.TIME].value
             startTimer(time);
         }
 
@@ -472,7 +473,7 @@
     <main class="not-selectable" style:background-color = {gameBackgroundColor} >
         <SubjectNavBar on:exit={handleExitClick} />
         {#each popElmnts as popElmnt (popElmnt.id)}
-            <Balloon balloon={popElmnt} {currentRampageChain} on:balloonClicked={handleClick} />
+            <Balloon gameMode={gameMode} balloon={popElmnt} {currentRampageChain} on:balloonClicked={handleClick} />
         {/each}
         <InGameStats stats = {currentStats} />
     </main>
