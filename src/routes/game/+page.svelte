@@ -3,9 +3,10 @@
     import { onDestroy, onMount } from 'svelte';
     import { capitalizeFirstLetter, getRandomFrom, getRandomHexColor } from '$lib/utils';
     import { addLog } from "$lib/logService";
-    import { appSettings, gameSettings, user, popElmntSizeOpts, gameDirection, subjectName, popElmntShapes, popElmntTypes, popElmntSpeedsOpts, popElmntDirections, localUserId, isLoggedIn } from '../../stores.js';
+    import { appSettings, gameSettings, user, popElmntSizeOpts, gameDirection, subjectName, popElmntShapes, popElmntTypes, popElmntSpeedsOpts, popElmntDirections, localUserId, isLoggedIn, endGameConditionsOpts, gameId } from '../../stores.js';
     import SubjectNavBar from '../../components/SubjectNavBar.svelte';
     import InGameStats from '../../components/InGameStats.svelte';
+	import { goto } from '$app/navigation';
 
     //app constants
     const popElmntSpeed = popElmntSpeedsOpts[$gameSettings.popElmntSpeed];
@@ -19,6 +20,12 @@
     const localId = $localUserId;
     const rampageModeChain = $gameSettings.rampageModeChain;
     const enableRampageMode = $gameSettings.enableRampageMode;
+    const endGameTimeEnabled = $gameSettings.endGameConditions[endGameConditionsOpts.TIME].enabled;
+    const maxPoppedCondEnabled = $gameSettings.endGameConditions[endGameConditionsOpts.POP_ELMNTS_POPPED].enabled;
+    const maxPoppedCondValue = $gameSettings.endGameConditions[endGameConditionsOpts.POP_ELMNTS_POPPED].value;
+    const specialPoppedCondEnabled = $gameSettings.endGameConditions[endGameConditionsOpts.SPECIAL_POP_ELMNTS_POPPED].enabled;
+    const specialPoppedCondValue = $gameSettings.endGameConditions[endGameConditionsOpts.SPECIAL_POP_ELMNTS_POPPED].value;
+    const actualGameId = $gameId;
 
     let lastFrameTime = performance.now(); //ms
     const fps = 60;
@@ -31,7 +38,9 @@
     let balloonKnotHeightPercent;
     let currentRampageChain = 0;
     let currentStats = Object.fromEntries(Object.values(popElmntTypes).map(type => [type, { popped: 0, total: 0 }]));
-    
+    let specialPopElmntsPopped = 0;
+    let totalPopElmntsPopped = 0;
+
     //Max quantities of special popElmnts
     const specialPopElmntsMaxQuantities = Object.fromEntries(
         Object.values(popElmntTypes)
@@ -43,6 +52,14 @@
     );
     //Total max quantity of special popElmnts
     const specialPopElmntsMaxQuantity = Object.values(specialPopElmntsMaxQuantities).reduce((sum, value) => sum + value, 0);
+
+    function startTimer(time) {
+        const timer = setInterval(() => {
+            clearInterval(timer);
+            handleGameEnd(endGameConditionsOpts.TIME);
+        }, time * 1000);
+        return timer;
+    }
 
     function getAditionalHeight(type, height){
         if($gameSettings.popElmntConfig[type].shape !== popElmntShapes.BALLOON) return 0;
@@ -171,6 +188,7 @@
             teacher: instructorName,
             action: action.toString(),
             subject: subjectNameValue,
+            gameId: actualGameId,
         }
         return generalLogs;
     }
@@ -263,11 +281,37 @@
         return {...generalLogs, details: detailLogs};
     }
 
+    function endGameLogs(condition){
+        const generalLogs = setGeneralLogs('End game');
+        const poppedStatsLogs = Object.fromEntries(
+            Object.values(popElmntTypes).map(type => [
+                type + 'PoppedTotal',
+                currentStats[type].popped
+            ])
+        );
+        const totalStatsLogs = Object.fromEntries(
+            Object.values(popElmntTypes).map(type => [
+                type + 'Total',
+                currentStats[type].total
+            ])
+        );
+        const detailLogs = {
+            ...poppedStatsLogs,
+            ...totalStatsLogs,
+            endCondition: condition,
+        }
+        return {...generalLogs, details: detailLogs};
+    }
+
     async function handleClick(event) {
         if(enableRampageMode) rampageChainUpdate(event.detail);
         addLog(poppedElmntLogs(event.detail));
         currentStats[event.detail.type].popped += 1;
+        if(event.detail.isSpecial) specialPopElmntsPopped += 1;
+        totalPopElmntsPopped += 1;
         destroyPopElmnt(event.detail.id);
+        if(maxPoppedCondEnabled && totalPopElmntsPopped >= maxPoppedCondValue) handleGameEnd(endGameConditionsOpts.POP_ELMNTS_POPPED);
+        if(specialPoppedCondEnabled && specialPopElmntsPopped >= specialPoppedCondValue) handleGameEnd(endGameConditionsOpts.SPECIAL_POP_ELMNTS_POPPED);
     }
 
     async function handleBackgroundClick(event){
@@ -276,6 +320,11 @@
 
     async function handleExitClick(){
         addLog(ExitClickLogs());
+    }
+
+    async function handleGameEnd(condition){
+        addLog(endGameLogs(condition));
+        goto('/');
     }
 
     async function handleBackgroundKeyboard(event){
@@ -383,6 +432,11 @@
             const root = document.documentElement;
             balloonKnotHeightPercent = getComputedStyle(root).getPropertyValue('--balloon-knot-height');
             balloonKnotHeightPercent = parseFloat(balloonKnotHeightPercent)/100;
+        }
+
+        if(endGameTimeEnabled){
+            const time = $gameSettings.endGameConditions[endGameConditionsOpts.TIME].value
+            startTimer(time);
         }
 
         addInitialPopElmnts();

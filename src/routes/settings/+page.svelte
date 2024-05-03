@@ -1,5 +1,5 @@
 <script>
-    import { gameSettings, appSettings, menuSettings, isLoggedIn, user, isFullScreen, menuSettingsDEFAULT, appSettingsDEFAULT, gameSettingsDEFAULT, subjectName, popElmntSpeeds, popElmntSizes, popElmntDirections, localUserId } from '../../stores.js';
+    import { gameSettings, appSettings, menuSettings, isLoggedIn, user, isFullScreen, menuSettingsDEFAULT, appSettingsDEFAULT, gameSettingsDEFAULT, subjectName, popElmntSpeeds, popElmntSizes, popElmntDirections, localUserId, endGameConditionsOpts, endGameConditionsTooltip } from '../../stores.js';
     import { deepCopy, toCamelCase, capitalizeFirstLetter } from '$lib/utils.js'
     import { Fa } from 'inca-utils';
     import { faFileArrowDown } from '@fortawesome/free-solid-svg-icons';
@@ -150,6 +150,27 @@
                 <label for="gameBackgroundColorInput">Game background color:</label>
                 <input id="gameBackgroundColorInput" class="color-input" type="color" bind:value={$gameSettings.gameBackgroundColor} on:input={updatePreferences}>
             </div>
+            
+            <div class="end-game-container">
+                <h5>End game conditions:</h5>
+                {#each Object.values(endGameConditionsOpts) as condition}
+                    <div class="checkbox-flex">
+                        <input type="checkbox" id={"endGameCondition" + toCamelCase(condition) + "Checkbox"} bind:checked={$gameSettings.endGameConditions[condition].enabled} on:input={updatePreferences}>
+                        <label for={"endGameCondition" + toCamelCase(condition) + "Checkbox"}>
+                            <strong>{capitalizeFirstLetter(condition)}:</strong> {endGameConditionsTooltip[condition]}
+                        </label>
+                    </div>
+                    {#if $gameSettings.endGameConditions[condition].enabled}
+                        <div class="end-game-values-container">
+                            <div class="range-input">
+                                <label for={"endGameCondition" + toCamelCase(condition) + "Value"}>Value:</label>
+                                <p>{$gameSettings.endGameConditions[condition].value}</p>
+                            </div>
+                            <input type="range" min="1" max="{$gameSettings.endGameConditions[condition].rangeMax}" step="1" id={"endGameCondition" + toCamelCase(condition) + "Value"} bind:value={$gameSettings.endGameConditions[condition].value} on:input={updatePreferences}>
+                        </div>
+                    {/if}
+                {/each}
+            </div>
 
             <h2>Pop elements</h2>
             <PopElmntsTabs />
@@ -256,7 +277,8 @@
     }
 
     .game-modes-container,
-    .rampage-mode-container{
+    .rampage-mode-container,
+    .end-game-values-container{
         margin-left: 30px;
     }
     .range-input{
@@ -268,6 +290,9 @@
     }
     .range-input label{
         margin: 0px;
+    }
+    .end-game-container{
+        margin-top: 25px;
     }
     @media (max-width: 600px) {
         button.download-logs-btn{
