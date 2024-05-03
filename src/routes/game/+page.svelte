@@ -14,6 +14,11 @@
     const gameBackgroundColor = $gameSettings.gameBackgroundColor;
     const maxPopElmntQty = $gameSettings.maxPopElmntQty;
     const popElmntConfig = $gameSettings.popElmntConfig;
+    const instructorName = $appSettings.instructorName;
+    const subjectNameValue = $subjectName;
+    const localId = $localUserId;
+    const rampageModeChain = $gameSettings.rampageModeChain;
+    const enableRampageMode = $gameSettings.enableRampageMode;
 
     let lastFrameTime = performance.now(); //ms
     const fps = 60;
@@ -26,7 +31,7 @@
     let balloonKnotHeightPercent;
     let currentRampageChain = 0;
     let currentStats = Object.fromEntries(Object.values(popElmntTypes).map(type => [type, { popped: 0, total: 0 }]));
-
+    
     //Max quantities of special popElmnts
     const specialPopElmntsMaxQuantities = Object.fromEntries(
         Object.values(popElmntTypes)
@@ -80,9 +85,9 @@
             (popElmntConfig[type].enableInnerFigRangeColor ? getRandomFrom(popElmntConfig[type].innerFigInterpColors) : popElmntConfig[type].innerFigColor)
             : '';
 
-        const popElmnt = { id, color, innerFigType, innerFigColor, x, y, speed, direction, size, rotation, isSpecial, type, shape};
-
-        popElmnts.push(popElmnt);
+        popElmnts.push(
+            { id, color, innerFigType, innerFigColor, x, y, speed, direction, size, rotation, isSpecial, type, shape}
+        );
         currentStats[type].total += 1;
     }
 
@@ -118,9 +123,9 @@
                 specialPopElmntsTotalQty += 1;
             }
 
-            const popElmnt = { id, color, innerFigType, innerFigColor, x, y, speed, direction, size, rotation, isSpecial, type, shape};
-
-            popElmnts.push(popElmnt);
+            popElmnts.push(
+                { id, color, innerFigType, innerFigColor, x, y, speed, direction, size, rotation, isSpecial, type, shape}
+            );
             currentStats[type].total += 1;
         }
     }
@@ -160,12 +165,12 @@
         const generalLogs = {
             timestamp: now,
             user: ($user && $isLoggedIn) ? $user.displayName : "Anonymous",
-            userId: ($user && $isLoggedIn) ? $user.uid : $localUserId,
+            userId: ($user && $isLoggedIn) ? $user.uid : localId,
             date: now.toLocaleDateString(),
             time: now.toLocaleTimeString(),
-            teacher: $appSettings.instructorName,
+            teacher: instructorName,
             action: action.toString(),
-            subject: $subjectName,
+            subject: subjectNameValue,
         }
         return generalLogs;
     }
@@ -205,13 +210,13 @@
             color: popElmnt.color,
             x: Math.floor(popElmnt.x),
             y: Math.floor(popElmnt.y),
-            speed: $gameSettings.popElmntSpeed,
-            size: $gameSettings.popElmntSize,
+            speed: popElmntSpeed,
+            size: popElmntSize,
             isSpecial: popElmnt.isSpecial,
             type: popElmnt.type,
             shape: popElmnt.shape,
             currentRampageChain: currentRampageChain,
-            rampageChainForExcellent: $gameSettings.rampageModeChain,
+            rampageChainForExcellent: rampageModeChain,
             gameBackgroundColor: gameBackgroundColor,
             gameDirection: currentGameDirection,
             ...specialDetails,
@@ -259,7 +264,7 @@
     }
 
     async function handleClick(event) {
-        if($gameSettings.enableRampageMode) rampageChainUpdate(event.detail);
+        if(enableRampageMode) rampageChainUpdate(event.detail);
         addLog(poppedElmntLogs(event.detail));
         currentStats[event.detail.type].popped += 1;
         destroyPopElmnt(event.detail.id);
@@ -383,7 +388,7 @@
         addInitialPopElmnts();
 
         // start popElmnt animation
-        gameLoop(performance.now())
+        gameLoop()
     });
 
     onDestroy(() => {

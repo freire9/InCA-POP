@@ -1,8 +1,8 @@
 <script>
     import { createEventDispatcher } from 'svelte'
     import { appSettings, gameSettings, popElmntInnerFigs, speechCorrect, speechExcellent } from '../stores';
-	import Letter from './inner_figures/Letter.svelte';
-	import Disc from './inner_figures/Disc.svelte';
+    import Letter from './inner_figures/Letter.svelte';
+    import Disc from './inner_figures/Disc.svelte';
 
     export let balloon;
     export let currentRampageChain;
