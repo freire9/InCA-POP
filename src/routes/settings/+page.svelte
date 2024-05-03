@@ -166,7 +166,7 @@
                                 <label for={"endGameCondition" + toCamelCase(condition) + "Value"}>Value:</label>
                                 <p>{$gameSettings.endGameConditions[condition].value}</p>
                             </div>
-                            <input type="range" min="1" max="3600" id={"endGameCondition" + toCamelCase(condition) + "Value"} bind:value={$gameSettings.endGameConditions[condition].value} on:input={updatePreferences}>
+                            <input type="range" min="1" max="{$gameSettings.endGameConditions[condition].rangeMax}" step="1" id={"endGameCondition" + toCamelCase(condition) + "Value"} bind:value={$gameSettings.endGameConditions[condition].value} on:input={updatePreferences}>
                         </div>
                     {/if}
                 {/each}
