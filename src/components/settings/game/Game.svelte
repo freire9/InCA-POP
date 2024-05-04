@@ -58,7 +58,7 @@
 </div>
 
 <div class="end-game-container">
-    <h5>End game conditions:</h5>
+    <h3>End game conditions</h3>
     {#each Object.values(endGameConditionsOpts) as condition}
         <div class="checkbox-flex">
             <input type="checkbox" id={"endGameCondition" + toCamelCase(condition) + "Checkbox"} bind:checked={$gameSettings[mode].endGameConditions[condition].enabled} on:input={updatePreferences}>
@@ -78,7 +78,7 @@
     {/each}
 </div>
 
-<h2>Pop elements</h2>
+<h3>Pop elements</h3>
 <PopElmntsTabs gameMode={mode}/>
 
 <style>

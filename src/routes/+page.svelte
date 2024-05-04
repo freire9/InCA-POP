@@ -44,9 +44,9 @@
     }
 
     async function handleClick(event){
-        const gameStartedLog = {...setGeneralLogs('Game started'), details: {gameDirection: event.detail, menuBackgroundColor: $menuSettings.menuBackgroundColor, color: $menuSettings.availableModes[event.detail].color}};
-        addLog(gameStartedLog);
         startGame(event.detail);
+        const gameStartedLog = {...setGeneralLogs('Game started'), details: {gameDirection: event.detail, menuBackgroundColor: $menuSettings.menuBackgroundColor, color: $menuSettings.availableModes[event.detail].color, gameId: $gameId}};
+        addLog(gameStartedLog);
     }
 
     async function handleBackgroundClick(event){

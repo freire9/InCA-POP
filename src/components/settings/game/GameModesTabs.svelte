@@ -9,28 +9,12 @@
 
     let gameModeTabs;
     // List of tab game modes, values and assigned components
-    $: gameModeTabs = [
-        { label: capitalizeFirstLetter(popElmntDirections.BOTTOM_TO_TOP),
-            value: 1,
-            component: Game,
-            mode: popElmntDirections.BOTTOM_TO_TOP
-        },
-        { label: capitalizeFirstLetter(popElmntDirections.TOP_TO_BOTTOM),
-            value: 2,
-            component: Game,
-            mode: popElmntDirections.TOP_TO_BOTTOM
-        },
-        { label: capitalizeFirstLetter(popElmntDirections.LEFT_TO_RIGHT),
-            value: 3,
-            component: Game,
-            mode: popElmntDirections.LEFT_TO_RIGHT
-        },
-        { label: capitalizeFirstLetter(popElmntDirections.RIGHT_TO_LEFT),
-            value: 4,
-            component: Game,
-            mode: popElmntDirections.RIGHT_TO_LEFT
-        },
-    ];
+    $: gameModeTabs = Object.values(popElmntDirections).map((direction, index) => ({
+        label: capitalizeFirstLetter(direction),
+        value: index + 1,
+        component: Game,
+        mode: direction
+    }));
 </script>
 
 <ul>

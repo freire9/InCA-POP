@@ -173,9 +173,9 @@ const ctrlPopElmntSettings = {
 };
 
 export const endGameConditions = {
-    [endGameConditionsOpts.TIME]: { enabled: true, value: 300, rangeMax: 3600}, // in seconds
-    [endGameConditionsOpts.POP_ELMNTS_POPPED]: { enabled: true, value: 50, rangeMax: 300}, // elements popped
-    [endGameConditionsOpts.SPECIAL_POP_ELMNTS_POPPED]: { enabled: true, value: 20, rangeMax: 300}, // special elements popped
+    [endGameConditionsOpts.TIME]: { enabled: false, value: 300, rangeMax: 3600}, // in seconds
+    [endGameConditionsOpts.POP_ELMNTS_POPPED]: { enabled: false, value: 50, rangeMax: 300}, // elements popped
+    [endGameConditionsOpts.SPECIAL_POP_ELMNTS_POPPED]: { enabled: false, value: 20, rangeMax: 300}, // special elements popped
 };
 
 const gameModeSettingsDEFAULT = {

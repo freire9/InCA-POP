@@ -189,7 +189,6 @@
             teacher: instructorName,
             action: action.toString(),
             subject: subjectNameValue,
-            gameId: actualGameId,
         }
         return generalLogs;
     }
@@ -240,6 +239,7 @@
             gameDirection: currentGameDirection,
             ...specialDetails,
             ...onScreenElmntsLogs,
+            gameId: actualGameId,
         }
         return {...generalLogs, details: detailLogs};
     }
@@ -253,6 +253,7 @@
             gameBackgroundColor: gameBackgroundColor,
             gameDirection: currentGameDirection,
             ...onScreenElmntsLogs,
+            gameId: actualGameId,
         }
         return {...generalLogs, details: detailLogs};
     }
@@ -278,6 +279,7 @@
             ...onScreenElmntsLogs,
             ...poppedStatsLogs,
             ...totalStatsLogs,
+            gameId: actualGameId,
         }
         return {...generalLogs, details: detailLogs};
     }
@@ -300,6 +302,7 @@
             ...poppedStatsLogs,
             ...totalStatsLogs,
             endCondition: condition,
+            gameId: actualGameId,
         }
         return {...generalLogs, details: detailLogs};
     }

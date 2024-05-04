@@ -102,7 +102,7 @@
                 </button>
             </div>
 
-            <h2>Global game</h2>
+            <h2>Game modes</h2>
             <GameModesTabs />
     
             <h2>Main menu</h2>
