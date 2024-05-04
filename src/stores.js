@@ -108,7 +108,7 @@ export const appSettingsDEFAULT = {
     enableCustomSpeeches: true,
 };
 
-const availableModes = {
+export const availableModes = {
     [popElmntDirections.RIGHT_TO_LEFT]: { enabled: true, icon: 'faLeftLong', color: '#ff0000'},
     [popElmntDirections.BOTTOM_TO_TOP]: { enabled: true, icon: 'faUpLong', color: '#22d933'},
     [popElmntDirections.TOP_TO_BOTTOM]: { enabled: true, icon: 'faDownLong', color: '#2665ea'},
