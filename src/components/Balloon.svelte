@@ -5,6 +5,7 @@
     import Disc from './inner_figures/Disc.svelte';
 
     export let balloon;
+    export let gameMode;
     export let currentRampageChain;
     const dispatch = createEventDispatcher();
     const popSound = new Audio('/sounds/balloon-pop.mp3');
@@ -12,7 +13,7 @@
     const rampageSound = new Audio('/sounds/rampage.mp3');
 
     function isRampage(){
-        return $gameSettings.enableRampageMode && balloon.isSpecial && ((currentRampageChain + 1) % $gameSettings.rampageModeChain === 0);
+        return $gameSettings[gameMode].enableRampageMode && balloon.isSpecial && ((currentRampageChain + 1) % $gameSettings[gameMode].rampageModeChain === 0);
     }
 
     function playCustomCorrect(){
@@ -108,13 +109,13 @@
   style:height = '{balloon.size.height}px'
   style:--bg-pseudo= '{balloon.color}'
   style=
-    "background: {$gameSettings.enableBalloonReflex ? "radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.5), transparent 70%)" : "unset"};
-    filter: {$gameSettings.enableBalloonReflex ? "brightness(1.2)" : "unset"};"
+    "background: {$gameSettings[gameMode].enableBalloonReflex ? "radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.5), transparent 70%)" : "unset"};
+    filter: {$gameSettings[gameMode].enableBalloonReflex ? "brightness(1.2)" : "unset"};"
 >
     {#if balloon.isSpecial && balloon.innerFigType == popElmntInnerFigs.LETTER}
-        <Letter popElmnt={balloon} />
+        <Letter popElmnt={balloon} gameMode={gameMode} />
     {:else if balloon.isSpecial && balloon.innerFigType == popElmntInnerFigs.DISC}
-        <Disc popElmnt={balloon} />
+        <Disc popElmnt={balloon} gameMode={gameMode} />
     {/if}
     <div class="string not-selectable" style:transform='translateX(-50%) rotate({10+balloon.rotation}deg)'></div>
 </button>

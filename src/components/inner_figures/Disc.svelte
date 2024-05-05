@@ -2,9 +2,10 @@
     import { gameSettings, popElmntTypes } from "../../stores";
 
     export let popElmnt;
+    export let gameMode;
 
     function figContourEnabled(){
-        return (popElmnt.type == popElmntTypes.EXP && $gameSettings.popElmntConfig[popElmntTypes.EXP].enableInnerFigContour) || (popElmnt.type == popElmntTypes.CTRL && $gameSettings.popElmntConfig[popElmntTypes.CTRL].enableInnerFigContour);
+        return (popElmnt.type == popElmntTypes.EXP && $gameSettings[gameMode].popElmntConfig[popElmntTypes.EXP].enableInnerFigContour) || (popElmnt.type == popElmntTypes.CTRL && $gameSettings[gameMode].popElmntConfig[popElmntTypes.CTRL].enableInnerFigContour);
     }
 </script>
 

@@ -108,9 +108,17 @@ export const appSettingsDEFAULT = {
     enableCustomSpeeches: true,
 };
 
+export const availableModes = {
+    [popElmntDirections.RIGHT_TO_LEFT]: { enabled: true, icon: 'faLeftLong', color: '#ff0000'},
+    [popElmntDirections.BOTTOM_TO_TOP]: { enabled: true, icon: 'faUpLong', color: '#22d933'},
+    [popElmntDirections.TOP_TO_BOTTOM]: { enabled: true, icon: 'faDownLong', color: '#2665ea'},
+    [popElmntDirections.LEFT_TO_RIGHT]: { enabled: true, icon: 'faRightLong', color: '#eacf26'},
+};
+
 export const menuSettingsDEFAULT = {
     mainMenuRandomColors: true,
     menuBackgroundColor: '#ffffff',
+    availableModes: deepCopy(availableModes),
 };
 
 const normalPopElmntSettings = {
@@ -164,25 +172,17 @@ const ctrlPopElmntSettings = {
     proportion: 30,
 };
 
-const availableModes = {
-    [popElmntDirections.RIGHT_TO_LEFT]: { enabled: true, icon: 'faLeftLong', color: '#ff0000'},
-    [popElmntDirections.BOTTOM_TO_TOP]: { enabled: true, icon: 'faUpLong', color: '#22d933'},
-    [popElmntDirections.TOP_TO_BOTTOM]: { enabled: true, icon: 'faDownLong', color: '#2665ea'},
-    [popElmntDirections.LEFT_TO_RIGHT]: { enabled: true, icon: 'faRightLong', color: '#eacf26'},
-};
-
 export const endGameConditions = {
-    [endGameConditionsOpts.TIME]: { enabled: true, value: 300, rangeMax: 3600}, // in seconds
-    [endGameConditionsOpts.POP_ELMNTS_POPPED]: { enabled: true, value: 50, rangeMax: 300}, // elements popped
-    [endGameConditionsOpts.SPECIAL_POP_ELMNTS_POPPED]: { enabled: true, value: 20, rangeMax: 300}, // special elements popped
+    [endGameConditionsOpts.TIME]: { enabled: false, value: 300, rangeMax: 3600}, // in seconds
+    [endGameConditionsOpts.POP_ELMNTS_POPPED]: { enabled: false, value: 50, rangeMax: 300}, // elements popped
+    [endGameConditionsOpts.SPECIAL_POP_ELMNTS_POPPED]: { enabled: false, value: 20, rangeMax: 300}, // special elements popped
 };
 
-export const gameSettingsDEFAULT = {
+const gameModeSettingsDEFAULT = {
     popElmntSpeed: popElmntSpeeds.NORMAL,
     popElmntSize: popElmntSizes.NORMAL,
     maxPopElmntQty: 8,
     gameBackgroundColor: '#add8e6',
-    availableModes: deepCopy(availableModes),
     enableBalloonReflex: false,
     enableRampageMode: true,
     rampageModeChain: 3,
@@ -193,6 +193,8 @@ export const gameSettingsDEFAULT = {
     },
     endGameConditions: deepCopy(endGameConditions),
 };
+
+export const gameSettingsDEFAULT = Object.fromEntries(Object.values(popElmntDirections).map(mode => [mode, {...gameModeSettingsDEFAULT}]));
 
 export const appSettings = writable(deepCopy(appSettingsDEFAULT));
 export const menuSettings = writable(deepCopy(menuSettingsDEFAULT));

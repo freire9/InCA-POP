@@ -1,4 +1,4 @@
-import { appSettings, appSettingsDEFAULT, gameSettings, gameSettingsDEFAULT, localUserId, menuSettings, menuSettingsDEFAULT, modifyingConfig, subjectName } from "../stores";
+import { appSettings, appSettingsDEFAULT, availableModes, gameSettings, gameSettingsDEFAULT, localUserId, menuSettings, menuSettingsDEFAULT, modifyingConfig, subjectName } from "../stores";
 import { updateSettingsWithDefault } from "./preferences";
 import lodash from 'lodash';
 const { debounce } = lodash;
@@ -30,12 +30,23 @@ export function setLocalPreferencesToStores(){
         return;
     }
     const { settings: updatedLocalAppSettings, hasChanged: appSettingsHasChanged } = updateSettingsWithDefault(appSettingsDEFAULT, incaPopPreferencesLocal.appSettings || {});
-    const { settings: updatedLocalGameSettings, hasChanged: gameSettingsHasChanged } = updateSettingsWithDefault(gameSettingsDEFAULT, incaPopPreferencesLocal.gameSettings || {});
     const { settings: updatedLocalMenuSettings, hasChanged: menuSettingsHasChanged } = updateSettingsWithDefault(menuSettingsDEFAULT, incaPopPreferencesLocal.menuSettings || {});
     appSettings.set(updatedLocalAppSettings);
     menuSettings.set(updatedLocalMenuSettings);
+    
+    let updatedLocalGameSettings = {};
+    let gameSettingsHasChanged = false;
+    //for each mode settings, update settings with default
+    Object.keys(availableModes).forEach((mode) => {
+        const { settings: updatedGameSettingsMode, hasChanged: modeSettingsHasChanged } = updateSettingsWithDefault(gameSettingsDEFAULT[mode], incaPopPreferencesLocal.gameSettings[mode] || {});
+        updatedLocalGameSettings[mode] = updatedGameSettingsMode;
+        if(modeSettingsHasChanged) {
+            gameSettingsHasChanged = true;
+            console.log('cambio detectado en modo', mode)
+        }
+     });
     gameSettings.set(updatedLocalGameSettings);
-
+    
     if(appSettingsHasChanged || gameSettingsHasChanged || menuSettingsHasChanged) {
         updateLocalPreferences();
     }

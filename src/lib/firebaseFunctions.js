@@ -1,5 +1,5 @@
 import { doc, updateDoc } from "firebase/firestore";
-import { appSettings, appSettingsDEFAULT, gameSettings, gameSettingsDEFAULT, isLoggedIn, menuSettings, menuSettingsDEFAULT, user } from "../stores";
+import { appSettings, appSettingsDEFAULT, availableModes, gameSettings, gameSettingsDEFAULT, isLoggedIn, menuSettings, menuSettingsDEFAULT, user } from "../stores";
 import { deepCopy } from "./utils";
 import lodash from 'lodash';
 import { db, dbUsersCollectionName } from "./firebaseConfig";
@@ -40,9 +40,20 @@ export async function updateRemotePreferences(){
 export function syncPreferencesToStores(userData) {
     if (userData && userData.incaPopPreferences) {
         const { settings: updatedAppSettings, hasChanged: appSettingsHasChanged } = updateSettingsWithDefault(appSettingsDEFAULT, userData.incaPopPreferences.appSettings || {});
-        const { settings: updatedGameSettings, hasChanged: gameSettingsHasChanged } = updateSettingsWithDefault(gameSettingsDEFAULT, userData.incaPopPreferences.gameSettings || {});
         const { settings: updatedMenuSettings, hasChanged: menuSettingsHasChanged } = updateSettingsWithDefault(menuSettingsDEFAULT, userData.incaPopPreferences.menuSettings || {});
 
+        let updatedGameSettings = {};
+        let gameSettingsHasChanged = false;
+        //for each mode settings, update settings with default
+        Object.keys(availableModes).forEach((mode) => {
+            const { settings: updatedGameSettingsMode, hasChanged: modeSettingsHasChanged } = updateSettingsWithDefault(gameSettingsDEFAULT[mode], userData.incaPopPreferences.gameSettings[mode] || {});
+            updatedGameSettings[mode] = updatedGameSettingsMode;
+            if(modeSettingsHasChanged) {
+                gameSettingsHasChanged = true;
+                console.log('cambio remoto detectado en modo', mode)
+            }
+        });
+        
         gameSettings.set(updatedGameSettings);
         menuSettings.set(updatedMenuSettings);
         appSettings.set(updatedAppSettings);

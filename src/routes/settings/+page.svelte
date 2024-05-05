@@ -1,17 +1,17 @@
 <script>
-    import { gameSettings, appSettings, menuSettings, isLoggedIn, user, isFullScreen, menuSettingsDEFAULT, appSettingsDEFAULT, gameSettingsDEFAULT, subjectName, popElmntSpeeds, popElmntSizes, popElmntDirections, localUserId, endGameConditionsOpts, endGameConditionsTooltip } from '../../stores.js';
+    import { gameSettings, appSettings, menuSettings, isLoggedIn, user, isFullScreen, menuSettingsDEFAULT, appSettingsDEFAULT, gameSettingsDEFAULT, subjectName, popElmntDirections, localUserId } from '../../stores.js';
     import { deepCopy, toCamelCase, capitalizeFirstLetter } from '$lib/utils.js'
     import { Fa } from 'inca-utils';
     import { faFileArrowDown } from '@fortawesome/free-solid-svg-icons';
     import Profile from '../../components/settings/Profile.svelte';
     import UserNavBar from '../../components/UserNavBar.svelte';
-    import PopElmntsTabs from '../../components/settings/game/PopElmntsTabs.svelte';
     import Speeches from '../../components/settings/Speeches.svelte';
     import lodash from 'lodash';
     import { downloadLogs } from '$lib/logService.js';
     import { arrayUnion, doc, getDoc, updateDoc } from 'firebase/firestore';
     import { db, dbUsersCollectionName } from '$lib/firebaseConfig.js';
     import { updatePreferences } from '$lib/preferences.js';
+	import GameModesTabs from '../../components/settings/game/GameModesTabs.svelte';
     
     const { debounce } = lodash;
 
@@ -101,79 +101,9 @@
                     Download remote database logs file (CSV)
                 </button>
             </div>
-            <h2>Global game</h2>
-            <div class="range-input">
-                <label for="maxPopElmntQtyInput">Max pop elements quantity on screen:</label>
-                <p>{$gameSettings.maxPopElmntQty}</p>
-            </div>
-            <input id="maxPopElmntQtyInput" min="1" max="50" step="1" type="range" bind:value={$gameSettings.maxPopElmntQty} on:input={updatePreferences}>
 
-            <label for="popElmntSpeedSelect">Pop element speed:</label>
-            <select id="popElmntSpeedSelect" bind:value={$gameSettings.popElmntSpeed} on:input={updatePreferences}>
-                {#each Object.values(popElmntSpeeds) as speedOption}
-                    <option value={speedOption}>
-                        {capitalizeFirstLetter(speedOption)}
-                    </option>
-                {/each}
-            </select>
-
-            <label for="popElmntSizeInput">Pop element size:</label>
-            <select id="popElmntSizeInput" bind:value={$gameSettings.popElmntSize} on:input={updatePreferences}>
-                {#each Object.values(popElmntSizes) as sizeOption}
-                    <option value={sizeOption}>
-                        {capitalizeFirstLetter(sizeOption)}
-                    </option>
-                {/each}
-            </select>
-
-            <div class="checkbox-flex">
-                <label for="enableRampageMode">Enable rampage mode (chain a number of special pop elements):</label>
-                <input id="enableRampageMode" type="checkbox" bind:checked={$gameSettings.enableRampageMode} on:input={updatePreferences}>
-            </div>
-
-            {#if $gameSettings.enableRampageMode}
-                <div class="rampage-mode-container">
-                    <div class="range-input">
-                        <label for="rampageModeLength">Rampage mode chain length:</label>
-                        <p>{$gameSettings.rampageModeChain}</p>
-                    </div>
-                    <input type="range" min="2" max="50" step="1" bind:value={$gameSettings.rampageModeChain} on:input={updatePreferences}>
-                </div>
-            {/if}
-
-            <div class="checkbox-flex">
-                <label for="enableBalloonReflex">Enable pop element reflex effect (only aesthetic in pop element type balloon, slight discrepancies between what is seen and what is logged):</label>
-                <input id="enableBalloonReflex" type="checkbox" bind:checked={$gameSettings.enableBalloonReflex} on:input={updatePreferences}>
-            </div>
-            
-            <div class="color-flex">
-                <label for="gameBackgroundColorInput">Game background color:</label>
-                <input id="gameBackgroundColorInput" class="color-input" type="color" bind:value={$gameSettings.gameBackgroundColor} on:input={updatePreferences}>
-            </div>
-            
-            <div class="end-game-container">
-                <h5>End game conditions:</h5>
-                {#each Object.values(endGameConditionsOpts) as condition}
-                    <div class="checkbox-flex">
-                        <input type="checkbox" id={"endGameCondition" + toCamelCase(condition) + "Checkbox"} bind:checked={$gameSettings.endGameConditions[condition].enabled} on:input={updatePreferences}>
-                        <label for={"endGameCondition" + toCamelCase(condition) + "Checkbox"}>
-                            <strong>{capitalizeFirstLetter(condition)}:</strong> {endGameConditionsTooltip[condition]}
-                        </label>
-                    </div>
-                    {#if $gameSettings.endGameConditions[condition].enabled}
-                        <div class="end-game-values-container">
-                            <div class="range-input">
-                                <label for={"endGameCondition" + toCamelCase(condition) + "Value"}>Value:</label>
-                                <p>{$gameSettings.endGameConditions[condition].value}</p>
-                            </div>
-                            <input type="range" min="1" max="{$gameSettings.endGameConditions[condition].rangeMax}" step="1" id={"endGameCondition" + toCamelCase(condition) + "Value"} bind:value={$gameSettings.endGameConditions[condition].value} on:input={updatePreferences}>
-                        </div>
-                    {/if}
-                {/each}
-            </div>
-
-            <h2>Pop elements</h2>
-            <PopElmntsTabs />
+            <h2>Game modes</h2>
+            <GameModesTabs />
     
             <h2>Main menu</h2>
             <p>Game modes to display (direction of pop elements):</p>
@@ -182,12 +112,12 @@
                     {#each Object.values(popElmntDirections) as mode}
                         <div class="checkbox-flex">
                             <label for={"gameMode" + toCamelCase(mode) + "Checkbox"}>{capitalizeFirstLetter(mode)}:</label>
-                            <input id={"gameMode" + toCamelCase(mode) + "Checkbox"} type="checkbox" bind:checked={$gameSettings.availableModes[mode].enabled} on:input={updatePreferences}>
+                            <input id={"gameMode" + toCamelCase(mode) + "Checkbox"} type="checkbox" bind:checked={$menuSettings.availableModes[mode].enabled} on:input={updatePreferences}>
         
                             {#if !$menuSettings.mainMenuRandomColors}
                                 <div class="color-flex">
                                     <label for={"gameMode" + mode + "ColorInput"}>Color:</label>
-                                    <input id={"gameMode" + mode + "ColorInput"} class="color-input" type="color" bind:value={$gameSettings.availableModes[mode].color} on:input={updatePreferences}>
+                                    <input id={"gameMode" + mode + "ColorInput"} class="color-input" type="color" bind:value={$menuSettings.availableModes[mode].color} on:input={updatePreferences}>
                                 </div>
                             {/if}
                         </div>
@@ -276,23 +206,8 @@
         gap: 50px;
     }
 
-    .game-modes-container,
-    .rampage-mode-container,
-    .end-game-values-container{
+    .game-modes-container{
         margin-left: 30px;
-    }
-    .range-input{
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        gap: 10px;
-        margin-top: 25px;
-    }
-    .range-input label{
-        margin: 0px;
-    }
-    .end-game-container{
-        margin-top: 25px;
     }
     @media (max-width: 600px) {
         button.download-logs-btn{
