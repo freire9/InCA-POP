@@ -109,16 +109,17 @@ export const appSettingsDEFAULT = {
 };
 
 export const availableModes = {
-    [popElmntDirections.RIGHT_TO_LEFT]: { enabled: true, icon: 'faLeftLong', color: '#ff0000'},
-    [popElmntDirections.BOTTOM_TO_TOP]: { enabled: true, icon: 'faUpLong', color: '#22d933'},
-    [popElmntDirections.TOP_TO_BOTTOM]: { enabled: true, icon: 'faDownLong', color: '#2665ea'},
-    [popElmntDirections.LEFT_TO_RIGHT]: { enabled: true, icon: 'faRightLong', color: '#eacf26'},
+    [popElmntDirections.RIGHT_TO_LEFT]: { enabled: true, icon: 'faLeftLong', color: '#ff0000', position: 0},
+    [popElmntDirections.BOTTOM_TO_TOP]: { enabled: true, icon: 'faUpLong', color: '#22d933', position: 1},
+    [popElmntDirections.TOP_TO_BOTTOM]: { enabled: true, icon: 'faDownLong', color: '#2665ea', position: 2},
+    [popElmntDirections.LEFT_TO_RIGHT]: { enabled: true, icon: 'faRightLong', color: '#eacf26', position: 3},
 };
 
 export const menuSettingsDEFAULT = {
     mainMenuRandomColors: true,
     menuBackgroundColor: '#ffffff',
     availableModes: deepCopy(availableModes),
+    enableModesRandomPos: true,
 };
 
 const normalPopElmntSettings = {

@@ -129,6 +129,11 @@
                     <input id="modeRandomColorsCheckbox" type="checkbox" bind:checked={$menuSettings.mainMenuRandomColors} on:input={updatePreferences}>
                 </div>
 
+                <div class="checkbox-flex">
+                    <label for="randomModePosCheckbox">Randomize mode positions:</label>
+                    <input id="randomModePosCheckbox" type="checkbox" bind:checked={$menuSettings.enableModesRandomPos} on:input={updatePreferences}>
+                </div>
+
                 <div class="color-flex">
                     <label for="menuBackgroundColor">Main menu background color:</label>
                     <input id="menuBackgroundColor" class="color-input" type="color" bind:value={$menuSettings.menuBackgroundColor} on:input={updatePreferences}>

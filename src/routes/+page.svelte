@@ -1,5 +1,5 @@
 <script>
-    import { menuSettings, appSettings, user, gameDirection, isIphone, modifyingConfig, subjectName, popElmntDirections, localUserId, isLoggedIn, gameId } from "../stores";
+    import { menuSettings, appSettings, user, gameDirection, isIphone, modifyingConfig, subjectName, popElmntDirections, localUserId, isLoggedIn, gameId, availableModes } from "../stores";
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
     import { TrainerButton, Fa } from 'inca-utils';
@@ -9,6 +9,7 @@
     import { addLog } from "$lib/logService";
 
     let fullscreen;
+    let orderedModes = Object.keys($menuSettings.availableModes).sort((a, b) => availableModes[a].position - availableModes[b].position);
 
     onMount(async () => {
         ({fullscreen} = await import('inca-utils/api'));
@@ -26,6 +27,19 @@
                 $menuSettings.availableModes[mode].color = getRandomHexColor();
             });
         }
+        if($menuSettings.enableModesRandomPos){
+            const modeKeys = Object.keys($menuSettings.availableModes);
+            const positions = Array.from({ length: modeKeys.length }, (_, index) => index);
+            // Shuffle the positions array randomly
+            for (let i = positions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [positions[i], positions[j]] = [positions[j], positions[i]];
+            }
+            modeKeys.forEach((mode, index) => {
+                $menuSettings.availableModes[mode].position = positions[index];
+            });
+        }
+        orderedModes = Object.keys($menuSettings.availableModes).sort((a, b) => $menuSettings.availableModes[a].position - $menuSettings.availableModes[b].position);
     }
 
     function setGeneralLogs(action){
@@ -45,8 +59,11 @@
 
     async function handleClick(event){
         startGame(event.detail);
-        const gameStartedLog = {...setGeneralLogs('Game started'), details: {gameMode: event.detail, menuBackgroundColor: $menuSettings.menuBackgroundColor, color: $menuSettings.availableModes[event.detail].color, gameId: $gameId}};
+        const gameStartedLog = {
+            ...setGeneralLogs('Game started'), 
+            details: {gameMode: event.detail, menuBackgroundColor: $menuSettings.menuBackgroundColor, color: $menuSettings.availableModes[event.detail].color, gameId: $gameId, position: $menuSettings.availableModes[event.detail].position}};
         addLog(gameStartedLog);
+        console.log($menuSettings.availableModes[event.detail].position)
     }
 
     async function handleBackgroundClick(event){
@@ -142,7 +159,7 @@
             </nav>
         </header>
         <div class="game-modes">
-            {#each Object.values(popElmntDirections) as mode}
+            {#each orderedModes as mode}
                 {#if $menuSettings.availableModes[mode].enabled}
                     <StaticBalloon 
                         on:modeClicked={handleClick}
