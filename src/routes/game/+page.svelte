@@ -236,7 +236,7 @@
             currentRampageChain: currentRampageChain,
             rampageChainForExcellent: rampageModeChain,
             gameBackgroundColor: gameBackgroundColor,
-            gameDirection: currentGameDirection,
+            gameMode: gameMode,
             ...specialDetails,
             ...onScreenElmntsLogs,
             gameId: actualGameId,
@@ -251,7 +251,7 @@
             x: event.clientX,
             y: event.clientY,
             gameBackgroundColor: gameBackgroundColor,
-            gameDirection: currentGameDirection,
+            gameMode: gameMode,
             ...onScreenElmntsLogs,
             gameId: actualGameId,
         }
@@ -275,7 +275,7 @@
         );
         const detailLogs = {
             gameBackgroundColor: gameBackgroundColor,
-            gameDirection: currentGameDirection,
+            gameMode: gameMode,
             ...onScreenElmntsLogs,
             ...poppedStatsLogs,
             ...totalStatsLogs,
@@ -303,6 +303,7 @@
             ...totalStatsLogs,
             endCondition: condition,
             gameId: actualGameId,
+            gameMode: gameMode,
         }
         return {...generalLogs, details: detailLogs};
     }
