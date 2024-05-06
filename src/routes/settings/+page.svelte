@@ -1,5 +1,5 @@
 <script>
-    import { gameSettings, appSettings, menuSettings, isLoggedIn, user, isFullScreen, menuSettingsDEFAULT, appSettingsDEFAULT, gameSettingsDEFAULT, subjectName, popElmntDirections, localUserId } from '../../stores.js';
+    import { gameSettings, appSettings, menuSettings, isLoggedIn, user, isFullScreen, menuSettingsDEFAULT, appSettingsDEFAULT, gameSettingsDEFAULT, subjectName, popElmntDirections, localUserId, modifyingConfig } from '../../stores.js';
     import { deepCopy, toCamelCase, capitalizeFirstLetter } from '$lib/utils.js'
     import { Fa } from 'inca-utils';
     import { faFileArrowDown } from '@fortawesome/free-solid-svg-icons';
@@ -14,6 +14,14 @@
 	import GameModesTabs from '../../components/settings/game/GameModesTabs.svelte';
     
     const { debounce } = lodash;
+    let modesByPositions = {};
+    let positionByModes = {};
+
+    $:{
+        if(!$modifyingConfig){
+            handleAuthFinally();
+        }
+    }
 
     function handleRemoteJsonDownload (){
         if ($isLoggedIn && $user) downloadLogs('json', $user.uid);
@@ -70,6 +78,30 @@
         }
     }
 
+    function handleAuthFinally(){
+        modesByPositions = Object.fromEntries(Object.keys($menuSettings.availableModes).map(mode => [$menuSettings.availableModes[mode].position, mode]));
+        positionByModes = Object.fromEntries(Object.keys($menuSettings.availableModes).map(mode => [mode, $menuSettings.availableModes[mode].position]));
+    }
+
+    function managePositionChange(newModeInPos){
+        if($menuSettings.enableModesRandomPos || Object.keys(modesByPositions).length === 0 || Object.keys(positionByModes).length === 0) return;
+        
+        const newPosition = $menuSettings.availableModes[newModeInPos].position;
+        const oldModeInPos = modesByPositions[newPosition];
+        const oldPos = positionByModes[newModeInPos];
+
+        // Update position of the mode that was in the new position
+        $menuSettings.availableModes[oldModeInPos].position = oldPos;
+
+        modesByPositions[newPosition] = newModeInPos;
+        positionByModes[newModeInPos] = newPosition;
+        modesByPositions[oldPos] = oldModeInPos;
+        positionByModes[oldModeInPos] = oldPos;
+
+        updatePreferences();
+    }
+
+    const handlePositionChange = debounce((NewModeInPos) => managePositionChange(NewModeInPos), 1500);
     const handleSaveSubject = debounce(saveSubjectName, 1500);
     const handleSaveInstructor = debounce(saveInstructorName, 1500);
 </script>
@@ -119,6 +151,15 @@
                                     <label for={"gameMode" + mode + "ColorInput"}>Color:</label>
                                     <input id={"gameMode" + mode + "ColorInput"} class="color-input" type="color" bind:value={$menuSettings.availableModes[mode].color} on:input={updatePreferences}>
                                 </div>
+                            {/if}
+
+                            {#if !$menuSettings.enableModesRandomPos}
+                                <label for={"gameMode" + mode + "PositionSelect"}>Position:</label>
+                                <select id={"gameMode" + mode + "PositionSelect"} bind:value={$menuSettings.availableModes[mode].position} on:input={() => handlePositionChange(mode)}>
+                                    {#each Object.keys($menuSettings.availableModes) as position, index}
+                                        <option value={index}>{index}</option>
+                                    {/each}
+                                </select>
                             {/if}
                         </div>
                     {/each}
