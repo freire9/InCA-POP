@@ -115,9 +115,39 @@ export const availableModes = {
     [popElmntDirections.LEFT_TO_RIGHT]: { enabled: true, icon: 'faRightLong', color: '#eacf26', position: 3},
 };
 
+export const availableColorsNames = {
+    RED: 'red',
+    GREEN: 'green',
+    BLUE: 'blue',
+    YELLOW: 'yellow',
+    ORANGE: 'orange',
+    PURPLE: 'purple',
+    CYAN: 'cyan',
+    MAGENTA: 'magenta',
+    BLACK: 'black',
+    WHITE: 'white',
+    GRAY: 'gray',
+}
+
+export const colorsPaletteArray = [
+    {name: availableColorsNames.RED, value: '#ff0000'},
+    {name: availableColorsNames.GREEN, value: '#00ff00'},
+    {name: availableColorsNames.BLUE, value: '#0000ff'},
+    {name: availableColorsNames.YELLOW, value: '#ffff00'},
+    {name: availableColorsNames.ORANGE, value: '#ff7f00'},
+    {name: availableColorsNames.PURPLE, value: '#7f00ff'},
+    {name: availableColorsNames.CYAN, value: '#00ffff'},
+    {name: availableColorsNames.MAGENTA, value: '#ff00ff'},
+    {name: availableColorsNames.BLACK, value: '#000000'},
+    {name: availableColorsNames.WHITE, value: '#ffffff'},
+    {name: availableColorsNames.GRAY, value: '#808080'},
+]
+
+const colorsPaletteObj = Object.fromEntries(colorsPaletteArray.map(color => [color.name, color.value]));
+
 export const menuSettingsDEFAULT = {
     mainMenuRandomColors: true,
-    menuBackgroundColor: '#ffffff',
+    menuBackgroundColor: colorsPaletteObj[availableColorsNames.WHITE],
     availableModes: deepCopy(availableModes),
     enableModesRandomPos: true,
 };

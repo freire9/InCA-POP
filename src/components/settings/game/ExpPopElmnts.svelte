@@ -3,6 +3,7 @@
     import { calculateInterpolatedColors, capitalizeFirstLetter } from "$lib/utils";
     import { gameSettings, popElmntInnerFigs, popElmntTypes } from "../../../stores";
     import lodash from 'lodash';
+	import ColorPicker from "../ColorPicker.svelte";
     
     const { debounce } = lodash;
     export let gameMode;
@@ -45,21 +46,11 @@
     </div>
 
     {#if !$gameSettings[gameMode].popElmntConfig[popElmntTypes.EXP].enableRangeColor}
-        <div class="color-flex">
-            <label for="expPopElmntColorInput">{expLabelUp} {expPopElmntLabel} color:</label>
-            <input id="expPopElmntColorInput" class="color-input" type="color" bind:value={$gameSettings[gameMode].popElmntConfig[popElmntTypes.EXP].color} on:input={updatePreferences}>
-        </div>
+        <ColorPicker id={"expPopElmntColorInput"} label={expLabelUp + " " + expPopElmntLabel + " color:"} bind:value={$gameSettings[gameMode].popElmntConfig[popElmntTypes.EXP].color} on:input={updatePreferences}/>
     {:else}
         <div class="pop-elmnt-range-color-container">
-            <div class="color-flex">
-                <label for="expColor1RangeInput">{expLabelUp} color 1:</label>
-                <input id="expColor1RangeInput" class="color-input" type="color" bind:value={$gameSettings[gameMode].popElmntConfig[popElmntTypes.EXP].rangeColor1} on:input={handleColorChange} />
-            </div>
-
-            <div class="color-flex">
-                <label for="expColor2RangeInput">{expLabelUp} color 2:</label>
-                <input id="expColor2RangeInput" class="color-input" type="color" bind:value={$gameSettings[gameMode].popElmntConfig[popElmntTypes.EXP].rangeColor2} on:input={handleColorChange} />
-            </div>
+            <ColorPicker id={"expColor1RangeInput"} label={expLabelUp + " color 1:"} bind:value={$gameSettings[gameMode].popElmntConfig[popElmntTypes.EXP].rangeColor1} on:input={handleColorChange}/>
+            <ColorPicker id={"expColor2RangeInput"} label={expLabelUp + " color 2:"} bind:value={$gameSettings[gameMode].popElmntConfig[popElmntTypes.EXP].rangeColor2} on:input={handleColorChange}/>
 
             <div class="range-input">
                 <label for="expDefinitionInput">{expLabelUp} definition:</label>
@@ -96,14 +87,9 @@
 </div>
 {#if $gameSettings[gameMode].popElmntConfig[popElmntTypes.EXP].enableInnerFigRangeColor}
     <div class="inner-fig-range-color-container">
-        <div class="color-flex">
-            <label for="color1ExpInnerFigRangeInput">{expLabelUp} inner figure color 1:</label>
-            <input id="color1ExpInnerFigRangeInput" class="color-input" type="color" bind:value={$gameSettings[gameMode].popElmntConfig[popElmntTypes.EXP].innerFigRangeColor1} on:input={handleExpInnerFigColorChange}>
-        </div>
-        <div class="color-flex">
-            <label for="color2ExpInnerFigRangeInput">{expLabelUp} inner figure color 2:</label>
-            <input id="color2ExpInnerFigRangeInput" class="color-input" type="color" bind:value={$gameSettings[gameMode].popElmntConfig[popElmntTypes.EXP].innerFigRangeColor2} on:input={handleExpInnerFigColorChange}>
-        </div>
+        <ColorPicker id={"color1ExpInnerFigRangeInput"} label={expLabelUp + " inner figure color 1:"} bind:value={$gameSettings[gameMode].popElmntConfig[popElmntTypes.EXP].innerFigRangeColor1} on:input={handleExpInnerFigColorChange}/>
+        <ColorPicker id={"color2ExpInnerFigRangeInput"} label={expLabelUp + " inner figure color 2:"} bind:value={$gameSettings[gameMode].popElmntConfig[popElmntTypes.EXP].innerFigRangeColor2} on:input={handleExpInnerFigColorChange}/>
+
         <div class="range-input">
             <label for="definitionExpInnerFigColorInput">{expLabelUp} inner figure definition:</label>
             <p>{$gameSettings[gameMode].popElmntConfig[popElmntTypes.EXP].innerFigColorRangeDef}</p>
@@ -117,10 +103,7 @@
         </div>
     </div>
 {:else}
-    <div class="color-flex">
-        <label for="expPopElmntInnerFigColorInput">{expLabelUp} {expPopElmntLabel} inner figure color:</label>
-        <input id="expPopElmntInnerFigColorInput" class="color-input" type="color" bind:value={$gameSettings[gameMode].popElmntConfig[popElmntTypes.EXP].innerFigColor} on:input={updatePreferences}>
-    </div>
+    <ColorPicker id={"expPopElmntInnerFigColorInput"} label={expLabelUp + " " + expPopElmntLabel + " inner figure color:"} bind:value={$gameSettings[gameMode].popElmntConfig[popElmntTypes.EXP].innerFigColor} on:input={updatePreferences}/>
 {/if}
 
 <style>
@@ -148,21 +131,10 @@
     .range-input label{
         margin: 0px;
     }
-    input.color-input{
-        border: 1px solid black;
-    }
     .checkbox-flex{
         display: flex;
         align-items: baseline;
         gap: 10px;
-    }
-    .color-flex{
-        display: flex;
-        align-items: flex-end;
-        gap: 10px;
-    }
-    .color-flex label{
-        margin-bottom: 0px;
     }
     label{
         margin-top: 25px;

@@ -14,6 +14,7 @@
     import GameModesTabs from '../../components/settings/game/GameModesTabs.svelte';
 	import { updateRemotePreferences } from '$lib/firebaseFunctions.js';
 	import { updateLocalPreferences } from '$lib/localPreferences.js';
+    import ColorPicker from '../../components/settings/ColorPicker.svelte';
     
     const { debounce } = lodash;
     let modesByPositions = {};
@@ -141,6 +142,7 @@
             <GameModesTabs />
     
             <h2>Main menu</h2>
+
             <p>Game modes to display (direction of pop elements):</p>
             <div class="flex-column">
                 <div class="game-modes-container">
@@ -150,10 +152,7 @@
                             <input id={"gameMode" + toCamelCase(mode) + "Checkbox"} type="checkbox" bind:checked={$menuSettings.availableModes[mode].enabled} on:input={updatePreferences}>
         
                             {#if !$menuSettings.mainMenuRandomColors}
-                                <div class="color-flex">
-                                    <label for={"gameMode" + mode + "ColorInput"}>Color:</label>
-                                    <input id={"gameMode" + mode + "ColorInput"} class="color-input" type="color" bind:value={$menuSettings.availableModes[mode].color} on:input={updatePreferences}>
-                                </div>
+                                <ColorPicker id={"gameMode" + mode + "ColorInput"} label={"Color:"} bind:value={$menuSettings.availableModes[mode].color} on:input={updatePreferences}/>
                             {/if}
 
                             {#if !$menuSettings.enableModesRandomPos}
@@ -178,10 +177,7 @@
                     <input id="randomModePosCheckbox" type="checkbox" bind:checked={$menuSettings.enableModesRandomPos} on:input={updatePreferences}>
                 </div>
 
-                <div class="color-flex">
-                    <label for="menuBackgroundColor">Main menu background color:</label>
-                    <input id="menuBackgroundColor" class="color-input" type="color" bind:value={$menuSettings.menuBackgroundColor} on:input={updatePreferences}>
-                </div>
+                <ColorPicker id="mainMenuColorInput" label={"Main menu background color:"} bind:value={$menuSettings.menuBackgroundColor} on:input={updatePreferences}/>
             </div>
 
             <h2>Speeches</h2>
@@ -212,14 +208,6 @@
         align-items: baseline;
         gap: 10px;
     }
-    .color-flex{
-        display: flex;
-        align-items: flex-end;
-        gap: 10px;
-    }
-    .color-flex label{
-        margin-bottom: 0px;
-    }
     button.download-logs-btn,
     button.restore-btn{
         background-color: beige;
@@ -243,10 +231,6 @@
     button.restore-btn:focus{
         outline: none;
         box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.2);
-    }
-
-    input.color-input{
-        border: 1px solid black;
     }
     
     .remote-logs-container{

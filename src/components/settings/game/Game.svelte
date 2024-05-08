@@ -2,6 +2,7 @@
     import { updatePreferences } from "$lib/preferences";
     import { capitalizeFirstLetter, toCamelCase } from "$lib/utils";
     import { endGameConditionsOpts, endGameConditionsTooltip, gameSettings, popElmntSizes, popElmntSpeeds } from "../../../stores";
+	import ColorPicker from "../ColorPicker.svelte";
     import PopElmntsTabs from "./PopElmntsTabs.svelte";
 
     export let mode;
@@ -52,10 +53,7 @@
     <input id="enableBalloonReflex" type="checkbox" bind:checked={$gameSettings[mode].enableBalloonReflex} on:input={updatePreferences}>
 </div>
 
-<div class="color-flex">
-    <label for="gameBackgroundColorInput">Game background color:</label>
-    <input id="gameBackgroundColorInput" class="color-input" type="color" bind:value={$gameSettings[mode].gameBackgroundColor} on:input={updatePreferences}>
-</div>
+<ColorPicker id={"gameBackgroundColorInput"} label={"Game background color:"} bind:value={$gameSettings[mode].gameBackgroundColor} on:input={updatePreferences}/>
 
 <div class="end-game-container">
     <h3>End game conditions</h3>
@@ -103,13 +101,5 @@
     }
     .end-game-container{
         margin-top: 25px;
-    }
-    .color-flex{
-        display: flex;
-        align-items: flex-end;
-        gap: 10px;
-    }
-    .color-flex label{
-        margin-bottom: 0px;
     }
 </style>
