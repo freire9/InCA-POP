@@ -1,5 +1,5 @@
 <script>
-    import { gameSettings, appSettings, menuSettings, isLoggedIn, user, isFullScreen, menuSettingsDEFAULT, appSettingsDEFAULT, gameSettingsDEFAULT, subjectName, popElmntDirections, localUserId } from '../../stores.js';
+    import { gameSettings, appSettings, menuSettings, isLoggedIn, user, isFullScreen, menuSettingsDEFAULT, appSettingsDEFAULT, gameSettingsDEFAULT, subjectName, popElmntDirections, localUserId, modifyingConfig, syncPreferencesFromRemote } from '../../stores.js';
     import { deepCopy, toCamelCase, capitalizeFirstLetter } from '$lib/utils.js'
     import { Fa } from 'inca-utils';
     import { faFileArrowDown } from '@fortawesome/free-solid-svg-icons';
@@ -11,9 +11,19 @@
     import { arrayUnion, doc, getDoc, updateDoc } from 'firebase/firestore';
     import { db, dbUsersCollectionName } from '$lib/firebaseConfig.js';
     import { updatePreferences } from '$lib/preferences.js';
-	import GameModesTabs from '../../components/settings/game/GameModesTabs.svelte';
+    import GameModesTabs from '../../components/settings/game/GameModesTabs.svelte';
+	import { updateRemotePreferences } from '$lib/firebaseFunctions.js';
+	import { updateLocalPreferences } from '$lib/localPreferences.js';
     
     const { debounce } = lodash;
+    let modesByPositions = {};
+    let positionByModes = {};
+
+    $:{
+        if(!$modifyingConfig){
+            handleAuthFinally();
+        }
+    }
 
     function handleRemoteJsonDownload (){
         if ($isLoggedIn && $user) downloadLogs('json', $user.uid);
@@ -70,11 +80,36 @@
         }
     }
 
+    function handleAuthFinally(){
+        modesByPositions = Object.fromEntries(Object.keys($menuSettings.availableModes).map(mode => [$menuSettings.availableModes[mode].position, mode]));
+        positionByModes = Object.fromEntries(Object.keys($menuSettings.availableModes).map(mode => [mode, $menuSettings.availableModes[mode].position]));
+    }
+
+    function managePositionChange(newModeInPos){
+        if($menuSettings.enableModesRandomPos || Object.keys(modesByPositions).length === 0 || Object.keys(positionByModes).length === 0) return;
+        
+        const newPosition = $menuSettings.availableModes[newModeInPos].position;
+        const oldModeInPos = modesByPositions[newPosition];
+        const oldPos = positionByModes[newModeInPos];
+
+        // Update position of the mode that was in the new position
+        $menuSettings.availableModes[oldModeInPos].position = oldPos;
+
+        modesByPositions[newPosition] = newModeInPos;
+        positionByModes[newModeInPos] = newPosition;
+        modesByPositions[oldPos] = oldModeInPos;
+        positionByModes[oldModeInPos] = oldPos;
+        
+        if($syncPreferencesFromRemote && $isLoggedIn && $user) updateRemotePreferences();
+        else updateLocalPreferences();
+    }
+
+    const handlePositionChange = debounce((NewModeInPos) => managePositionChange(NewModeInPos), 1500);
     const handleSaveSubject = debounce(saveSubjectName, 1500);
     const handleSaveInstructor = debounce(saveInstructorName, 1500);
 </script>
 
-<div class="settings {$isFullScreen ? 'fullscreen' : ''}">
+<div class="settings not-selectable {$isFullScreen ? 'fullscreen' : ''}">
 
     <UserNavBar />
     <main>
@@ -120,6 +155,15 @@
                                     <input id={"gameMode" + mode + "ColorInput"} class="color-input" type="color" bind:value={$menuSettings.availableModes[mode].color} on:input={updatePreferences}>
                                 </div>
                             {/if}
+
+                            {#if !$menuSettings.enableModesRandomPos}
+                                <label for={"gameMode" + mode + "PositionSelect"}>Position:</label>
+                                <select id={"gameMode" + mode + "PositionSelect"} bind:value={$menuSettings.availableModes[mode].position} on:input={() => handlePositionChange(mode)}>
+                                    {#each Object.keys($menuSettings.availableModes) as position, index}
+                                        <option value={index}>{index}</option>
+                                    {/each}
+                                </select>
+                            {/if}
                         </div>
                     {/each}
                 </div>
@@ -127,6 +171,11 @@
                 <div class="checkbox-flex">
                     <label for="modeRandomColorsCheckbox">Enable random colors in mode representations:</label>
                     <input id="modeRandomColorsCheckbox" type="checkbox" bind:checked={$menuSettings.mainMenuRandomColors} on:input={updatePreferences}>
+                </div>
+
+                <div class="checkbox-flex">
+                    <label for="randomModePosCheckbox">Randomize mode positions:</label>
+                    <input id="randomModePosCheckbox" type="checkbox" bind:checked={$menuSettings.enableModesRandomPos} on:input={updatePreferences}>
                 </div>
 
                 <div class="color-flex">

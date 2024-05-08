@@ -42,7 +42,6 @@ export function setLocalPreferencesToStores(){
         updatedLocalGameSettings[mode] = updatedGameSettingsMode;
         if(modeSettingsHasChanged) {
             gameSettingsHasChanged = true;
-            console.log('cambio detectado en modo', mode)
         }
      });
     gameSettings.set(updatedLocalGameSettings);

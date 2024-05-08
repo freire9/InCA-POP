@@ -80,3 +80,10 @@ export function toCamelCase(str) {
         return char.toUpperCase();
     }).replace(/[\s_-]+/g, '');
 }
+
+// Function to get a random integer between two values
+export function getRandomIntInclusive(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1) + min);
+}

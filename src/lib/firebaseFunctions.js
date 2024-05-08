@@ -50,7 +50,6 @@ export function syncPreferencesToStores(userData) {
             updatedGameSettings[mode] = updatedGameSettingsMode;
             if(modeSettingsHasChanged) {
                 gameSettingsHasChanged = true;
-                console.log('cambio remoto detectado en modo', mode)
             }
         });
         
