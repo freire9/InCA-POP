@@ -1,5 +1,5 @@
 <script>
-    import { gameSettings, appSettings, menuSettings, isLoggedIn, user, isFullScreen, menuSettingsDEFAULT, appSettingsDEFAULT, gameSettingsDEFAULT, subjectName, popElmntDirections, localUserId, modifyingConfig } from '../../stores.js';
+    import { gameSettings, appSettings, menuSettings, isLoggedIn, user, isFullScreen, menuSettingsDEFAULT, appSettingsDEFAULT, gameSettingsDEFAULT, subjectName, popElmntDirections, localUserId, modifyingConfig, syncPreferencesFromRemote } from '../../stores.js';
     import { deepCopy, toCamelCase, capitalizeFirstLetter } from '$lib/utils.js'
     import { Fa } from 'inca-utils';
     import { faFileArrowDown } from '@fortawesome/free-solid-svg-icons';
@@ -11,7 +11,9 @@
     import { arrayUnion, doc, getDoc, updateDoc } from 'firebase/firestore';
     import { db, dbUsersCollectionName } from '$lib/firebaseConfig.js';
     import { updatePreferences } from '$lib/preferences.js';
-	import GameModesTabs from '../../components/settings/game/GameModesTabs.svelte';
+    import GameModesTabs from '../../components/settings/game/GameModesTabs.svelte';
+	import { updateRemotePreferences } from '$lib/firebaseFunctions.js';
+	import { updateLocalPreferences } from '$lib/localPreferences.js';
     
     const { debounce } = lodash;
     let modesByPositions = {};
@@ -97,8 +99,9 @@
         positionByModes[newModeInPos] = newPosition;
         modesByPositions[oldPos] = oldModeInPos;
         positionByModes[oldModeInPos] = oldPos;
-
-        updatePreferences();
+        
+        if($syncPreferencesFromRemote && $isLoggedIn && $user) updateRemotePreferences();
+        else updateLocalPreferences();
     }
 
     const handlePositionChange = debounce((NewModeInPos) => managePositionChange(NewModeInPos), 1500);
@@ -106,7 +109,7 @@
     const handleSaveInstructor = debounce(saveInstructorName, 1500);
 </script>
 
-<div class="settings {$isFullScreen ? 'fullscreen' : ''}">
+<div class="settings not-selectable {$isFullScreen ? 'fullscreen' : ''}">
 
     <UserNavBar />
     <main>

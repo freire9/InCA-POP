@@ -63,7 +63,6 @@
             ...setGeneralLogs('Game started'), 
             details: {gameMode: event.detail, menuBackgroundColor: $menuSettings.menuBackgroundColor, color: $menuSettings.availableModes[event.detail].color, gameId: $gameId, position: $menuSettings.availableModes[event.detail].position}};
         addLog(gameStartedLog);
-        console.log($menuSettings.availableModes[event.detail].position)
     }
 
     async function handleBackgroundClick(event){
