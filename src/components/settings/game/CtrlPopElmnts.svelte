@@ -131,21 +131,10 @@
     .range-input label{
         margin: 0px;
     }
-    input.color-input{
-        border: 1px solid black;
-    }
     .checkbox-flex{
         display: flex;
         align-items: baseline;
         gap: 10px;
-    }
-    .color-flex{
-        display: flex;
-        align-items: flex-end;
-        gap: 10px;
-    }
-    .color-flex label{
-        margin-bottom: 0px;
     }
     label{
         margin-top: 25px;
