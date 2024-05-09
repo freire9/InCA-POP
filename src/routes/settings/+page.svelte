@@ -147,7 +147,7 @@
             <div class="flex-column">
                 <div class="game-modes-container">
                     {#each Object.values(popElmntDirections) as mode}
-                        <div class="checkbox-flex">
+                        <div class="game-mode-row">
                             <label for={"gameMode" + toCamelCase(mode) + "Checkbox"}>{capitalizeFirstLetter(mode)}:</label>
                             <input id={"gameMode" + toCamelCase(mode) + "Checkbox"} type="checkbox" bind:checked={$menuSettings.availableModes[mode].enabled} on:input={updatePreferences}>
         
@@ -189,6 +189,13 @@
 </div>
 
 <style>
+    .game-mode-row{
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 12px;
+        margin-bottom: 12px;
+    }
     .fullscreen{
         height: 100vh;
         overflow: auto;

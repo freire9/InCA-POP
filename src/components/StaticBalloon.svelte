@@ -74,6 +74,7 @@
     }
     .balloon span{
         font-size: calc(var(--balloon-width) * 0.5);
+        filter: drop-shadow(0 0 0.07rem white);
     }
     button:focus-visible,
     button:focus-visible::before{

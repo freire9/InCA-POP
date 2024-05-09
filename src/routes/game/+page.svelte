@@ -97,10 +97,10 @@
 
         const color = popElmntConfig[type].enableRandColor ?
             getRandomColorFromPalette() :
-            (popElmntConfig[type].enableRangeColor ? getRandomFrom(popElmntConfig[type].interpColors) : popElmntConfig[type].color);
+            ((false && popElmntConfig[type].enableRangeColor) ? getRandomFrom(popElmntConfig[type].interpColors) : popElmntConfig[type].color);
 
         const innerFigColor = isSpecial ? 
-            (popElmntConfig[type].enableInnerFigRangeColor ? getRandomFrom(popElmntConfig[type].innerFigInterpColors) : popElmntConfig[type].innerFigColor)
+            ((false && popElmntConfig[type].enableInnerFigRangeColor) ? getRandomFrom(popElmntConfig[type].innerFigInterpColors) : popElmntConfig[type].innerFigColor)
             : '';
 
         popElmnts.push(
@@ -130,10 +130,10 @@
 
             const color = popElmntConfig[type].enableRandColor ?
                 getRandomColorFromPalette()
-                : (popElmntConfig[type].enableRangeColor ? getRandomFrom(popElmntConfig[type].interpColors) : popElmntConfig[type].color);
+                : ((false && popElmntConfig[type].enableRangeColor) ? getRandomFrom(popElmntConfig[type].interpColors) : popElmntConfig[type].color);
             
             const innerFigColor = isSpecial ? 
-                (popElmntConfig[type].enableInnerFigRangeColor ? getRandomFrom(popElmntConfig[type].innerFigInterpColors) : popElmntConfig[type].innerFigColor)
+                ((false && popElmntConfig[type].enableInnerFigRangeColor) ? getRandomFrom(popElmntConfig[type].innerFigInterpColors) : popElmntConfig[type].innerFigColor)
                 : '';
 
             if(isSpecial){

@@ -39,20 +39,22 @@
     ];
 </script>
   
-<ul>
+<div>
+    <ul>
+        {#each tabs as tab}
+            <li class={activeTabValue === tab.value ? 'active' : ''}>
+                <button on:click={handleClick(tab.value)}>{tab.label}</button>
+            </li>
+        {/each}
+    </ul>
     {#each tabs as tab}
-        <li class={activeTabValue === tab.value ? 'active' : ''}>
-            <button on:click={handleClick(tab.value)}>{tab.label}</button>
-        </li>
+        {#if activeTabValue == tab.value}
+            <div class="box">
+                <svelte:component this={tab.component} gameMode={gameMode}/>
+            </div>
+        {/if}
     {/each}
-</ul>
-{#each tabs as tab}
-    {#if activeTabValue == tab.value}
-        <div class="box">
-            <svelte:component this={tab.component} gameMode={gameMode}/>
-        </div>
-    {/if}
-{/each}
+</div>
 
 <style>
     .box {
@@ -69,6 +71,10 @@
         margin-bottom: 0;
         list-style: none;
         border-bottom: 1px solid #dee2e6;
+        position: sticky;
+        top: 65px;
+        background-color: white;
+        z-index: 1;
     }
     li {
         margin-bottom: -1px;
