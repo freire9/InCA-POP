@@ -27,14 +27,16 @@
 </div>
 
 {#if !$gameSettings[gameMode].popElmntConfig[popElmntTypes.NORMAL].enableRandColor}
-    <div class="checkbox-flex">
-        <label for="normalColorRangeCheckbox">Enable {normalLabel} {normalPopElmntLabel} range color?</label>
-        <input id="normalColorRangeCheckbox" type="checkbox" bind:checked={$gameSettings[gameMode].popElmntConfig[popElmntTypes.NORMAL].enableRangeColor} on:input={updatePreferences}>
-    </div>
+    {#if false}
+        <div class="checkbox-flex">
+            <label for="normalColorRangeCheckbox">Enable {normalLabel} {normalPopElmntLabel} range color?</label>
+            <input id="normalColorRangeCheckbox" type="checkbox" bind:checked={$gameSettings[gameMode].popElmntConfig[popElmntTypes.NORMAL].enableRangeColor} on:input={updatePreferences}>
+        </div>
+    {/if}
 
     {#if !$gameSettings[gameMode].popElmntConfig[popElmntTypes.NORMAL].enableRangeColor}
         <ColorPicker id={"normalPopElmntColorInput"} label={normalLabelUp + " " + normalPopElmntLabel + " color:"} bind:value={$gameSettings[gameMode].popElmntConfig[popElmntTypes.NORMAL].color} on:input={updatePreferences}/>
-    {:else}
+    {:else if false}
         <div class="pop-elmnt-range-color-container">
             <ColorPicker id={"normalColor1RangeInput"} label={normalLabelUp + " color 1:"} bind:value={$gameSettings[gameMode].popElmntConfig[popElmntTypes.NORMAL].rangeColor1} on:input={handleColorChange}/>
             <ColorPicker id={"normalColor2RangeInput"} label={normalLabelUp + " color 2:"} bind:value={$gameSettings[gameMode].popElmntConfig[popElmntTypes.NORMAL].rangeColor2} on:input={handleColorChange}/>

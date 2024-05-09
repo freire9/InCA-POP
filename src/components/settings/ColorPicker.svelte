@@ -1,7 +1,7 @@
 <script>
   import { capitalizeFirstLetter } from '$lib/utils';
 	import { createEventDispatcher } from 'svelte';
-  import { colorsPaletteArray } from '../../stores';
+  import { availableColorsNames, availableColorsOpts } from '../../stores';
 
   export let value;
   export let id;
@@ -18,8 +18,8 @@
 <div class="select-container">
     <span class="color-preview" style:background-color={value}/>
     <select id={id} bind:value={value} on:input={handleInput}>
-        {#each colorsPaletteArray as color}
-            <option value={color.value}>{capitalizeFirstLetter(color.name)}</option>
+        {#each Object.values(availableColorsNames) as colorName}
+            <option value={availableColorsOpts[colorName]}>{capitalizeFirstLetter(colorName)}</option>
         {/each}
     </select>
 </div>

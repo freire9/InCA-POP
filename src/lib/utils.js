@@ -1,4 +1,4 @@
-import { isFullScreen } from "../stores";
+import { availableColorsNames, availableColorsOpts, isFullScreen } from "../stores";
 
 // Function to calculate the interpolated colors between two colors
 export function calculateInterpolatedColors(steps, color1, color2) {
@@ -43,6 +43,12 @@ export function getRandomHexColor(){
     const rgbColor = {r: red, g: green, b: blue};
     const rgbToHex = rgb => `#${Math.round(rgb.r).toString(16).padStart(2, '0')}${Math.round(rgb.g).toString(16).padStart(2, '0')}${Math.round(rgb.b).toString(16).padStart(2, '0')}`;
     return rgbToHex(rgbColor);
+}
+
+// Function to get a random color from palette
+export function getRandomColorFromPalette(){
+    const randomColorName = getRandomFrom(Object.values(availableColorsNames));
+    return availableColorsOpts[randomColorName];
 }
 
 // Function to deep copy an object

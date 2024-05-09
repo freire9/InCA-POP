@@ -1,7 +1,7 @@
 <script>
     import Balloon from '../../components/Balloon.svelte';;
     import { onDestroy, onMount } from 'svelte';
-    import { capitalizeFirstLetter, getRandomFrom, getRandomHexColor } from '$lib/utils';
+    import { capitalizeFirstLetter, getRandomColorFromPalette, getRandomFrom } from '$lib/utils';
     import { addLog } from "$lib/logService";
     import { appSettings, gameSettings, user, popElmntSizeOpts, gameDirection, subjectName, popElmntShapes, popElmntTypes, popElmntSpeedsOpts, popElmntDirections, localUserId, isLoggedIn, endGameConditionsOpts, gameId } from '../../stores.js';
     import SubjectNavBar from '../../components/SubjectNavBar.svelte';
@@ -96,7 +96,7 @@
         const shape = popElmntConfig[type].shape;
 
         const color = popElmntConfig[type].enableRandColor ?
-            getRandomHexColor() :
+            getRandomColorFromPalette() :
             (popElmntConfig[type].enableRangeColor ? getRandomFrom(popElmntConfig[type].interpColors) : popElmntConfig[type].color);
 
         const innerFigColor = isSpecial ? 
@@ -129,7 +129,7 @@
             const shape = popElmntConfig[type].shape;
 
             const color = popElmntConfig[type].enableRandColor ?
-                getRandomHexColor()
+                getRandomColorFromPalette()
                 : (popElmntConfig[type].enableRangeColor ? getRandomFrom(popElmntConfig[type].interpColors) : popElmntConfig[type].color);
             
             const innerFigColor = isSpecial ? 

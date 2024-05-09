@@ -40,14 +40,16 @@
 </div>
 
 {#if !$gameSettings[gameMode].popElmntConfig[popElmntTypes.CTRL].enableRandColor}
-    <div class="checkbox-flex">
-        <label for="ctrlColorRangeCheckbox">Enable {ctrlLabel} {ctrlPopElmntLabel} range color?</label>
-        <input id="ctrlColorRangeCheckbox" type="checkbox" bind:checked={$gameSettings[gameMode].popElmntConfig[popElmntTypes.CTRL].enableRangeColor} on:input={updatePreferences}>
-    </div>
+    {#if false}
+        <div class="checkbox-flex">
+            <label for="ctrlColorRangeCheckbox">Enable {ctrlLabel} {ctrlPopElmntLabel} range color?</label>
+            <input id="ctrlColorRangeCheckbox" type="checkbox" bind:checked={$gameSettings[gameMode].popElmntConfig[popElmntTypes.CTRL].enableRangeColor} on:input={updatePreferences}>
+        </div>
+    {/if}
 
     {#if !$gameSettings[gameMode].popElmntConfig[popElmntTypes.CTRL].enableRangeColor}
         <ColorPicker id={"ctrlPopElmntColorInput"} label={ctrlLabelUp + " " + ctrlPopElmntLabel + " color:"} bind:value={$gameSettings[gameMode].popElmntConfig[popElmntTypes.CTRL].color} on:input={updatePreferences}/>
-    {:else}
+    {:else if false}
         <div class="pop-elmnt-range-color-container">
             <ColorPicker id={"ctrlColor1RangeInput"} label={ctrlLabelUp + " color 1:"} bind:value={$gameSettings[gameMode].popElmntConfig[popElmntTypes.CTRL].rangeColor1} on:input={handleColorChange}/>
             <ColorPicker id={"ctrlColor2RangeInput"} label={ctrlLabelUp + " color 2:"} bind:value={$gameSettings[gameMode].popElmntConfig[popElmntTypes.CTRL].rangeColor2} on:input={handleColorChange}/>
@@ -81,11 +83,13 @@
     {/each}
 </select>
 
-<div class="checkbox-flex">
-    <label for="colorRangeCtrlInnerFigCheckbox">Enable {ctrlLabel} inner figure range color?</label>
-    <input id="colorRangeCtrlInnerFigCheckbox" type="checkbox" bind:checked={$gameSettings[gameMode].popElmntConfig[popElmntTypes.CTRL].enableInnerFigRangeColor} on:input={updatePreferences}>
-</div>
-{#if $gameSettings[gameMode].popElmntConfig[popElmntTypes.CTRL].enableInnerFigRangeColor}
+{#if false}
+    <div class="checkbox-flex">
+        <label for="colorRangeCtrlInnerFigCheckbox">Enable {ctrlLabel} inner figure range color?</label>
+        <input id="colorRangeCtrlInnerFigCheckbox" type="checkbox" bind:checked={$gameSettings[gameMode].popElmntConfig[popElmntTypes.CTRL].enableInnerFigRangeColor} on:input={updatePreferences}>
+    </div>
+{/if}
+{#if $gameSettings[gameMode].popElmntConfig[popElmntTypes.CTRL].enableInnerFigRangeColor && false}
     <div class="inner-fig-range-color-container">
         <ColorPicker id={"color1CtrlInnerFigRangeInput"} label={ctrlLabelUp + " inner figure color 1:"} bind:value={$gameSettings[gameMode].popElmntConfig[popElmntTypes.CTRL].innerFigRangeColor1} on:input={handleCtrlInnerFigColorChange}/>
         <ColorPicker id={"color2CtrlInnerFigRangeInput"} label={ctrlLabelUp + " inner figure color 2:"} bind:value={$gameSettings[gameMode].popElmntConfig[popElmntTypes.CTRL].innerFigRangeColor2} on:input={handleCtrlInnerFigColorChange}/>
