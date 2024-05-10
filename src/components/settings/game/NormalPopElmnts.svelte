@@ -22,15 +22,15 @@
 </script>
 
 <div class="checkbox-flex">
-    <label for="randomizeNormalColorsCheckbox">Randomize {normalLabel} {normalPopElmntLabel} colors?</label>
     <input id="randomizeNormalColorsCheckbox" type="checkbox" bind:checked={$gameSettings[gameMode].popElmntConfig[popElmntTypes.NORMAL].enableRandColor} on:input={updatePreferences}>
+    <label for="randomizeNormalColorsCheckbox">Randomize {normalLabel} {normalPopElmntLabel} colors?</label>
 </div>
 
 {#if !$gameSettings[gameMode].popElmntConfig[popElmntTypes.NORMAL].enableRandColor}
     {#if false}
         <div class="checkbox-flex">
-            <label for="normalColorRangeCheckbox">Enable {normalLabel} {normalPopElmntLabel} range color?</label>
             <input id="normalColorRangeCheckbox" type="checkbox" bind:checked={$gameSettings[gameMode].popElmntConfig[popElmntTypes.NORMAL].enableRangeColor} on:input={updatePreferences}>
+            <label for="normalColorRangeCheckbox">Enable {normalLabel} {normalPopElmntLabel} range color?</label>
         </div>
     {/if}
 

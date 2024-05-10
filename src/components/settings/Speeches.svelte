@@ -84,8 +84,8 @@
 </script>
 
 <div class="checkbox-flex">
-    <label for="enableCustomSpeechesCheckbox">Enable custom speeches:</label>
     <input id="enableCustomSpeechesCheckbox" type="checkbox" bind:checked={$appSettings.enableCustomSpeeches} on:input={updatePreferences}>
+    <label for="enableCustomSpeechesCheckbox">Enable custom speeches:</label>
 </div>
 {#if $appSettings.enableCustomSpeeches}
     <div>

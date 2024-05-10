@@ -147,10 +147,11 @@
             <div class="flex-column">
                 <div class="game-modes-container">
                     {#each Object.values(popElmntDirections) as mode}
-                        <div class="game-mode-row">
-                            <label for={"gameMode" + toCamelCase(mode) + "Checkbox"}>{capitalizeFirstLetter(mode)}:</label>
+                        <div class="checkbox-flex">
                             <input id={"gameMode" + toCamelCase(mode) + "Checkbox"} type="checkbox" bind:checked={$menuSettings.availableModes[mode].enabled} on:input={updatePreferences}>
-        
+                            <label for={"gameMode" + toCamelCase(mode) + "Checkbox"}>{capitalizeFirstLetter(mode)}:</label>
+                        </div>
+                        <div class="game-mode-extras">
                             {#if !$menuSettings.mainMenuRandomColors}
                                 <ColorPicker id={"gameMode" + mode + "ColorInput"} label={"Color:"} bind:value={$menuSettings.availableModes[mode].color} on:input={updatePreferences}/>
                             {/if}
@@ -168,13 +169,13 @@
                 </div>
     
                 <div class="checkbox-flex">
-                    <label for="modeRandomColorsCheckbox">Enable random colors in mode representations:</label>
                     <input id="modeRandomColorsCheckbox" type="checkbox" bind:checked={$menuSettings.mainMenuRandomColors} on:input={updatePreferences}>
+                    <label for="modeRandomColorsCheckbox">Enable random colors in mode representations:</label>
                 </div>
 
                 <div class="checkbox-flex">
-                    <label for="randomModePosCheckbox">Randomize mode positions:</label>
                     <input id="randomModePosCheckbox" type="checkbox" bind:checked={$menuSettings.enableModesRandomPos} on:input={updatePreferences}>
+                    <label for="randomModePosCheckbox">Randomize mode positions:</label>
                 </div>
 
                 <ColorPicker id="mainMenuColorInput" label={"Main menu background color:"} bind:value={$menuSettings.menuBackgroundColor} on:input={updatePreferences}/>
@@ -189,13 +190,6 @@
 </div>
 
 <style>
-    .game-mode-row{
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-top: 12px;
-        margin-bottom: 12px;
-    }
     .fullscreen{
         height: 100vh;
         overflow: auto;
@@ -203,9 +197,6 @@
     .flex-column{
         display: flex;
         flex-direction: column;
-    }
-    label{
-        margin-top: 25px;
     }
     main{
         padding: 2rem;
@@ -246,8 +237,16 @@
         gap: 50px;
     }
 
-    .game-modes-container{
+    .game-modes-container,
+    .game-mode-extras{
         margin-left: 30px;
+    }
+    .game-mode-extras{
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        padding-top: 12px;
+        padding-bottom: 12px;
     }
     @media (max-width: 600px) {
         button.download-logs-btn{
@@ -256,6 +255,10 @@
         .remote-logs-container{
             flex-direction: column;
             gap: 10px;
+        }
+        .game-mode-extras{
+            flex-direction: column;
+            align-items: flex-start;
         }
     }
     @media (min-width: 600px) and (max-width: 1024px) {

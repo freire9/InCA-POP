@@ -34,8 +34,8 @@
 </select>
 
 <div class="checkbox-flex">
-    <label for="enableRampageMode">Enable rampage mode (chain a number of special pop elements):</label>
     <input id="enableRampageMode" type="checkbox" bind:checked={$gameSettings[mode].enableRampageMode} on:input={updatePreferences}>
+    <label for="enableRampageMode">Enable rampage mode (chain a number of special pop elements):</label>
 </div>
 
 {#if $gameSettings[mode].enableRampageMode}
@@ -49,8 +49,8 @@
 {/if}
 
 <div class="checkbox-flex">
-    <label for="enableBalloonReflex">Enable pop element reflex effect (only aesthetic in pop element type balloon, slight discrepancies between what is seen and what is logged):</label>
     <input id="enableBalloonReflex" type="checkbox" bind:checked={$gameSettings[mode].enableBalloonReflex} on:input={updatePreferences}>
+    <label for="enableBalloonReflex">Enable pop element reflex effect (only aesthetic in pop element type balloon, slight discrepancies between what is seen and what is logged):</label>
 </div>
 
 <ColorPicker id={"gameBackgroundColorInput"} label={"Game background color:"} bind:value={$gameSettings[mode].gameBackgroundColor} on:input={updatePreferences}/>
