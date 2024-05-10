@@ -17,20 +17,22 @@
     }));
 </script>
 
-<ul>
+<div>
+    <ul>
+        {#each gameModeTabs as tab}
+            <li class={activeTabValue === tab.value ? 'active' : ''}>
+                <button on:click={handleClick(tab.value)}>{tab.label}</button>
+            </li>
+        {/each}
+    </ul>
     {#each gameModeTabs as tab}
-        <li class={activeTabValue === tab.value ? 'active' : ''}>
-            <button on:click={handleClick(tab.value)}>{tab.label}</button>
-        </li>
+        {#if activeTabValue == tab.value}
+            <div class="box">
+                <svelte:component this={tab.component} mode={tab.mode}/>
+            </div>
+        {/if}
     {/each}
-</ul>
-{#each gameModeTabs as tab}
-    {#if activeTabValue == tab.value}
-        <div class="box">
-            <svelte:component this={tab.component} mode={tab.mode}/>
-        </div>
-    {/if}
-{/each}
+</div>
 
 <style>
     .box {
@@ -47,6 +49,11 @@
         margin-bottom: 0;
         list-style: none;
         border-bottom: 1px solid #dee2e6;
+        position: sticky;
+        top: 0;
+        background-color: white;
+        z-index: 2;
+        height: 65px;
     }
     li {
         margin-bottom: -1px;
@@ -61,6 +68,7 @@
         display: block;
         padding: 0.5rem 1rem;
         cursor: pointer;
+        height: 100%;
     }
 
     button:hover {

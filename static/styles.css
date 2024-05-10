@@ -28,3 +28,8 @@ button:focus:not(:focus-visible) {
 strong {
     all: revert;
 }
+select,
+input{
+    max-width: 80% !important;
+    width: max-content !important;
+}

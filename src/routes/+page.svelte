@@ -4,7 +4,7 @@
     import { onMount } from "svelte";
     import { TrainerButton, Fa } from 'inca-utils';
     import { faGear, faExpand, faInfo, faLeftLong, faRightLong, faUpLong, faDownLong } from '@fortawesome/free-solid-svg-icons';
-    import { getRandomHexColor, toogleFullscreen } from "$lib/utils";
+    import { getRandomColorFromPalette, toogleFullscreen } from "$lib/utils";
     import StaticBalloon from "../components/StaticBalloon.svelte";
     import { addLog } from "$lib/logService";
 
@@ -24,7 +24,7 @@
     function handleAuthFinally(){
         if($menuSettings.mainMenuRandomColors){
             Object.values(popElmntDirections).forEach(function(mode) {
-                $menuSettings.availableModes[mode].color = getRandomHexColor();
+                $menuSettings.availableModes[mode].color = getRandomColorFromPalette();
             });
         }
         if($menuSettings.enableModesRandomPos){

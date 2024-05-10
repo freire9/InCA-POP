@@ -14,6 +14,7 @@
     import GameModesTabs from '../../components/settings/game/GameModesTabs.svelte';
 	import { updateRemotePreferences } from '$lib/firebaseFunctions.js';
 	import { updateLocalPreferences } from '$lib/localPreferences.js';
+    import ColorPicker from '../../components/settings/ColorPicker.svelte';
     
     const { debounce } = lodash;
     let modesByPositions = {};
@@ -141,19 +142,18 @@
             <GameModesTabs />
     
             <h2>Main menu</h2>
+
             <p>Game modes to display (direction of pop elements):</p>
             <div class="flex-column">
                 <div class="game-modes-container">
                     {#each Object.values(popElmntDirections) as mode}
                         <div class="checkbox-flex">
-                            <label for={"gameMode" + toCamelCase(mode) + "Checkbox"}>{capitalizeFirstLetter(mode)}:</label>
                             <input id={"gameMode" + toCamelCase(mode) + "Checkbox"} type="checkbox" bind:checked={$menuSettings.availableModes[mode].enabled} on:input={updatePreferences}>
-        
+                            <label for={"gameMode" + toCamelCase(mode) + "Checkbox"}>{capitalizeFirstLetter(mode)}:</label>
+                        </div>
+                        <div class="game-mode-extras">
                             {#if !$menuSettings.mainMenuRandomColors}
-                                <div class="color-flex">
-                                    <label for={"gameMode" + mode + "ColorInput"}>Color:</label>
-                                    <input id={"gameMode" + mode + "ColorInput"} class="color-input" type="color" bind:value={$menuSettings.availableModes[mode].color} on:input={updatePreferences}>
-                                </div>
+                                <ColorPicker id={"gameMode" + mode + "ColorInput"} label={"Color:"} bind:value={$menuSettings.availableModes[mode].color} on:input={updatePreferences}/>
                             {/if}
 
                             {#if !$menuSettings.enableModesRandomPos}
@@ -169,19 +169,16 @@
                 </div>
     
                 <div class="checkbox-flex">
-                    <label for="modeRandomColorsCheckbox">Enable random colors in mode representations:</label>
                     <input id="modeRandomColorsCheckbox" type="checkbox" bind:checked={$menuSettings.mainMenuRandomColors} on:input={updatePreferences}>
+                    <label for="modeRandomColorsCheckbox">Enable random colors in mode representations:</label>
                 </div>
 
                 <div class="checkbox-flex">
-                    <label for="randomModePosCheckbox">Randomize mode positions:</label>
                     <input id="randomModePosCheckbox" type="checkbox" bind:checked={$menuSettings.enableModesRandomPos} on:input={updatePreferences}>
+                    <label for="randomModePosCheckbox">Randomize mode positions:</label>
                 </div>
 
-                <div class="color-flex">
-                    <label for="menuBackgroundColor">Main menu background color:</label>
-                    <input id="menuBackgroundColor" class="color-input" type="color" bind:value={$menuSettings.menuBackgroundColor} on:input={updatePreferences}>
-                </div>
+                <ColorPicker id="mainMenuColorInput" label={"Main menu background color:"} bind:value={$menuSettings.menuBackgroundColor} on:input={updatePreferences}/>
             </div>
 
             <h2>Speeches</h2>
@@ -201,9 +198,6 @@
         display: flex;
         flex-direction: column;
     }
-    label{
-        margin-top: 25px;
-    }
     main{
         padding: 2rem;
     }
@@ -211,14 +205,6 @@
         display: flex;
         align-items: baseline;
         gap: 10px;
-    }
-    .color-flex{
-        display: flex;
-        align-items: flex-end;
-        gap: 10px;
-    }
-    .color-flex label{
-        margin-bottom: 0px;
     }
     button.download-logs-btn,
     button.restore-btn{
@@ -244,10 +230,6 @@
         outline: none;
         box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.2);
     }
-
-    input.color-input{
-        border: 1px solid black;
-    }
     
     .remote-logs-container{
         display: flex;
@@ -255,8 +237,16 @@
         gap: 50px;
     }
 
-    .game-modes-container{
+    .game-modes-container,
+    .game-mode-extras{
         margin-left: 30px;
+    }
+    .game-mode-extras{
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        padding-top: 12px;
+        padding-bottom: 12px;
     }
     @media (max-width: 600px) {
         button.download-logs-btn{
@@ -265,6 +255,10 @@
         .remote-logs-container{
             flex-direction: column;
             gap: 10px;
+        }
+        .game-mode-extras{
+            flex-direction: column;
+            align-items: flex-start;
         }
     }
     @media (min-width: 600px) and (max-width: 1024px) {

@@ -1,7 +1,7 @@
 <script>
     import Balloon from '../../components/Balloon.svelte';;
     import { onDestroy, onMount } from 'svelte';
-    import { capitalizeFirstLetter, getRandomFrom, getRandomHexColor } from '$lib/utils';
+    import { capitalizeFirstLetter, getRandomColorFromPalette, getRandomFrom } from '$lib/utils';
     import { addLog } from "$lib/logService";
     import { appSettings, gameSettings, user, popElmntSizeOpts, gameDirection, subjectName, popElmntShapes, popElmntTypes, popElmntSpeedsOpts, popElmntDirections, localUserId, isLoggedIn, endGameConditionsOpts, gameId } from '../../stores.js';
     import SubjectNavBar from '../../components/SubjectNavBar.svelte';
@@ -96,11 +96,11 @@
         const shape = popElmntConfig[type].shape;
 
         const color = popElmntConfig[type].enableRandColor ?
-            getRandomHexColor() :
-            (popElmntConfig[type].enableRangeColor ? getRandomFrom(popElmntConfig[type].interpColors) : popElmntConfig[type].color);
+            getRandomColorFromPalette() :
+            ((false && popElmntConfig[type].enableRangeColor) ? getRandomFrom(popElmntConfig[type].interpColors) : popElmntConfig[type].color);
 
         const innerFigColor = isSpecial ? 
-            (popElmntConfig[type].enableInnerFigRangeColor ? getRandomFrom(popElmntConfig[type].innerFigInterpColors) : popElmntConfig[type].innerFigColor)
+            ((false && popElmntConfig[type].enableInnerFigRangeColor) ? getRandomFrom(popElmntConfig[type].innerFigInterpColors) : popElmntConfig[type].innerFigColor)
             : '';
 
         popElmnts.push(
@@ -129,11 +129,11 @@
             const shape = popElmntConfig[type].shape;
 
             const color = popElmntConfig[type].enableRandColor ?
-                getRandomHexColor()
-                : (popElmntConfig[type].enableRangeColor ? getRandomFrom(popElmntConfig[type].interpColors) : popElmntConfig[type].color);
+                getRandomColorFromPalette()
+                : ((false && popElmntConfig[type].enableRangeColor) ? getRandomFrom(popElmntConfig[type].interpColors) : popElmntConfig[type].color);
             
             const innerFigColor = isSpecial ? 
-                (popElmntConfig[type].enableInnerFigRangeColor ? getRandomFrom(popElmntConfig[type].innerFigInterpColors) : popElmntConfig[type].innerFigColor)
+                ((false && popElmntConfig[type].enableInnerFigRangeColor) ? getRandomFrom(popElmntConfig[type].innerFigInterpColors) : popElmntConfig[type].innerFigColor)
                 : '';
 
             if(isSpecial){
@@ -479,6 +479,6 @@
         {#each popElmnts as popElmnt (popElmnt.id)}
             <Balloon gameMode={gameMode} balloon={popElmnt} {currentRampageChain} on:balloonClicked={handleClick} />
         {/each}
-        <InGameStats stats = {currentStats} />
+        <InGameStats stats = {currentStats} gameBackgroundColor={gameBackgroundColor}/>
     </main>
 </div>
