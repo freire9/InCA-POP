@@ -1,4 +1,4 @@
-import { isFullScreen } from "../stores";
+import { availableColorsNames, availableColorsOpts, isFullScreen } from "../stores";
 
 // Function to calculate the interpolated colors between two colors
 export function calculateInterpolatedColors(steps, color1, color2) {
@@ -45,6 +45,12 @@ export function getRandomHexColor(){
     return rgbToHex(rgbColor);
 }
 
+// Function to get a random color from palette
+export function getRandomColorFromPalette(){
+    const randomColorName = getRandomFrom(Object.values(availableColorsNames));
+    return availableColorsOpts[randomColorName];
+}
+
 // Function to deep copy an object
 export function deepCopy(obj){
     return JSON.parse(JSON.stringify(obj));
@@ -79,4 +85,24 @@ export function toCamelCase(str) {
     return str.replace(/([-_ ])([a-z])/ig, (_, sep, char) => {
         return char.toUpperCase();
     }).replace(/[\s_-]+/g, '');
+}
+
+// Function to get a random integer between two values
+export function getRandomIntInclusive(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+export function getTextColorByContrast(hexColor) {
+    // Convert Hex color in RGB
+    const r = parseInt(hexColor.substring(1, 3), 16);
+    const g = parseInt(hexColor.substring(3, 5), 16);
+    const b = parseInt(hexColor.substring(5, 7), 16);
+
+    // Calculate the brightness
+    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+
+    // Return the color based on the brightness
+    return brightness >= 128 ? 'black' : 'white';
 }

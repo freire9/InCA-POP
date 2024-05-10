@@ -1,17 +1,46 @@
 <script>
     import Balloon from '../../components/Balloon.svelte';;
-    import { onMount } from 'svelte';
-    import { capitalizeFirstLetter, getRandomFrom, getRandomHexColor } from '$lib/utils';
+    import { onDestroy, onMount } from 'svelte';
+    import { capitalizeFirstLetter, getRandomColorFromPalette, getRandomFrom } from '$lib/utils';
     import { addLog } from "$lib/logService";
-    import { appSettings, gameSettings, user, popElmntSizeOpts, gameDirection, subjectName, popElmntShapes, popElmntTypes, popElmntSpeedsOpts, popElmntDirections, localUserId, isLoggedIn } from '../../stores.js';
+    import { appSettings, gameSettings, user, popElmntSizeOpts, gameDirection, subjectName, popElmntShapes, popElmntTypes, popElmntSpeedsOpts, popElmntDirections, localUserId, isLoggedIn, endGameConditionsOpts, gameId } from '../../stores.js';
     import SubjectNavBar from '../../components/SubjectNavBar.svelte';
+    import InGameStats from '../../components/InGameStats.svelte';
+    import { goto } from '$app/navigation';
 
+    //app constants
+    const currentGameDirection = $gameDirection;
+    const gameMode = currentGameDirection;
+    const popElmntSpeed = popElmntSpeedsOpts[$gameSettings[gameMode].popElmntSpeed];
+    const popElmntSize = popElmntSizeOpts[$gameSettings[gameMode].popElmntSize];
+    const gameBackgroundColor = $gameSettings[gameMode].gameBackgroundColor;
+    const maxPopElmntQty = $gameSettings[gameMode].maxPopElmntQty;
+    const popElmntConfig = $gameSettings[gameMode].popElmntConfig;
+    const instructorName = $appSettings.instructorName;
+    const subjectNameValue = $subjectName;
+    const localId = $localUserId;
+    const rampageModeChain = $gameSettings[gameMode].rampageModeChain;
+    const enableRampageMode = $gameSettings[gameMode].enableRampageMode;
+    const endGameTimeEnabled = $gameSettings[gameMode].endGameConditions[endGameConditionsOpts.TIME].enabled;
+    const maxPoppedCondEnabled = $gameSettings[gameMode].endGameConditions[endGameConditionsOpts.POP_ELMNTS_POPPED].enabled;
+    const maxPoppedCondValue = $gameSettings[gameMode].endGameConditions[endGameConditionsOpts.POP_ELMNTS_POPPED].value;
+    const specialPoppedCondEnabled = $gameSettings[gameMode].endGameConditions[endGameConditionsOpts.SPECIAL_POP_ELMNTS_POPPED].enabled;
+    const specialPoppedCondValue = $gameSettings[gameMode].endGameConditions[endGameConditionsOpts.SPECIAL_POP_ELMNTS_POPPED].value;
+    const actualGameId = $gameId;
+
+    let lastFrameTime = performance.now(); //ms
+    const fps = 60;
+    const frameInterval = 1000 / fps;
+    let animationFrameId;
+    const popElmntInterval = 500; //ms
+    let timeForNextPopElmnt = 0; //ms
     let popElmnts = [];
     let PopElmntIdCounter = 1;
     let balloonKnotHeightPercent;
-    const popElmntSpeed = popElmntSpeedsOpts[$gameSettings.popElmntSpeed];
-    const popElmntSize = popElmntSizeOpts[$gameSettings.popElmntSize];
     let currentRampageChain = 0;
+    let currentStats = Object.fromEntries(Object.values(popElmntTypes).map(type => [type, { popped: 0, total: 0 }]));
+    let specialPopElmntsPopped = 0;
+    let totalPopElmntsPopped = 0;
 
     //Max quantities of special popElmnts
     const specialPopElmntsMaxQuantities = Object.fromEntries(
@@ -19,14 +48,22 @@
             .filter(type => type !== popElmntTypes.NORMAL) // exclude 'NORMAL'
             .map(type => [
                 type,
-                Math.floor($gameSettings.popElmntConfig[type].proportion / 100 * $gameSettings.maxPopElmntQty)
+                Math.floor(popElmntConfig[type].proportion / 100 * maxPopElmntQty)
             ])
     );
     //Total max quantity of special popElmnts
     const specialPopElmntsMaxQuantity = Object.values(specialPopElmntsMaxQuantities).reduce((sum, value) => sum + value, 0);
 
+    function startTimer(time) {
+        const timer = setInterval(() => {
+            clearInterval(timer);
+            handleGameEnd(endGameConditionsOpts.TIME);
+        }, time * 1000);
+        return timer;
+    }
+
     function getAditionalHeight(type, height){
-        if($gameSettings.popElmntConfig[type].shape !== popElmntShapes.BALLOON) return 0;
+        if($gameSettings[gameMode].popElmntConfig[type].shape !== popElmntShapes.BALLOON) return 0;
 
         return height * balloonKnotHeightPercent;
     }
@@ -45,30 +82,31 @@
     }
 
     function addPopElmnt() {
-        if (popElmnts.length >= $gameSettings.maxPopElmntQty) return;
+        if (popElmnts.length >= maxPopElmntQty) return;
 
         const id = PopElmntIdCounter++;
         const isSpecial = popElmnts.filter(popElmnt => popElmnt.isSpecial).length < specialPopElmntsMaxQuantity;
         const type = isSpecial ? setSpecialType() : popElmntTypes.NORMAL;
-        const { x, y } = getInitialPosition($gameDirection, popElmntSize, type);
+        const { x, y } = getInitialPosition(currentGameDirection, popElmntSize, type);
         const speed = getRandomSpeed();
         const size = popElmntSize;
-        const direction = $gameDirection;
+        const direction = currentGameDirection;
         const rotation = Math.random() * 20 - 10;
-        const innerFigType = isSpecial ? $gameSettings.popElmntConfig[type].innerFigType : '';
-        const shape = $gameSettings.popElmntConfig[type].shape;
+        const innerFigType = isSpecial ? popElmntConfig[type].innerFigType : '';
+        const shape = popElmntConfig[type].shape;
 
-        const color = $gameSettings.popElmntConfig[type].enableRandColor ?
-            getRandomHexColor() :
-            ($gameSettings.popElmntConfig[type].enableRangeColor ? getRandomFrom($gameSettings.popElmntConfig[type].interpColors) : $gameSettings.popElmntConfig[type].color);
+        const color = popElmntConfig[type].enableRandColor ?
+            getRandomColorFromPalette() :
+            ((false && popElmntConfig[type].enableRangeColor) ? getRandomFrom(popElmntConfig[type].interpColors) : popElmntConfig[type].color);
 
         const innerFigColor = isSpecial ? 
-            ($gameSettings.popElmntConfig[type].enableInnerFigRangeColor ? getRandomFrom($gameSettings.popElmntConfig[type].innerFigInterpColors) : $gameSettings.popElmntConfig[type].innerFigColor)
+            ((false && popElmntConfig[type].enableInnerFigRangeColor) ? getRandomFrom(popElmntConfig[type].innerFigInterpColors) : popElmntConfig[type].innerFigColor)
             : '';
 
-        const popElmnt = { id, color, innerFigType, innerFigColor, x, y, speed, direction, size, rotation, isSpecial, type, shape};
-
-        popElmnts = [...popElmnts, popElmnt];
+        popElmnts.push(
+            { id, color, innerFigType, innerFigColor, x, y, speed, direction, size, rotation, isSpecial, type, shape}
+        );
+        currentStats[type].total += 1;
     }
 
     function addInitialPopElmnts() {
@@ -77,25 +115,25 @@
         //Total special popElmnts quantity (initial: 0)
         let specialPopElmntsTotalQty = 0;
 
-        while (popElmnts.length < $gameSettings.maxPopElmntQty) {
+        while (popElmnts.length < maxPopElmntQty) {
             const id = PopElmntIdCounter++;
             const x = getRandomXPosition(popElmntSize);
             const y = getRandomYPosition(popElmntSize);
             const speed = getRandomSpeed();
             const size = popElmntSize;
-            const direction = $gameDirection;
+            const direction = currentGameDirection;
             const rotation = Math.random() * 20 - 10;
             const isSpecial = specialPopElmntsTotalQty < specialPopElmntsMaxQuantity;
             const type = isSpecial ? setInitialSpecialType(specialPopElmntsQuantities) : popElmntTypes.NORMAL;
-            const innerFigType = isSpecial ? $gameSettings.popElmntConfig[type].innerFigType : '';
-            const shape = $gameSettings.popElmntConfig[type].shape;
+            const innerFigType = isSpecial ? popElmntConfig[type].innerFigType : '';
+            const shape = popElmntConfig[type].shape;
 
-            const color = $gameSettings.popElmntConfig[type].enableRandColor ?
-                getRandomHexColor()
-                : ($gameSettings.popElmntConfig[type].enableRangeColor ? getRandomFrom($gameSettings.popElmntConfig[type].interpColors) : $gameSettings.popElmntConfig[type].color);
+            const color = popElmntConfig[type].enableRandColor ?
+                getRandomColorFromPalette()
+                : ((false && popElmntConfig[type].enableRangeColor) ? getRandomFrom(popElmntConfig[type].interpColors) : popElmntConfig[type].color);
             
             const innerFigColor = isSpecial ? 
-                ($gameSettings.popElmntConfig[type].enableInnerFigRangeColor ? getRandomFrom($gameSettings.popElmntConfig[type].innerFigInterpColors) : $gameSettings.popElmntConfig[type].innerFigColor)
+                ((false && popElmntConfig[type].enableInnerFigRangeColor) ? getRandomFrom(popElmntConfig[type].innerFigInterpColors) : popElmntConfig[type].innerFigColor)
                 : '';
 
             if(isSpecial){
@@ -103,9 +141,10 @@
                 specialPopElmntsTotalQty += 1;
             }
 
-            const popElmnt = { id, color, innerFigType, innerFigColor, x, y, speed, direction, size, rotation, isSpecial, type, shape};
-
-            popElmnts = [...popElmnts, popElmnt];
+            popElmnts.push(
+                { id, color, innerFigType, innerFigColor, x, y, speed, direction, size, rotation, isSpecial, type, shape}
+            );
+            currentStats[type].total += 1;
         }
     }
     
@@ -144,12 +183,12 @@
         const generalLogs = {
             timestamp: now,
             user: ($user && $isLoggedIn) ? $user.displayName : "Anonymous",
-            userId: ($user && $isLoggedIn) ? $user.uid : $localUserId,
+            userId: ($user && $isLoggedIn) ? $user.uid : localId,
             date: now.toLocaleDateString(),
             time: now.toLocaleTimeString(),
-            teacher: $appSettings.instructorName,
+            teacher: instructorName,
             action: action.toString(),
-            subject: $subjectName,
+            subject: subjectNameValue,
         }
         return generalLogs;
     }
@@ -189,17 +228,18 @@
             color: popElmnt.color,
             x: Math.floor(popElmnt.x),
             y: Math.floor(popElmnt.y),
-            speed: $gameSettings.popElmntSpeed,
-            size: $gameSettings.popElmntSize,
+            speed: popElmntSpeed,
+            size: popElmntSize,
             isSpecial: popElmnt.isSpecial,
             type: popElmnt.type,
             shape: popElmnt.shape,
             currentRampageChain: currentRampageChain,
-            rampageChainForExcellent: $gameSettings.rampageModeChain,
-            gameBackgroundColor: $gameSettings.gameBackgroundColor,
-            gameDirection: $gameDirection,
+            rampageChainForExcellent: rampageModeChain,
+            gameBackgroundColor: gameBackgroundColor,
+            gameMode: gameMode,
             ...specialDetails,
             ...onScreenElmntsLogs,
+            gameId: actualGameId,
         }
         return {...generalLogs, details: detailLogs};
     }
@@ -210,9 +250,10 @@
         const detailLogs = {
             x: event.clientX,
             y: event.clientY,
-            gameBackgroundColor: $gameSettings.gameBackgroundColor,
-            gameDirection: $gameDirection,
+            gameBackgroundColor: gameBackgroundColor,
+            gameMode: gameMode,
             ...onScreenElmntsLogs,
+            gameId: actualGameId,
         }
         return {...generalLogs, details: detailLogs};
     }
@@ -220,29 +261,78 @@
     function ExitClickLogs(){
         const generalLogs = setGeneralLogs('Exit game');
         const onScreenElmntsLogs = setOnScreenElmntsLogs();
+        const poppedStatsLogs = Object.fromEntries(
+            Object.values(popElmntTypes).map(type => [
+                type + 'PoppedTotal',
+                currentStats[type].popped
+            ])
+        );
+        const totalStatsLogs = Object.fromEntries(
+            Object.values(popElmntTypes).map(type => [
+                type + 'Total',
+                currentStats[type].total
+            ])
+        );
         const detailLogs = {
-            gameBackgroundColor: $gameSettings.gameBackgroundColor,
-            gameDirection: $gameDirection,
+            gameBackgroundColor: gameBackgroundColor,
+            gameMode: gameMode,
             ...onScreenElmntsLogs,
+            ...poppedStatsLogs,
+            ...totalStatsLogs,
+            gameId: actualGameId,
         }
         return {...generalLogs, details: detailLogs};
     }
 
-    function handleClick(event) {
-        if($gameSettings.enableRampageMode) rampageChainUpdate(event.detail);
-        addLog(poppedElmntLogs(event.detail));
-        destroyPopElmnt(event.detail.id);
+    function endGameLogs(condition){
+        const generalLogs = setGeneralLogs('End game');
+        const poppedStatsLogs = Object.fromEntries(
+            Object.values(popElmntTypes).map(type => [
+                type + 'PoppedTotal',
+                currentStats[type].popped
+            ])
+        );
+        const totalStatsLogs = Object.fromEntries(
+            Object.values(popElmntTypes).map(type => [
+                type + 'Total',
+                currentStats[type].total
+            ])
+        );
+        const detailLogs = {
+            ...poppedStatsLogs,
+            ...totalStatsLogs,
+            endCondition: condition,
+            gameId: actualGameId,
+            gameMode: gameMode,
+        }
+        return {...generalLogs, details: detailLogs};
     }
 
-    function handleBackgroundClick(event){
+    async function handleClick(event) {
+        if(enableRampageMode) rampageChainUpdate(event.detail);
+        addLog(poppedElmntLogs(event.detail));
+        currentStats[event.detail.type].popped += 1;
+        if(event.detail.isSpecial) specialPopElmntsPopped += 1;
+        totalPopElmntsPopped += 1;
+        destroyPopElmnt(event.detail.id);
+        if(maxPoppedCondEnabled && totalPopElmntsPopped >= maxPoppedCondValue) handleGameEnd(endGameConditionsOpts.POP_ELMNTS_POPPED);
+        if(specialPoppedCondEnabled && specialPopElmntsPopped >= specialPoppedCondValue) handleGameEnd(endGameConditionsOpts.SPECIAL_POP_ELMNTS_POPPED);
+    }
+
+    async function handleBackgroundClick(event){
         addLog(backgroundClickLogs(event));
     }
 
-    function handleExitClick(){
+    async function handleExitClick(){
         addLog(ExitClickLogs());
     }
 
-    function handleBackgroundKeyboard(event){
+    async function handleGameEnd(condition){
+        addLog(endGameLogs(condition));
+        goto('/');
+    }
+
+    async function handleBackgroundKeyboard(event){
         return;
     }
 
@@ -277,34 +367,46 @@
         }
     }
 
-    function animatePopElmnts() {
-        function movePopElmnts() {
-        popElmnts = popElmnts.map(popElmnt => {
-            const speed = popElmnt.speed;
-            const enableMoveDesviation = Math.random() > 0.6;
-            const enableRotDesviation = enableMoveDesviation;
+    function movePopElmnts(currentTime) {
+        const deltaTime = currentTime - lastFrameTime;
+        const deltaTimeMultiplier = deltaTime / frameInterval;
 
-            //FOR TRANSITION-CLICK BUG FIREFOX transition: transform 0.3s ease;
-            const axisDesviation = $appSettings.fluidTransitions ? Math.random() * 2 - 1 : Math.random() * 0.3 - 0.15;
-            const angleDesviation = $appSettings.fluidTransitions ? Math.random() * 1 - 0.5 : Math.random() * 0.5 - 0.25;
-            const horizontalDesviation = enableMoveDesviation ? axisDesviation : 0;
-            const verticalDesviation = enableMoveDesviation ? axisDesviation : 0;
-            const rotDesviation = enableRotDesviation ? angleDesviation : 0;
+        const enableMoveDesviation = Math.random() > 0.8;
+        const enableRotDesviation = enableMoveDesviation;
 
+        //FOR TRANSITION-CLICK BUG FIREFOX transition: transform 0.3s ease;
+        const axisDesviation = Math.random() * 0.3 - 0.15;
+        const angleDesviation = Math.random() * 0.5 - 0.25;
+        const horizontalDesviation = enableMoveDesviation ? axisDesviation : 0;
+        const verticalDesviation = enableMoveDesviation ? axisDesviation : 0;
+        const rotDesviation = enableRotDesviation ? angleDesviation : 0;
+
+        popElmnts.forEach(popElmnt => {
+            const distance = popElmnt.speed * deltaTimeMultiplier;
             switch (popElmnt.direction) {
                 case popElmntDirections.LEFT_TO_RIGHT:
-                    return { ...popElmnt, x: popElmnt.x + speed, y: popElmnt.y + verticalDesviation, rotation: popElmnt.rotation + rotDesviation };
+                    popElmnt.x += distance;
+                    popElmnt.y += verticalDesviation;
+                    popElmnt.rotation += rotDesviation;
+                    break;
                 case popElmntDirections.RIGHT_TO_LEFT:
-                    return { ...popElmnt, x: popElmnt.x - speed, y: popElmnt.y + verticalDesviation, rotation: popElmnt.rotation + rotDesviation };
+                    popElmnt.x -= distance;
+                    popElmnt.y += verticalDesviation;
+                    popElmnt.rotation += rotDesviation;
+                    break;
                 case popElmntDirections.TOP_TO_BOTTOM:
-                    return { ...popElmnt, y: popElmnt.y + speed, x: popElmnt.x + horizontalDesviation, rotation: popElmnt.rotation + rotDesviation };
+                    popElmnt.y += distance;
+                    popElmnt.x += horizontalDesviation;
+                    popElmnt.rotation += rotDesviation;
+                    break;
                 case popElmntDirections.BOTTOM_TO_TOP:
-                    return { ...popElmnt, y: popElmnt.y - speed, x: popElmnt.x + horizontalDesviation, rotation: popElmnt.rotation + rotDesviation };
-                default:
-                    return popElmnt;
+                    popElmnt.y -= distance;
+                    popElmnt.x += horizontalDesviation;
+                    popElmnt.rotation += rotDesviation;
+                    break;
             }
         });
-        
+    
         popElmnts = popElmnts.filter(popElmnt => {
             if (popElmnt.direction === popElmntDirections.LEFT_TO_RIGHT || popElmnt.direction === popElmntDirections.RIGHT_TO_LEFT) {
                 return popElmnt.x <= window.innerWidth + popElmnt.size.width && popElmnt.x >= 0 - popElmnt.size.width * 2;
@@ -312,30 +414,45 @@
                 return popElmnt.y <= window.innerHeight + popElmnt.size.height && popElmnt.y >= 0 - (popElmnt.size.height - getAditionalHeight(popElmnt.type, popElmnt.size.height)) * 2;
             }
         });
-        
-        requestAnimationFrame(movePopElmnts);
-        }
-        requestAnimationFrame(movePopElmnts);
     }
     
+    function gameLoop(){
+        const currentTime = performance.now();
+        const deltaTime = currentTime - lastFrameTime; //ms
+        timeForNextPopElmnt += deltaTime;
+
+        if(timeForNextPopElmnt >= popElmntInterval){
+            addPopElmnt();
+            timeForNextPopElmnt = 0;
+        }
+
+        movePopElmnts(currentTime);
+        lastFrameTime = currentTime ;
+        animationFrameId = requestAnimationFrame(gameLoop);
+    }
+
     onMount(() => {
-        const areBalloons = Object.values($gameSettings.popElmntConfig).some(popElmnt => popElmnt.shape === popElmntShapes.BALLOON);
+        const areBalloons = Object.values(popElmntConfig).some(popElmnt => popElmnt.shape === popElmntShapes.BALLOON);
         if(areBalloons){
             const root = document.documentElement;
             balloonKnotHeightPercent = getComputedStyle(root).getPropertyValue('--balloon-knot-height');
             balloonKnotHeightPercent = parseFloat(balloonKnotHeightPercent)/100;
         }
 
+        if(endGameTimeEnabled){
+            const time = $gameSettings[gameMode].endGameConditions[endGameConditionsOpts.TIME].value
+            startTimer(time);
+        }
+
         addInitialPopElmnts();
 
-        // add popElmnts with time interval 0.5s
-        const intervalId = setInterval(addPopElmnt, 500);
-
         // start popElmnt animation
-        animatePopElmnts();
+        gameLoop()
+    });
 
-        // clean interval when component is destroyed
-        return () => clearInterval(intervalId);
+    onDestroy(() => {
+        const isClient = !import.meta.env.SSR;
+        if(isClient) cancelAnimationFrame(animationFrameId);
     });
 </script>
   
@@ -357,10 +474,11 @@
 </svelte:head>
 
 <div role="presentation" aria-label="Popping balloons game" on:click={handleBackgroundClick} on:keypress={handleBackgroundKeyboard}>
-    <main class="not-selectable" style:background-color = {$gameSettings.gameBackgroundColor} >
+    <main class="not-selectable" style:background-color = {gameBackgroundColor} >
         <SubjectNavBar on:exit={handleExitClick} />
         {#each popElmnts as popElmnt (popElmnt.id)}
-            <Balloon balloon={popElmnt} {currentRampageChain} on:balloonClicked={handleClick} />
+            <Balloon gameMode={gameMode} balloon={popElmnt} {currentRampageChain} on:balloonClicked={handleClick} />
         {/each}
+        <InGameStats stats = {currentStats} gameBackgroundColor={gameBackgroundColor}/>
     </main>
 </div>

@@ -2,11 +2,12 @@
 	import { gameSettings, popElmntTypes } from "../../stores";
 
     export let popElmnt;
+    export let gameMode;
     const letters = Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i)); 
     const randomLetter = letters[Math.floor(Math.random() * letters.length)];
     
     function figContourEnabled(){
-        return (popElmnt.type == popElmntTypes.EXP && $gameSettings.popElmntConfig[popElmntTypes.EXP].enableInnerFigContour) || (popElmnt.type == popElmntTypes.CTRL && $gameSettings.popElmntConfig[popElmntTypes.CTRL].enableInnerFigContour);
+        return (popElmnt.type == popElmntTypes.EXP && $gameSettings[gameMode].popElmntConfig[popElmntTypes.EXP].enableInnerFigContour) || (popElmnt.type == popElmntTypes.CTRL && $gameSettings[gameMode].popElmntConfig[popElmntTypes.CTRL].enableInnerFigContour);
     }
 </script>
 

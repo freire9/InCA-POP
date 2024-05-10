@@ -1,56 +1,34 @@
 <script>
-    import { gameSettings, popElmntTypes } from "../../../stores";
-    import NormalPopElmnts from "./NormalPopElmnts.svelte";
-    import CtrlPopElmnts from "./CtrlPopElmnts.svelte";
-    import ExpPopElmnts from "./ExpPopElmnts.svelte";
 	import { capitalizeFirstLetter } from "$lib/utils";
+	import { popElmntDirections } from "../../../stores";
+    import Game from "./Game.svelte";
 
-    export let gameMode;
     let activeTabValue = 1;
 
     const handleClick = tabValue => () => (activeTabValue = tabValue);
 
-    const normalLabelUp = capitalizeFirstLetter(popElmntTypes.NORMAL);
-    const ctrlLabelUp = capitalizeFirstLetter(popElmntTypes.CTRL);
-    const expLabelUp = capitalizeFirstLetter(popElmntTypes.EXP);
-    let normalPopElmntLabel;
-    let ctrlPopElmntLabel;
-    let expPopElmntLabel;
-    let tabs;
-
-    $: normalPopElmntLabel = $gameSettings[gameMode].popElmntConfig[popElmntTypes.NORMAL].shape;
-    $: ctrlPopElmntLabel = $gameSettings[gameMode].popElmntConfig[popElmntTypes.CTRL].shape;
-    $: expPopElmntLabel = $gameSettings[gameMode].popElmntConfig[popElmntTypes.EXP].shape;
-
-    // List of tab pop elements with labels, values and assigned components
-    $: tabs = [
-        { label: `${normalLabelUp} ${normalPopElmntLabel}`,
-            value: 1,
-            component: NormalPopElmnts
-        },
-        { label: `${ctrlLabelUp} ${ctrlPopElmntLabel}`,
-            value: 2,
-            component: CtrlPopElmnts
-        },
-        { label: `${expLabelUp} ${expPopElmntLabel}`,
-            value: 3,
-            component: ExpPopElmnts
-        }
-    ];
+    let gameModeTabs;
+    // List of tab game modes, values and assigned components
+    $: gameModeTabs = Object.values(popElmntDirections).map((direction, index) => ({
+        label: capitalizeFirstLetter(direction),
+        value: index + 1,
+        component: Game,
+        mode: direction
+    }));
 </script>
-  
+
 <div>
     <ul>
-        {#each tabs as tab}
+        {#each gameModeTabs as tab}
             <li class={activeTabValue === tab.value ? 'active' : ''}>
                 <button on:click={handleClick(tab.value)}>{tab.label}</button>
             </li>
         {/each}
     </ul>
-    {#each tabs as tab}
+    {#each gameModeTabs as tab}
         {#if activeTabValue == tab.value}
             <div class="box">
-                <svelte:component this={tab.component} gameMode={gameMode}/>
+                <svelte:component this={tab.component} mode={tab.mode}/>
             </div>
         {/if}
     {/each}
@@ -72,9 +50,10 @@
         list-style: none;
         border-bottom: 1px solid #dee2e6;
         position: sticky;
-        top: 65px;
+        top: 0;
         background-color: white;
-        z-index: 1;
+        z-index: 2;
+        height: 65px;
     }
     li {
         margin-bottom: -1px;
@@ -89,6 +68,7 @@
         display: block;
         padding: 0.5rem 1rem;
         cursor: pointer;
+        height: 100%;
     }
 
     button:hover {

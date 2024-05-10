@@ -1,14 +1,15 @@
 <script>
-    import { gameSettings, menuSettings, appSettings, user, gameDirection, isIphone, modifyingConfig, subjectName, popElmntDirections, localUserId, isLoggedIn } from "../stores";
+    import { menuSettings, appSettings, user, gameDirection, isIphone, modifyingConfig, subjectName, popElmntDirections, localUserId, isLoggedIn, gameId, availableModes } from "../stores";
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
     import { TrainerButton, Fa } from 'inca-utils';
     import { faGear, faExpand, faInfo, faLeftLong, faRightLong, faUpLong, faDownLong } from '@fortawesome/free-solid-svg-icons';
-    import { getRandomHexColor, toogleFullscreen } from "$lib/utils";
+    import { getRandomColorFromPalette, toogleFullscreen } from "$lib/utils";
     import StaticBalloon from "../components/StaticBalloon.svelte";
     import { addLog } from "$lib/logService";
 
     let fullscreen;
+    let orderedModes = Object.keys($menuSettings.availableModes).sort((a, b) => availableModes[a].position - availableModes[b].position);
 
     onMount(async () => {
         ({fullscreen} = await import('inca-utils/api'));
@@ -23,9 +24,22 @@
     function handleAuthFinally(){
         if($menuSettings.mainMenuRandomColors){
             Object.values(popElmntDirections).forEach(function(mode) {
-                $gameSettings.availableModes[mode].color = getRandomHexColor();
+                $menuSettings.availableModes[mode].color = getRandomColorFromPalette();
             });
         }
+        if($menuSettings.enableModesRandomPos){
+            const modeKeys = Object.keys($menuSettings.availableModes);
+            const positions = Array.from({ length: modeKeys.length }, (_, index) => index);
+            // Shuffle the positions array randomly
+            for (let i = positions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [positions[i], positions[j]] = [positions[j], positions[i]];
+            }
+            modeKeys.forEach((mode, index) => {
+                $menuSettings.availableModes[mode].position = positions[index];
+            });
+        }
+        orderedModes = Object.keys($menuSettings.availableModes).sort((a, b) => $menuSettings.availableModes[a].position - $menuSettings.availableModes[b].position);
     }
 
     function setGeneralLogs(action){
@@ -43,23 +57,26 @@
         return generalLogs;
     }
 
-    function handleClick(event){
-        const gameStartedLog = {...setGeneralLogs('Game started'), details: {gameDirection: event.detail, menuBackgroundColor: $menuSettings.menuBackgroundColor, color: $gameSettings.availableModes[event.detail].color}};
-        addLog(gameStartedLog);
+    async function handleClick(event){
         startGame(event.detail);
+        const gameStartedLog = {
+            ...setGeneralLogs('Game started'), 
+            details: {gameMode: event.detail, menuBackgroundColor: $menuSettings.menuBackgroundColor, color: $menuSettings.availableModes[event.detail].color, gameId: $gameId, position: $menuSettings.availableModes[event.detail].position}};
+        addLog(gameStartedLog);
     }
 
-    function handleBackgroundClick(event){
+    async function handleBackgroundClick(event){
         const backgroundClickLog = {...setGeneralLogs('Menu background click'), details: {x: event.clientX, y: event.clientY, menuBackgroundColor: $menuSettings.menuBackgroundColor}};
         addLog(backgroundClickLog);
     }
 
-    function handleBackgroundKeyboard(event){
+    async function handleBackgroundKeyboard(event){
         return;
     }
 
     function startGame(mode){
         $gameDirection = mode;
+        $gameId = crypto.randomUUID();
         goto('/game');
     }
 
@@ -141,12 +158,12 @@
             </nav>
         </header>
         <div class="game-modes">
-            {#each Object.values(popElmntDirections) as mode}
-                {#if $gameSettings.availableModes[mode].enabled}
+            {#each orderedModes as mode}
+                {#if $menuSettings.availableModes[mode].enabled}
                     <StaticBalloon 
                         on:modeClicked={handleClick}
                         mode={mode}
-                        icon={icons[$gameSettings.availableModes[mode].icon]} --bg-pseudo={$gameSettings.availableModes[mode].color} 
+                        icon={icons[$menuSettings.availableModes[mode].icon]} --bg-pseudo={$menuSettings.availableModes[mode].color} 
                     />
                 {/if}
             {/each}

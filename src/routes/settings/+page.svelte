@@ -1,19 +1,30 @@
 <script>
-    import { gameSettings, appSettings, menuSettings, isLoggedIn, user, isFullScreen, menuSettingsDEFAULT, appSettingsDEFAULT, gameSettingsDEFAULT, subjectName, popElmntSpeeds, popElmntSizes, popElmntDirections, localUserId } from '../../stores.js';
+    import { gameSettings, appSettings, menuSettings, isLoggedIn, user, isFullScreen, menuSettingsDEFAULT, appSettingsDEFAULT, gameSettingsDEFAULT, subjectName, popElmntDirections, localUserId, modifyingConfig, syncPreferencesFromRemote } from '../../stores.js';
     import { deepCopy, toCamelCase, capitalizeFirstLetter } from '$lib/utils.js'
     import { Fa } from 'inca-utils';
     import { faFileArrowDown } from '@fortawesome/free-solid-svg-icons';
     import Profile from '../../components/settings/Profile.svelte';
     import UserNavBar from '../../components/UserNavBar.svelte';
-    import PopElmntsTabs from '../../components/settings/game/PopElmntsTabs.svelte';
-	import Speeches from '../../components/settings/Speeches.svelte';
+    import Speeches from '../../components/settings/Speeches.svelte';
     import lodash from 'lodash';
-	import { handleUpdateRemotePreferences, updateRemotePreferences } from '$lib/firebaseFunctions.js';
-	import { downloadLogs } from '$lib/logService.js';
-	import { arrayUnion, doc, getDoc, updateDoc } from 'firebase/firestore';
-	import { db, dbUsersCollectionName } from '$lib/firebaseConfig.js';
-
+    import { downloadLogs } from '$lib/logService.js';
+    import { arrayUnion, doc, getDoc, updateDoc } from 'firebase/firestore';
+    import { db, dbUsersCollectionName } from '$lib/firebaseConfig.js';
+    import { updatePreferences } from '$lib/preferences.js';
+    import GameModesTabs from '../../components/settings/game/GameModesTabs.svelte';
+	import { updateRemotePreferences } from '$lib/firebaseFunctions.js';
+	import { updateLocalPreferences } from '$lib/localPreferences.js';
+    import ColorPicker from '../../components/settings/ColorPicker.svelte';
+    
     const { debounce } = lodash;
+    let modesByPositions = {};
+    let positionByModes = {};
+
+    $:{
+        if(!$modifyingConfig){
+            handleAuthFinally();
+        }
+    }
 
     function handleRemoteJsonDownload (){
         if ($isLoggedIn && $user) downloadLogs('json', $user.uid);
@@ -29,7 +40,7 @@
         appSettings.set(deepCopy(appSettingsDEFAULT));
         menuSettings.set(deepCopy(menuSettingsDEFAULT));
         console.log('Default settings restored')
-        if ($isLoggedIn && $user) updateRemotePreferences();
+        updatePreferences();
     }
 
     function handleRestoreDefaultsWarning(){
@@ -70,11 +81,36 @@
         }
     }
 
+    function handleAuthFinally(){
+        modesByPositions = Object.fromEntries(Object.keys($menuSettings.availableModes).map(mode => [$menuSettings.availableModes[mode].position, mode]));
+        positionByModes = Object.fromEntries(Object.keys($menuSettings.availableModes).map(mode => [mode, $menuSettings.availableModes[mode].position]));
+    }
+
+    function managePositionChange(newModeInPos){
+        if($menuSettings.enableModesRandomPos || Object.keys(modesByPositions).length === 0 || Object.keys(positionByModes).length === 0) return;
+        
+        const newPosition = $menuSettings.availableModes[newModeInPos].position;
+        const oldModeInPos = modesByPositions[newPosition];
+        const oldPos = positionByModes[newModeInPos];
+
+        // Update position of the mode that was in the new position
+        $menuSettings.availableModes[oldModeInPos].position = oldPos;
+
+        modesByPositions[newPosition] = newModeInPos;
+        positionByModes[newModeInPos] = newPosition;
+        modesByPositions[oldPos] = oldModeInPos;
+        positionByModes[oldModeInPos] = oldPos;
+        
+        if($syncPreferencesFromRemote && $isLoggedIn && $user) updateRemotePreferences();
+        else updateLocalPreferences();
+    }
+
+    const handlePositionChange = debounce((NewModeInPos) => managePositionChange(NewModeInPos), 1500);
     const handleSaveSubject = debounce(saveSubjectName, 1500);
     const handleSaveInstructor = debounce(saveInstructorName, 1500);
 </script>
 
-<div class="settings {$isFullScreen ? 'fullscreen' : ''}">
+<div class="settings not-selectable {$isFullScreen ? 'fullscreen' : ''}">
 
     <UserNavBar />
     <main>
@@ -101,87 +137,48 @@
                     Download remote database logs file (CSV)
                 </button>
             </div>
-            <h2>Global game</h2>
-            <div class="range-input">
-                <label for="maxPopElmntQtyInput">Max pop elements quantity on screen:</label>
-                <p>{$gameSettings.maxPopElmntQty}</p>
-            </div>
-            <input id="maxPopElmntQtyInput" min="1" max="50" step="1" type="range" bind:value={$gameSettings.maxPopElmntQty} on:input={handleUpdateRemotePreferences}>
 
-            <label for="popElmntSpeedSelect">Pop element speed:</label>
-            <select id="popElmntSpeedSelect" bind:value={$gameSettings.popElmntSpeed} on:input={handleUpdateRemotePreferences}>
-                {#each Object.values(popElmntSpeeds) as speedOption}
-                    <option value={speedOption}>
-                        {capitalizeFirstLetter(speedOption)}
-                    </option>
-                {/each}
-            </select>
-
-            <label for="popElmntSizeInput">Pop element size:</label>
-            <select id="popElmntSizeInput" bind:value={$gameSettings.popElmntSize} on:input={handleUpdateRemotePreferences}>
-                {#each Object.values(popElmntSizes) as sizeOption}
-                    <option value={sizeOption}>
-                        {capitalizeFirstLetter(sizeOption)}
-                    </option>
-                {/each}
-            </select>
-
-            <div class="checkbox-flex">
-                <label for="enableRampageMode">Enable rampage mode (chain a number of special pop elements):</label>
-                <input id="enableRampageMode" type="checkbox" bind:checked={$gameSettings.enableRampageMode} on:input={handleUpdateRemotePreferences}>
-            </div>
-
-            {#if $gameSettings.enableRampageMode}
-                <div class="rampage-mode-container">
-                    <div class="range-input">
-                        <label for="rampageModeLength">Rampage mode chain length:</label>
-                        <p>{$gameSettings.rampageModeChain}</p>
-                    </div>
-                    <input type="range" min="2" max="50" step="1" bind:value={$gameSettings.rampageModeChain} on:input={handleUpdateRemotePreferences}>
-                </div>
-            {/if}
-
-            <div class="checkbox-flex">
-                <label for="enableBalloonReflex">Enable pop element reflex effect (only aesthetic in pop element type balloon, slight discrepancies between what is seen and what is logged):</label>
-                <input id="enableBalloonReflex" type="checkbox" bind:checked={$gameSettings.enableBalloonReflex} on:input={handleUpdateRemotePreferences}>
-            </div>
-            
-            <div class="color-flex">
-                <label for="gameBackgroundColorInput">Game background color:</label>
-                <input id="gameBackgroundColorInput" class="color-input" type="color" bind:value={$gameSettings.gameBackgroundColor} on:input={handleUpdateRemotePreferences}>
-            </div>
-
-            <h2>Pop elements</h2>
-            <PopElmntsTabs />
+            <h2>Game modes</h2>
+            <GameModesTabs />
     
             <h2>Main menu</h2>
+
             <p>Game modes to display (direction of pop elements):</p>
             <div class="flex-column">
                 <div class="game-modes-container">
                     {#each Object.values(popElmntDirections) as mode}
                         <div class="checkbox-flex">
+                            <input id={"gameMode" + toCamelCase(mode) + "Checkbox"} type="checkbox" bind:checked={$menuSettings.availableModes[mode].enabled} on:input={updatePreferences}>
                             <label for={"gameMode" + toCamelCase(mode) + "Checkbox"}>{capitalizeFirstLetter(mode)}:</label>
-                            <input id={"gameMode" + toCamelCase(mode) + "Checkbox"} type="checkbox" bind:checked={$gameSettings.availableModes[mode].enabled} on:input={handleUpdateRemotePreferences}>
-        
+                        </div>
+                        <div class="game-mode-extras">
                             {#if !$menuSettings.mainMenuRandomColors}
-                                <div class="color-flex">
-                                    <label for={"gameMode" + mode + "ColorInput"}>Color:</label>
-                                    <input id={"gameMode" + mode + "ColorInput"} class="color-input" type="color" bind:value={$gameSettings.availableModes[mode].color} on:input={handleUpdateRemotePreferences}>
-                                </div>
+                                <ColorPicker id={"gameMode" + mode + "ColorInput"} label={"Color:"} bind:value={$menuSettings.availableModes[mode].color} on:input={updatePreferences}/>
+                            {/if}
+
+                            {#if !$menuSettings.enableModesRandomPos}
+                                <label for={"gameMode" + mode + "PositionSelect"}>Position:</label>
+                                <select id={"gameMode" + mode + "PositionSelect"} bind:value={$menuSettings.availableModes[mode].position} on:input={() => handlePositionChange(mode)}>
+                                    {#each Object.keys($menuSettings.availableModes) as position, index}
+                                        <option value={index}>{index}</option>
+                                    {/each}
+                                </select>
                             {/if}
                         </div>
                     {/each}
                 </div>
     
                 <div class="checkbox-flex">
+                    <input id="modeRandomColorsCheckbox" type="checkbox" bind:checked={$menuSettings.mainMenuRandomColors} on:input={updatePreferences}>
                     <label for="modeRandomColorsCheckbox">Enable random colors in mode representations:</label>
-                    <input id="modeRandomColorsCheckbox" type="checkbox" bind:checked={$menuSettings.mainMenuRandomColors} on:input={handleUpdateRemotePreferences}>
                 </div>
 
-                <div class="color-flex">
-                    <label for="menuBackgroundColor">Main menu background color:</label>
-                    <input id="menuBackgroundColor" class="color-input" type="color" bind:value={$menuSettings.menuBackgroundColor} on:input={handleUpdateRemotePreferences}>
+                <div class="checkbox-flex">
+                    <input id="randomModePosCheckbox" type="checkbox" bind:checked={$menuSettings.enableModesRandomPos} on:input={updatePreferences}>
+                    <label for="randomModePosCheckbox">Randomize mode positions:</label>
                 </div>
+
+                <ColorPicker id="mainMenuColorInput" label={"Main menu background color:"} bind:value={$menuSettings.menuBackgroundColor} on:input={updatePreferences}/>
             </div>
 
             <h2>Speeches</h2>
@@ -201,9 +198,6 @@
         display: flex;
         flex-direction: column;
     }
-    label{
-        margin-top: 25px;
-    }
     main{
         padding: 2rem;
     }
@@ -211,14 +205,6 @@
         display: flex;
         align-items: baseline;
         gap: 10px;
-    }
-    .color-flex{
-        display: flex;
-        align-items: flex-end;
-        gap: 10px;
-    }
-    .color-flex label{
-        margin-bottom: 0px;
     }
     button.download-logs-btn,
     button.restore-btn{
@@ -244,10 +230,6 @@
         outline: none;
         box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.2);
     }
-
-    input.color-input{
-        border: 1px solid black;
-    }
     
     .remote-logs-container{
         display: flex;
@@ -256,18 +238,15 @@
     }
 
     .game-modes-container,
-    .rampage-mode-container{
+    .game-mode-extras{
         margin-left: 30px;
     }
-    .range-input{
+    .game-mode-extras{
         display: flex;
-        flex-direction: row;
-        align-items: center;
         gap: 10px;
-        margin-top: 25px;
-    }
-    .range-input label{
-        margin: 0px;
+        align-items: center;
+        padding-top: 12px;
+        padding-bottom: 12px;
     }
     @media (max-width: 600px) {
         button.download-logs-btn{
@@ -276,6 +255,10 @@
         .remote-logs-container{
             flex-direction: column;
             gap: 10px;
+        }
+        .game-mode-extras{
+            flex-direction: column;
+            align-items: flex-start;
         }
     }
     @media (min-width: 600px) and (max-width: 1024px) {

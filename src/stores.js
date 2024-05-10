@@ -2,12 +2,13 @@ import { deepCopy } from '$lib/utils';
 import { writable} from 'svelte/store';
 
 export const isIphone = writable(false);
-export const isFirefox = writable(false);
 export const user = writable({});
 export const isLoggedIn = writable(false);
 export const modifyingConfig = writable(true);
 export const isFullScreen = writable(false);
 export const localUserId = writable('');
+export const syncPreferencesFromRemote = writable(false);
+export const subjectName = writable('subject-name');
 
 // Pop element types: NORMAL AND SPECIAL (EXP, CTRL, etc.)
 export const popElmntTypes = {
@@ -15,6 +16,12 @@ export const popElmntTypes = {
     EXP: 'experimental',
     CTRL: 'control',
 }
+// Pop element types short labels: Norm., Exp., Ctrl.
+export const popElmntTypesShort = {
+    [popElmntTypes.NORMAL]: 'Norm.',
+    [popElmntTypes.EXP]: 'Exp.',
+    [popElmntTypes.CTRL]: 'Ctrl.',
+};
 // Pop element shapes: BALLOON, etc.
 export const popElmntShapes = {
     BALLOON: 'balloon',
@@ -44,12 +51,27 @@ export const popElmntDirections ={
     TOP_TO_BOTTOM: 'top to bottom',
 }
 export const gameDirection = writable(popElmntDirections.LEFT_TO_RIGHT);
+export const gameId = writable('');
 
-// Speed values for different pop element speeds
+export const endGameConditionsOpts = {
+    TIME: 'time',
+    POP_ELMNTS_POPPED: 'pop elements popped',
+    SPECIAL_POP_ELMNTS_POPPED: 'special pop elements popped',
+}
+
+const specialPopElmnts = Object.values(popElmntTypes).filter(type => type !== popElmntTypes.NORMAL);
+
+export const endGameConditionsTooltip = {
+    [endGameConditionsOpts.TIME]: 'Time limit from game start to game end (in seconds).',
+    [endGameConditionsOpts.POP_ELMNTS_POPPED]: 'Pop elements quantity limit (total).',
+    [endGameConditionsOpts.SPECIAL_POP_ELMNTS_POPPED]: 'Special pop elements quantity limit (' + specialPopElmnts.map(type => `${popElmntTypesShort[type]}`).join(' + ') + ').',
+};
+
+// Speed values for different pop element speeds (px per frame usign 60fps as reference)
 export const popElmntSpeedsOpts = {
-    [popElmntSpeeds.SLOW]: {min: 0.08, max: 0.2},
-    [popElmntSpeeds.NORMAL]: {min: 0.2, max: 0.4},
-    [popElmntSpeeds.FAST]: {min: 0.4, max: 0.6},
+    [popElmntSpeeds.SLOW]: {min: 1, max: 2},
+    [popElmntSpeeds.NORMAL]: {min: 2, max: 3},
+    [popElmntSpeeds.FAST]: {min: 3, max: 4},
 };
 
 // Size values for different pop element sizes
@@ -81,43 +103,78 @@ if (isClient) {
     speechExcellent = writable(new SpeechSynthesisUtterance('Excellent!'));
 }
 
-export const subjectName = writable('subject-name');
 export const appSettingsDEFAULT = {
     instructorName: 'instructor-name',
-    fluidTransitions: false,
     enableCustomSpeeches: true,
 };
 
+
+export const availableColorsNames = {
+    RED: 'red',
+    GREEN: 'green',
+    BLUE: 'blue',
+    YELLOW: 'yellow',
+    ORANGE: 'orange',
+    PURPLE: 'purple',
+    CYAN: 'cyan',
+    MAGENTA: 'magenta',
+    BLACK: 'black',
+    WHITE: 'white',
+    GRAY: 'gray',
+}
+
+export const availableColorsOpts = {
+    [availableColorsNames.RED]: '#ff0000',
+    [availableColorsNames.GREEN]: '#00ff00',
+    [availableColorsNames.BLUE]: '#0000ff',
+    [availableColorsNames.YELLOW]: '#ffff00',
+    [availableColorsNames.ORANGE]: '#ff7f00',
+    [availableColorsNames.PURPLE]: '#7f00ff',
+    [availableColorsNames.CYAN]: '#00ffff',
+    [availableColorsNames.MAGENTA]: '#ff00ff',
+    [availableColorsNames.BLACK]: '#000000',
+    [availableColorsNames.WHITE]: '#ffffff',
+    [availableColorsNames.GRAY]: '#808080',
+};
+
+export const availableModes = {
+    [popElmntDirections.RIGHT_TO_LEFT]: { enabled: true, icon: 'faLeftLong', color: availableColorsOpts[availableColorsNames.RED], position: 0},
+    [popElmntDirections.BOTTOM_TO_TOP]: { enabled: true, icon: 'faUpLong', color: availableColorsOpts[availableColorsNames.GREEN], position: 1},
+    [popElmntDirections.TOP_TO_BOTTOM]: { enabled: true, icon: 'faDownLong', color: availableColorsOpts[availableColorsNames.BLUE], position: 2},
+    [popElmntDirections.LEFT_TO_RIGHT]: { enabled: true, icon: 'faRightLong', color: availableColorsOpts[availableColorsNames.YELLOW], position: 3},
+};
 export const menuSettingsDEFAULT = {
     mainMenuRandomColors: true,
-    menuBackgroundColor: '#ffffff',
+    menuBackgroundColor: availableColorsOpts[availableColorsNames.WHITE],
+    availableModes: deepCopy(availableModes),
+    enableModesRandomPos: true,
 };
 
 const normalPopElmntSettings = {
     enableRandColor: true,
     enableRangeColor: false,
-    rangeColor1: '#ff0000',
-    rangeColor2: '#00ff00',
+    rangeColor1: availableColorsOpts[availableColorsNames.RED],
+    rangeColor2: availableColorsOpts[availableColorsNames.GREEN],
     colorRangeDef: 10,
     interpColors: deepCopy(dfltPopElmntInterColors),
-    color: '#ff0000',
+    color: availableColorsOpts[availableColorsNames.RED],
     shape: popElmntShapes.BALLOON,
 };
 
 const expPopElmntSettings = {
     enableRandColor: true,
     enableRangeColor: false,
-    rangeColor1: '#ff0000',
-    rangeColor2: '#00ff00',
+    rangeColor1: availableColorsOpts[availableColorsNames.RED],
+    rangeColor2: availableColorsOpts[availableColorsNames.GREEN],
     colorRangeDef: 10,
     interpColors: deepCopy(dfltPopElmntInterColors),
-    color: '#ff0000',
+    color: availableColorsOpts[availableColorsNames.RED],
     shape: popElmntShapes.BALLOON,
     innerFigType: popElmntInnerFigs.DISC,
-    innerFigColor: '#f82383',
+    innerFigColor: availableColorsOpts[availableColorsNames.MAGENTA],
     enableInnerFigRangeColor: false,
-    innerFigRangeColor1:'#000000',
-    innerFigRangeColor2:'#ffffff',
+    innerFigRangeColor1: availableColorsOpts[availableColorsNames.BLACK],
+    innerFigRangeColor2: availableColorsOpts[availableColorsNames.WHITE],
     innerFigColorRangeDef: 10,
     innerFigInterpColors: deepCopy(dfltInnerFigInterpColors),
     enableInnerFigContour: false,
@@ -127,36 +184,34 @@ const expPopElmntSettings = {
 const ctrlPopElmntSettings = {
     enableRandColor: true,
     enableRangeColor: false,
-    rangeColor1: '#ff0000',
-    rangeColor2: '#00ff00',
+    rangeColor1: availableColorsOpts[availableColorsNames.RED],
+    rangeColor2: availableColorsOpts[availableColorsNames.GREEN],
     colorRangeDef: 10,
     interpColors: deepCopy(dfltPopElmntInterColors),
-    color: '#ff0000',
+    color: availableColorsOpts[availableColorsNames.RED],
     shape: popElmntShapes.BALLOON,
     innerFigType: popElmntInnerFigs.DISC,
-    innerFigColor: '#000000',
+    innerFigColor: availableColorsOpts[availableColorsNames.BLACK],
     enableInnerFigRangeColor: false,
-    innerFigRangeColor1:'#000000',
-    innerFigRangeColor2:'#ffffff',
+    innerFigRangeColor1: availableColorsOpts[availableColorsNames.BLACK],
+    innerFigRangeColor2: availableColorsOpts[availableColorsNames.WHITE],
     innerFigColorRangeDef: 10,
     innerFigInterpColors: deepCopy(dfltInnerFigInterpColors),
     enableInnerFigContour: false,
     proportion: 30,
 };
 
-const availableModes = {
-    [popElmntDirections.RIGHT_TO_LEFT]: { enabled: true, icon: 'faLeftLong', color: '#ff0000'},
-    [popElmntDirections.BOTTOM_TO_TOP]: { enabled: true, icon: 'faUpLong', color: '#22d933'},
-    [popElmntDirections.TOP_TO_BOTTOM]: { enabled: true, icon: 'faDownLong', color: '#2665ea'},
-    [popElmntDirections.LEFT_TO_RIGHT]: { enabled: true, icon: 'faRightLong', color: '#eacf26'},
+export const endGameConditions = {
+    [endGameConditionsOpts.TIME]: { enabled: false, value: 300, rangeMax: 3600}, // in seconds
+    [endGameConditionsOpts.POP_ELMNTS_POPPED]: { enabled: false, value: 50, rangeMax: 300}, // elements popped
+    [endGameConditionsOpts.SPECIAL_POP_ELMNTS_POPPED]: { enabled: false, value: 20, rangeMax: 300}, // special elements popped
 };
 
-export const gameSettingsDEFAULT = {
+const gameModeSettingsDEFAULT = {
     popElmntSpeed: popElmntSpeeds.NORMAL,
     popElmntSize: popElmntSizes.NORMAL,
     maxPopElmntQty: 8,
-    gameBackgroundColor: '#add8e6',
-    availableModes: deepCopy(availableModes),
+    gameBackgroundColor: availableColorsOpts[availableColorsNames.CYAN],
     enableBalloonReflex: false,
     enableRampageMode: true,
     rampageModeChain: 3,
@@ -165,7 +220,10 @@ export const gameSettingsDEFAULT = {
         [popElmntTypes.EXP]: deepCopy(expPopElmntSettings),
         [popElmntTypes.CTRL]: deepCopy(ctrlPopElmntSettings),
     },
+    endGameConditions: deepCopy(endGameConditions),
 };
+
+export const gameSettingsDEFAULT = Object.fromEntries(Object.values(popElmntDirections).map(mode => [mode, {...gameModeSettingsDEFAULT}]));
 
 export const appSettings = writable(deepCopy(appSettingsDEFAULT));
 export const menuSettings = writable(deepCopy(menuSettingsDEFAULT));

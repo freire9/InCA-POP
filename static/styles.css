@@ -8,6 +8,12 @@
     -ms-user-select: none;
     user-select: none;
 }
+.selectable{
+    -moz-user-select: text;
+    -webkit-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+}
 body::backdrop{
     background: unset;
 }
@@ -21,4 +27,9 @@ button:focus:not(:focus-visible) {
 
 strong {
     all: revert;
+}
+select,
+input{
+    max-width: 80% !important;
+    width: max-content !important;
 }
