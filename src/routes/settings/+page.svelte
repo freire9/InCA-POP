@@ -112,7 +112,7 @@
 
 <div class="settings not-selectable {$isFullScreen ? 'fullscreen' : ''}">
 
-    <UserNavBar />
+    <UserNavBar backPath={'/'}/>
     <main>
         <h1>Settings</h1>
         <div class="settings-form flex-column">
@@ -137,6 +137,8 @@
                     Download remote database logs file (CSV)
                 </button>
             </div>
+
+            <a href="../statistics" class="statistics-link">View statistics</a>
 
             <h2>Game modes</h2>
             <GameModesTabs />
@@ -190,6 +192,10 @@
 </div>
 
 <style>
+    .statistics-link{
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
     .fullscreen{
         height: 100vh;
         overflow: auto;

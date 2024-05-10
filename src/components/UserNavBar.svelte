@@ -8,6 +8,7 @@
 	import { toogleFullscreen } from "$lib/utils";
 
     let fullscreen;
+    export let backPath;
 
     onMount(async () => {
         ({fullscreen} = await import('inca-utils/api'));
@@ -25,7 +26,7 @@
 </style>
 
 <nav>
-    <ActionButton mode="exit" on:click={() => goto('/')}/>
+    <ActionButton mode="exit" on:click={() => goto(backPath)}/>
     <div class="fullscreen-btn">
         {#if !$isIphone}
             <TrainerButton on:click={() => {toogleFullscreen(fullscreen)}} label="Fullscreen" longpressTime="0.1">

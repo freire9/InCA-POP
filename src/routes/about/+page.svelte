@@ -24,7 +24,7 @@
 
 <div class="about {$isFullScreen ? 'fullscreen' : ''}">
 
-    <UserNavBar />
+    <UserNavBar backPath={'/'} />
     <main>
         <h1>About InCA-POP!</h1>
         <p>
