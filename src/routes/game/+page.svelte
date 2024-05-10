@@ -13,6 +13,8 @@
     const gameMode = currentGameDirection;
     const popElmntSpeed = popElmntSpeedsOpts[$gameSettings[gameMode].popElmntSpeed];
     const popElmntSize = popElmntSizeOpts[$gameSettings[gameMode].popElmntSize];
+    const popElmntSpeedType = $gameSettings[gameMode].popElmntSpeed;
+    const popElmntSizeType = $gameSettings[gameMode].popElmntSize;
     const gameBackgroundColor = $gameSettings[gameMode].gameBackgroundColor;
     const maxPopElmntQty = $gameSettings[gameMode].maxPopElmntQty;
     const popElmntConfig = $gameSettings[gameMode].popElmntConfig;
@@ -41,6 +43,7 @@
     let currentStats = Object.fromEntries(Object.values(popElmntTypes).map(type => [type, { popped: 0, total: 0 }]));
     let specialPopElmntsPopped = 0;
     let totalPopElmntsPopped = 0;
+    let endGameTimer;
 
     //Max quantities of special popElmnts
     const specialPopElmntsMaxQuantities = Object.fromEntries(
@@ -55,11 +58,10 @@
     const specialPopElmntsMaxQuantity = Object.values(specialPopElmntsMaxQuantities).reduce((sum, value) => sum + value, 0);
 
     function startTimer(time) {
-        const timer = setInterval(() => {
-            clearInterval(timer);
+        endGameTimer = setInterval(() => {
+            clearInterval(endGameTimer);
             handleGameEnd(endGameConditionsOpts.TIME);
         }, time * 1000);
-        return timer;
     }
 
     function getAditionalHeight(type, height){
@@ -208,7 +210,7 @@
             onScreenSpecialElmnts: Object.values(specialPopElmntsQtyOnScreen).reduce((sum, value) => sum + value, 0),
             ...specialPopElmntsQtyOnScreen,
             onScreenElmntsColors: onScreen.map(popElmnt => popElmnt.color),
-            onScreenElmtsInnerFigColors: onScreen.filter(popElmnt => popElmnt.type != popElmntTypes.NORMAL).map(popElmnt => popElmnt.innerFigColor),
+            onScreenElmntsInnerFigColors: onScreen.filter(popElmnt => popElmnt.type != popElmntTypes.NORMAL).map(popElmnt => popElmnt.innerFigColor),
             onScrenElmntsInnerFigTypes: onScreen.filter(popElmnt => popElmnt.type != popElmntTypes.NORMAL).map(popElmnt => popElmnt.innerFigType),
         }
         return onScreenElmntsLogs;
@@ -228,8 +230,8 @@
             color: popElmnt.color,
             x: Math.floor(popElmnt.x),
             y: Math.floor(popElmnt.y),
-            speed: popElmntSpeed,
-            size: popElmntSize,
+            speed: popElmntSpeedType,
+            size: popElmntSizeType,
             isSpecial: popElmnt.isSpecial,
             type: popElmnt.type,
             shape: popElmnt.shape,
@@ -324,10 +326,12 @@
     }
 
     async function handleExitClick(){
+        clearInterval(endGameTimer);
         addLog(ExitClickLogs());
     }
 
     async function handleGameEnd(condition){
+        clearInterval(endGameTimer);
         addLog(endGameLogs(condition));
         goto('/');
     }
