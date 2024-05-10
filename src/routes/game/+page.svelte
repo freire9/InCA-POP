@@ -479,6 +479,6 @@
         {#each popElmnts as popElmnt (popElmnt.id)}
             <Balloon gameMode={gameMode} balloon={popElmnt} {currentRampageChain} on:balloonClicked={handleClick} />
         {/each}
-        <InGameStats stats = {currentStats} />
+        <InGameStats stats = {currentStats} gameBackgroundColor={gameBackgroundColor}/>
     </main>
 </div>

@@ -1,7 +1,9 @@
 <script>
+	import { getTextColorByContrast } from "$lib/utils";
     import { popElmntTypes, popElmntTypesShort } from "../stores";
 
     export let stats;
+    export let gameBackgroundColor;
 
     function addSeparator(i){
         return i === Object.values(popElmntTypes).length - 1 ? "" : ", ";
@@ -30,7 +32,7 @@
 <p>
     {#each Object.values(popElmntTypes) as elmntType, i}
         {#if stats[elmntType]}
-            <span>{popElmntTypesShort[elmntType]} : {stats[elmntType].popped}/{stats[elmntType].total}{addSeparator(i)}</span>
+            <span style:color={getTextColorByContrast(gameBackgroundColor)}>{popElmntTypesShort[elmntType]} : {stats[elmntType].popped}/{stats[elmntType].total}{addSeparator(i)}</span>
             <br>
         {/if}
     {/each}
