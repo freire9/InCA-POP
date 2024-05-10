@@ -69,9 +69,9 @@ export const endGameConditionsTooltip = {
 
 // Speed values for different pop element speeds (px per frame usign 60fps as reference)
 export const popElmntSpeedsOpts = {
-    [popElmntSpeeds.SLOW]: {min: 0.5, max: 1.5},
-    [popElmntSpeeds.NORMAL]: {min: 1.5, max: 2.5},
-    [popElmntSpeeds.FAST]: {min: 2.5, max: 3.5},
+    [popElmntSpeeds.SLOW]: {min: 0.3, max: 1.3},
+    [popElmntSpeeds.NORMAL]: {min: 1.3, max: 2.3},
+    [popElmntSpeeds.FAST]: {min: 2.3, max: 3.3},
 };
 
 // Size values for different pop element sizes
