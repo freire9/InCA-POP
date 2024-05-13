@@ -53,9 +53,9 @@ export function syncPreferencesToStores(userData) {
             }
         });
         
-        gameSettings.set(updatedGameSettings);
-        menuSettings.set(updatedMenuSettings);
-        appSettings.set(updatedAppSettings);
+        gameSettings.set(deepCopy(updatedGameSettings));
+        menuSettings.set(deepCopy(updatedMenuSettings));
+        appSettings.set(deepCopy(updatedAppSettings));
         
         console.log('User preferences loaded');
 
