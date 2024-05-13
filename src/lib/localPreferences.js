@@ -1,6 +1,7 @@
 import { appSettings, appSettingsDEFAULT, availableModes, gameSettings, gameSettingsDEFAULT, localUserId, menuSettings, menuSettingsDEFAULT, modifyingConfig, subjectName } from "../stores";
 import { updateSettingsWithDefault } from "./preferences";
 import lodash from 'lodash';
+import { deepCopy } from "./utils";
 const { debounce } = lodash;
 
 function getLocalPreferences(){
@@ -31,8 +32,8 @@ export function setLocalPreferencesToStores(){
     }
     const { settings: updatedLocalAppSettings, hasChanged: appSettingsHasChanged } = updateSettingsWithDefault(appSettingsDEFAULT, incaPopPreferencesLocal.appSettings || {});
     const { settings: updatedLocalMenuSettings, hasChanged: menuSettingsHasChanged } = updateSettingsWithDefault(menuSettingsDEFAULT, incaPopPreferencesLocal.menuSettings || {});
-    appSettings.set(updatedLocalAppSettings);
-    menuSettings.set(updatedLocalMenuSettings);
+    appSettings.set(deepCopy(updatedLocalAppSettings));
+    menuSettings.set(deepCopy(updatedLocalMenuSettings));
     
     let updatedLocalGameSettings = {};
     let gameSettingsHasChanged = false;
@@ -44,7 +45,7 @@ export function setLocalPreferencesToStores(){
             gameSettingsHasChanged = true;
         }
      });
-    gameSettings.set(updatedLocalGameSettings);
+    gameSettings.set(deepCopy(updatedLocalGameSettings));
     
     if(appSettingsHasChanged || gameSettingsHasChanged || menuSettingsHasChanged) {
         updateLocalPreferences();
