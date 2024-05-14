@@ -16,7 +16,7 @@
         bottom: 0;
         width: 100%;
         text-align: center;
-        font-size: x-small;
+        font-size: small;
     }
     span{
         margin: 2px;
@@ -24,6 +24,9 @@
     @media (min-width: 600px){
         br{
             display: none;
+        }
+        p{
+            font-size: medium;
         }
 
     }
