@@ -4,7 +4,7 @@
     import { onMount } from "svelte";
     import { TrainerButton, Fa } from 'inca-utils';
     import { faGear, faExpand, faInfo, faLeftLong, faRightLong, faUpLong, faDownLong } from '@fortawesome/free-solid-svg-icons';
-    import { getRandomColorFromPalette, toogleFullscreen } from "$lib/utils";
+    import { deepCopy, getRandomColorFromPalette, toogleFullscreen } from "$lib/utils";
     import StaticBalloon from "../components/StaticBalloon.svelte";
     import { addLog } from "$lib/logService";
 
@@ -61,12 +61,13 @@
         startGame(event.detail);
         const gameStartedLog = {
             ...setGeneralLogs('Game started'), 
-            details: {gameMode: event.detail, menuBackgroundColor: $menuSettings.menuBackgroundColor, color: $menuSettings.availableModes[event.detail].color, gameId: $gameId, position: $menuSettings.availableModes[event.detail].position}};
+            details: deepCopy({gameMode: event.detail, menuBackgroundColor: $menuSettings.menuBackgroundColor, color: $menuSettings.availableModes[event.detail].color, gameId: $gameId, position: $menuSettings.availableModes[event.detail].position})
+        };
         addLog(gameStartedLog);
     }
 
     async function handleBackgroundClick(event){
-        const backgroundClickLog = {...setGeneralLogs('Menu background click'), details: {x: event.clientX, y: event.clientY, menuBackgroundColor: $menuSettings.menuBackgroundColor}};
+        const backgroundClickLog = {...setGeneralLogs('Menu background click'), details: deepCopy({x: event.clientX, y: event.clientY, menuBackgroundColor: $menuSettings.menuBackgroundColor})};
         addLog(backgroundClickLog);
     }
 
