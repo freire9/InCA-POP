@@ -102,6 +102,11 @@
         z-index: 1;
         user-select: none;
     }
+    @media (min-width: 600px){
+        .app-version{
+            font-size: medium;
+        }
+    }
 </style>
 
 <p class="app-version">v{appVersion}</p>

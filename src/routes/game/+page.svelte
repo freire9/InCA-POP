@@ -1,7 +1,7 @@
 <script>
     import Balloon from '../../components/Balloon.svelte';;
     import { onDestroy, onMount } from 'svelte';
-    import { capitalizeFirstLetter, getRandomColorFromPalette, getRandomFrom } from '$lib/utils';
+    import { capitalizeFirstLetter, deepCopy, getRandomColorFromPalette, getRandomFrom } from '$lib/utils';
     import { addLog } from "$lib/logService";
     import { appSettings, gameSettings, user, popElmntSizeOpts, gameDirection, subjectName, popElmntShapes, popElmntTypes, popElmntSpeedsOpts, popElmntDirections, localUserId, isLoggedIn, endGameConditionsOpts, gameId } from '../../stores.js';
     import SubjectNavBar from '../../components/SubjectNavBar.svelte';
@@ -163,7 +163,7 @@
     }
 
     function onScreenPopElmnts(popElmnts){
-        const popElmntsOnScreen = popElmnts.filter(popElmnt => {
+        const popElmntsOnScreen = deepCopy(popElmnts.filter(popElmnt => {
             switch (popElmnt.direction) {
                 case popElmntDirections.LEFT_TO_RIGHT:
                     return popElmnt.x <= window.innerWidth && popElmnt.x >= 0;
@@ -176,7 +176,7 @@
                 default:
                     return false;
             }
-        });
+        }));
         return popElmntsOnScreen;
     }
 
@@ -243,7 +243,7 @@
             ...onScreenElmntsLogs,
             gameId: actualGameId,
         }
-        return {...generalLogs, details: detailLogs};
+        return {...generalLogs, details: deepCopy(detailLogs)};
     }
 
     function backgroundClickLogs(event){
@@ -257,7 +257,7 @@
             ...onScreenElmntsLogs,
             gameId: actualGameId,
         }
-        return {...generalLogs, details: detailLogs};
+        return {...generalLogs, details: deepCopy(detailLogs)};
     }
 
     function ExitClickLogs(){
@@ -283,7 +283,7 @@
             ...totalStatsLogs,
             gameId: actualGameId,
         }
-        return {...generalLogs, details: detailLogs};
+        return {...generalLogs, details: deepCopy(detailLogs)};
     }
 
     function endGameLogs(condition){
@@ -307,7 +307,7 @@
             gameId: actualGameId,
             gameMode: gameMode,
         }
-        return {...generalLogs, details: detailLogs};
+        return {...generalLogs, details: deepCopy(detailLogs)};
     }
 
     async function handleClick(event) {
