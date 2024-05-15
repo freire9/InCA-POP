@@ -27,3 +27,4 @@ const envMode = import.meta.env.VITE_MODE;
 const envDBBreakingLogsV = import.meta.env.VITE_APP_BREAKING_LOGS_VERSION;
 export const dbLogsCollectionName = 'inca-pop' + (envMode === 'development' ? '-dev' : '') + '-' + envDBBreakingLogsV;
 export const dbUsersCollectionName = envMode === 'development' ? ('inca-pop-users-dev-' + envDBBreakingLogsV) : 'users';
+export const dbExitEndCollectionName = 'inca-pop-exit-end' + (envMode === 'development' ? '-dev' : '') + '-' + envDBBreakingLogsV;
