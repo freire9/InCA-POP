@@ -3,7 +3,7 @@
     import { onDestroy, onMount } from 'svelte';
     import { capitalizeFirstLetter, deepCopy, getRandomColorFromPalette, getRandomFrom } from '$lib/utils';
     import { addLog } from "$lib/logService";
-    import { appSettings, gameSettings, user, popElmntSizeOpts, gameDirection, subjectName, popElmntShapes, popElmntTypes, popElmntSpeedsOpts, popElmntDirections, localUserId, isLoggedIn, endGameConditionsOpts, gameId } from '../../stores.js';
+    import { appSettings, gameSettings, user, popElmntSizeOpts, gameDirection, subjectName, popElmntShapes, popElmntTypes, popElmntSpeedsOpts, popElmntDirections, localUserId, isLoggedIn, endGameConditionsOpts, gameId, availableColorsOpts } from '../../stores.js';
     import SubjectNavBar from '../../components/SubjectNavBar.svelte';
     import InGameStats from '../../components/InGameStats.svelte';
     import { goto } from '$app/navigation';
@@ -44,6 +44,14 @@
     let specialPopElmntsPopped = 0;
     let totalPopElmntsPopped = 0;
     let endGameTimer;
+    let specialColorPairsSeen = {};
+
+    Object.values(availableColorsOpts).forEach(color1 => {
+        Object.values(availableColorsOpts).forEach(color2 => {
+            const pair = `${color1},${color2}`;
+            specialColorPairsSeen[pair] = 0;
+        });
+    });
 
     //Max quantities of special popElmnts
     const specialPopElmntsMaxQuantities = Object.fromEntries(
@@ -56,6 +64,12 @@
     );
     //Total max quantity of special popElmnts
     const specialPopElmntsMaxQuantity = Object.values(specialPopElmntsMaxQuantities).reduce((sum, value) => sum + value, 0);
+
+    //function to increment the quantity of color pair (color and inner fig color) seen together
+    function addToSeenSpecialColors(popElmntColor, innerFigColor){
+        const pair = `${popElmntColor},${innerFigColor}`;
+        specialColorPairsSeen[pair] += 1;
+    }
 
     function startTimer(time) {
         endGameTimer = setInterval(() => {
@@ -105,6 +119,8 @@
             ((false && popElmntConfig[type].enableInnerFigRangeColor) ? getRandomFrom(popElmntConfig[type].innerFigInterpColors) : popElmntConfig[type].innerFigColor)
             : '';
 
+        if(isSpecial) addToSeenSpecialColors(color, innerFigColor);
+
         popElmnts.push(
             { id, color, innerFigType, innerFigColor, x, y, speed, direction, size, rotation, isSpecial, type, shape}
         );
@@ -141,6 +157,7 @@
             if(isSpecial){
                 specialPopElmntsQuantities[type] += 1;
                 specialPopElmntsTotalQty += 1;
+                addToSeenSpecialColors(color, innerFigColor);
             }
 
             popElmnts.push(
@@ -282,6 +299,7 @@
             ...poppedStatsLogs,
             ...totalStatsLogs,
             gameId: actualGameId,
+            specialColorPairsSeen: specialColorPairsSeen,
         }
         return {...generalLogs, details: deepCopy(detailLogs)};
     }
@@ -306,6 +324,7 @@
             endCondition: condition,
             gameId: actualGameId,
             gameMode: gameMode,
+            specialColorPairsSeen: specialColorPairsSeen,
         }
         return {...generalLogs, details: deepCopy(detailLogs)};
     }
@@ -327,12 +346,12 @@
 
     async function handleExitClick(){
         clearInterval(endGameTimer);
-        addLog(ExitClickLogs());
+        addLog(ExitClickLogs(), {isExitEndLog: true});
     }
 
     async function handleGameEnd(condition){
         clearInterval(endGameTimer);
-        addLog(endGameLogs(condition));
+        addLog(endGameLogs(condition), {isExitEndLog: true});
         goto('/');
     }
 
