@@ -1,11 +1,11 @@
-import { db, dbLogsCollectionName } from "$lib/firebaseConfig";
+import { db, dbExitEndCollectionName, dbLogsCollectionName } from "$lib/firebaseConfig";
 import { addDoc, collection, query, where, getDocs } from "firebase/firestore";
-import { deepCopy } from "./utils";
 
 // Function for send log to Firestore
-const addRemoteLog = async (dataLogs) => {
+const addRemoteLog = async (dataLogs, {isExitEndLog = false} = {}) => {
   try {
-    const logsCollection = collection(db, dbLogsCollectionName);
+    const collectionName = isExitEndLog ? dbExitEndCollectionName : dbLogsCollectionName;
+    const logsCollection = collection(db, collectionName);
     const docRef = await addDoc(logsCollection, dataLogs);
   } catch (error) {
     console.error('Error at saving log: ', error);
@@ -13,9 +13,9 @@ const addRemoteLog = async (dataLogs) => {
 };
 
 // Function to add a log
-export const addLog = async (dataLogs) => {
+export const addLog = async (dataLogs, {isExitEndLog = false} = {}) => {
   const logEntry = dataLogs;
-  addRemoteLog(logEntry);
+  addRemoteLog(logEntry, {isExitEndLog: isExitEndLog});
 };
 
 // Function to get logs (remote: Firestore)
@@ -23,9 +23,14 @@ export const getRemoteLogs = async (userUid) => {
   try {
     const qId = query(collection(db, dbLogsCollectionName), where('userId', '==', userUid));
     const idQuerySnapshot = await getDocs(qId);
+    const qIdExitEnd = query(collection(db, dbExitEndCollectionName), where('userId', '==', userUid));
+    const idQuerySnapshotExitEnd = await getDocs(qIdExitEnd);
     let remoteLogs = [];
 
     idQuerySnapshot.forEach((doc) => {
+      remoteLogs.push({...doc.data(), id: doc.id});
+    });
+    idQuerySnapshotExitEnd.forEach((doc) => {
       remoteLogs.push({...doc.data(), id: doc.id});
     });
 
