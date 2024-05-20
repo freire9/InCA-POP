@@ -111,13 +111,14 @@
         const innerFigType = isSpecial ? popElmntConfig[type].innerFigType : '';
         const shape = popElmntConfig[type].shape;
 
-        const color = popElmntConfig[type].enableRandColor ?
-            getRandomColorFromPalette() :
-            ((false && popElmntConfig[type].enableRangeColor) ? getRandomFrom(popElmntConfig[type].interpColors) : popElmntConfig[type].color);
-
         const innerFigColor = isSpecial ? 
             ((false && popElmntConfig[type].enableInnerFigRangeColor) ? getRandomFrom(popElmntConfig[type].innerFigInterpColors) : popElmntConfig[type].innerFigColor)
             : '';
+
+        const color = popElmntConfig[type].enableRandColor ?
+            getRandomColorFromPalette({filterColor: isSpecial ? innerFigColor : ''}) :
+            ((false && popElmntConfig[type].enableRangeColor) ? getRandomFrom(popElmntConfig[type].interpColors) : popElmntConfig[type].color);
+
 
         if(isSpecial) addToSeenSpecialColors(color, innerFigColor);
 
@@ -146,13 +147,14 @@
             const innerFigType = isSpecial ? popElmntConfig[type].innerFigType : '';
             const shape = popElmntConfig[type].shape;
 
-            const color = popElmntConfig[type].enableRandColor ?
-                getRandomColorFromPalette()
-                : ((false && popElmntConfig[type].enableRangeColor) ? getRandomFrom(popElmntConfig[type].interpColors) : popElmntConfig[type].color);
-            
             const innerFigColor = isSpecial ? 
                 ((false && popElmntConfig[type].enableInnerFigRangeColor) ? getRandomFrom(popElmntConfig[type].innerFigInterpColors) : popElmntConfig[type].innerFigColor)
                 : '';
+
+            const color = popElmntConfig[type].enableRandColor ?
+                getRandomColorFromPalette({filterColor: isSpecial ? innerFigColor : ''})
+                : ((false && popElmntConfig[type].enableRangeColor) ? getRandomFrom(popElmntConfig[type].interpColors) : popElmntConfig[type].color);
+            
 
             if(isSpecial){
                 specialPopElmntsQuantities[type] += 1;
