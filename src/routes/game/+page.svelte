@@ -274,7 +274,6 @@
                 ).length + 1,
             OnScreenDifferentTypeAsPopped: onScreen.filter(popElmnt => popElmnt.type !== poppedElmnt.type).length,
         }
-        console.log(onScreenComparativeLogs)
         return onScreenComparativeLogs;
     }
 
