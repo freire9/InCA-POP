@@ -57,7 +57,7 @@
 
 <div class="end-game-container">
     <h3>End game conditions</h3>
-    {#each Object.values(endGameConditionsOpts) as condition}
+    {#each Object.values(endGameConditionsOpts).filter(condition => condition !== endGameConditionsOpts.INACTIVITY) as condition}
         <div class="checkbox-flex">
             <input type="checkbox" id={"endGameCondition" + toCamelCase(condition) + "Checkbox"} bind:checked={$gameSettings[mode].endGameConditions[condition].enabled} on:input={updatePreferences}>
             <label for={"endGameCondition" + toCamelCase(condition) + "Checkbox"}>
