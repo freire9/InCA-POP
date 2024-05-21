@@ -41,10 +41,16 @@
     let balloonKnotHeightPercent;
     let currentRampageChain = 0;
     let currentStats = Object.fromEntries(Object.values(popElmntTypes).map(type => [type, { popped: 0, total: 0 }]));
+    let provisoryStats = Object.fromEntries(Object.values(popElmntTypes).map(type => [type, { popped: 0, total: 0 }]));
     let specialPopElmntsPopped = 0;
     let totalPopElmntsPopped = 0;
     let endGameTimer;
     let specialColorPairsSeen = {};
+    let awayFromWindowTimer;
+    let timeSinceLastInteraction = 0;
+    const timeForTrackInactivity = 20000;
+    const timeForInactivityEndGame = 60000;
+    const timeForInactivityWindowEndGame = 10000;
 
     Object.values(availableColorsOpts).forEach(color1 => {
         Object.values(availableColorsOpts).forEach(color2 => {
@@ -52,6 +58,8 @@
             specialColorPairsSeen[pair] = 0;
         });
     });
+
+    let specialColorPairsSeenPovisory = deepCopy(specialColorPairsSeen);
 
     //Max quantities of special popElmnts
     const specialPopElmntsMaxQuantities = Object.fromEntries(
@@ -68,7 +76,8 @@
     //function to increment the quantity of color pair (color and inner fig color) seen together
     function addToSeenSpecialColors(popElmntColor, innerFigColor){
         const pair = `${popElmntColor},${innerFigColor}`;
-        specialColorPairsSeen[pair] += 1;
+        if(timeSinceLastInteraction < timeForTrackInactivity) specialColorPairsSeen[pair] += 1;
+        specialColorPairsSeenPovisory[pair] += 1;
     }
 
     function startTimer(time) {
@@ -76,6 +85,14 @@
             clearInterval(endGameTimer);
             handleGameEnd(endGameConditionsOpts.TIME);
         }, time * 1000);
+    }
+
+    function restartInactivityTracking(){
+        if(timeSinceLastInteraction >= timeForTrackInactivity && timeSinceLastInteraction < timeForInactivityEndGame){
+            currentStats = deepCopy(provisoryStats);
+            specialColorPairsSeen = deepCopy(specialColorPairsSeenPovisory);
+        }
+        timeSinceLastInteraction = 0;
     }
 
     function getAditionalHeight(type, height){
@@ -125,7 +142,9 @@
         popElmnts.push(
             { id, color, innerFigType, innerFigColor, x, y, speed, direction, size, rotation, isSpecial, type, shape}
         );
-        currentStats[type].total += 1;
+        
+        if(timeSinceLastInteraction < timeForTrackInactivity) currentStats[type].total += 1;
+        provisoryStats[type].total += 1;
     }
 
     function addInitialPopElmnts() {
@@ -165,7 +184,9 @@
             popElmnts.push(
                 { id, color, innerFigType, innerFigColor, x, y, speed, direction, size, rotation, isSpecial, type, shape}
             );
-            currentStats[type].total += 1;
+
+            if(timeSinceLastInteraction < timeForTrackInactivity) currentStats[type].total += 1;
+            provisoryStats[type].total += 1;
         }
     }
     
@@ -332,9 +353,11 @@
     }
 
     async function handleClick(event) {
+        restartInactivityTracking();
         if(enableRampageMode) rampageChainUpdate(event.detail);
         addLog(poppedElmntLogs(event.detail));
         currentStats[event.detail.type].popped += 1;
+        provisoryStats[event.detail.type].popped += 1;
         if(event.detail.isSpecial) specialPopElmntsPopped += 1;
         totalPopElmntsPopped += 1;
         destroyPopElmnt(event.detail.id);
@@ -343,10 +366,12 @@
     }
 
     async function handleBackgroundClick(event){
+        restartInactivityTracking();
         addLog(backgroundClickLogs(event));
     }
 
     async function handleExitClick(){
+        restartInactivityTracking();
         clearInterval(endGameTimer);
         addLog(ExitClickLogs(), {isExitEndLog: true});
     }
@@ -445,6 +470,11 @@
         const currentTime = performance.now();
         const deltaTime = currentTime - lastFrameTime; //ms
         timeForNextPopElmnt += deltaTime;
+        timeSinceLastInteraction += deltaTime;
+
+        if (timeSinceLastInteraction >= timeForInactivityEndGame) {
+            handleGameEnd(endGameConditionsOpts.INACTIVITY);
+        }
 
         if(timeForNextPopElmnt >= popElmntInterval){
             addPopElmnt();
@@ -455,8 +485,46 @@
         lastFrameTime = currentTime ;
         animationFrameId = requestAnimationFrame(gameLoop);
     }
+    
+    //Handle user before reloading the page
+    let isUserLeaving = false;
+    const handleBeforeUnload = (event) => {
+        isUserLeaving = true;
+        const confirmationMessage = 'Are you sure you want to leave (if you close the data may be lost)?';
+        event.returnValue = confirmationMessage; // For modern browsers
+        return confirmationMessage; // For older browsers
+    };
+
+    //Handle user reloading the page
+    const handleUnload = () => {
+        if (isUserLeaving) handleGameEnd(endGameConditionsOpts.INACTIVITY);
+        else isUserLeaving = false;
+    };
+
+    //Handle user leaving the window
+    const handleVisibilityChange = () => {
+        if (document.hidden) {
+            const actualTime = performance.now();
+            awayFromWindowTimer = setInterval(() => {
+                const currentTime = performance.now();
+                if(currentTime - actualTime >= timeForInactivityWindowEndGame){
+                    clearInterval(awayFromWindowTimer);
+                    handleGameEnd(endGameConditionsOpts.INACTIVITY);
+                }
+            }, 1000);
+        } else {
+            clearInterval(awayFromWindowTimer);
+        }
+    };
 
     onMount(() => {
+        const isClient = !import.meta.env.SSR;
+        if(isClient){
+            window.addEventListener('beforeunload', handleBeforeUnload);
+            window.addEventListener('unload', handleUnload);
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+        }
+
         const areBalloons = Object.values(popElmntConfig).some(popElmnt => popElmnt.shape === popElmntShapes.BALLOON);
         if(areBalloons){
             const root = document.documentElement;
@@ -473,11 +541,26 @@
 
         // start popElmnt animation
         gameLoop()
+
+        return () => {
+            if(isClient){
+                clearInterval(awayFromWindowTimer);
+                window.removeEventListener('beforeunload', handleBeforeUnload);
+                window.removeEventListener('unload', handleUnload);
+                document.removeEventListener('visibilitychange', handleVisibilityChange);
+            }
+        };
     });
 
     onDestroy(() => {
         const isClient = !import.meta.env.SSR;
-        if(isClient) cancelAnimationFrame(animationFrameId);
+        if(isClient){
+            cancelAnimationFrame(animationFrameId);
+            clearInterval(awayFromWindowTimer);
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+            window.removeEventListener('unload', handleUnload);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        }
     });
 </script>
   
