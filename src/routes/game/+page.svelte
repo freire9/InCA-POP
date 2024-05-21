@@ -256,9 +256,32 @@
         return onScreenElmntsLogs;
     }
 
+    function setOnScreenComparativeLogs(poppedElmnt){
+        const onScreen = onScreenPopElmnts(popElmnts);
+        const onScreenComparativeLogs = {
+            OnScreenExactlySameAsPopped: onScreen.filter(popElmnt => 
+                    popElmnt.type === poppedElmnt.type &&
+                    popElmnt.color === poppedElmnt.color &&
+                    popElmnt.innerFigColor === poppedElmnt.innerFigColor &&
+                    popElmnt.innerFigType === poppedElmnt.innerFigType
+                ).length,
+            OnScreenDiffButSameTypeAsPopped: onScreen.filter(popElmnt => 
+                    popElmnt.type === poppedElmnt.type &&
+                    (popElmnt.color !== poppedElmnt.color ||
+                        popElmnt.innerFigColor !== poppedElmnt.innerFigColor ||
+                        popElmnt.innerFigType !== poppedElmnt.innerFigType
+                    )
+                ).length + 1,
+            OnScreenDifferentTypeAsPopped: onScreen.filter(popElmnt => popElmnt.type !== poppedElmnt.type).length,
+        }
+        console.log(onScreenComparativeLogs)
+        return onScreenComparativeLogs;
+    }
+
     function poppedElmntLogs(popElmnt){
         const generalLogs = setGeneralLogs('Popped element');
         const onScreenElmntsLogs = setOnScreenElmntsLogs();
+        const onScreenComparativeLogs = setOnScreenComparativeLogs(popElmnt);
         let specialDetails = {};
         if(popElmnt.isSpecial){
             specialDetails = {
@@ -281,6 +304,7 @@
             gameMode: gameMode,
             ...specialDetails,
             ...onScreenElmntsLogs,
+            ...onScreenComparativeLogs,
             gameId: actualGameId,
         }
         return {...generalLogs, details: deepCopy(detailLogs)};
