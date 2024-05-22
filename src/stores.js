@@ -57,6 +57,7 @@ export const endGameConditionsOpts = {
     TIME: 'time',
     POP_ELMNTS_POPPED: 'pop elements popped',
     SPECIAL_POP_ELMNTS_POPPED: 'special pop elements popped',
+    INACTIVITY: 'inactivity',
 }
 
 const specialPopElmnts = Object.values(popElmntTypes).filter(type => type !== popElmntTypes.NORMAL);

@@ -46,9 +46,10 @@ export function getRandomHexColor(){
 }
 
 // Function to get a random color from palette
-export function getRandomColorFromPalette(){
-    const randomColorName = getRandomFrom(Object.values(availableColorsNames));
-    return availableColorsOpts[randomColorName];
+export function getRandomColorFromPalette({filterColor = ''} = {}){
+    if(filterColor) return getRandomFrom(Object.values(availableColorsOpts).filter(color => color !== filterColor));
+    
+    return getRandomFrom(Object.values(availableColorsOpts));
 }
 
 // Function to deep copy an object
