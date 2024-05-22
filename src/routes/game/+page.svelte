@@ -259,20 +259,20 @@
     function setOnScreenComparativeLogs(poppedElmnt){
         const onScreen = onScreenPopElmnts(popElmnts);
         const onScreenComparativeLogs = {
-            OnScreenExactlySameAsPopped: onScreen.filter(popElmnt => 
+            onScreenExactlySameAsPopped: onScreen.filter(popElmnt => 
                     popElmnt.type === poppedElmnt.type &&
                     popElmnt.color === poppedElmnt.color &&
                     popElmnt.innerFigColor === poppedElmnt.innerFigColor &&
                     popElmnt.innerFigType === poppedElmnt.innerFigType
                 ).length,
-            OnScreenDiffButSameTypeAsPopped: onScreen.filter(popElmnt => 
+            onScreenDiffButSameTypeAsPopped: onScreen.filter(popElmnt => 
                     popElmnt.type === poppedElmnt.type &&
                     (popElmnt.color !== poppedElmnt.color ||
                         popElmnt.innerFigColor !== poppedElmnt.innerFigColor ||
                         popElmnt.innerFigType !== poppedElmnt.innerFigType
                     )
                 ).length + 1,
-            OnScreenDifferentTypeAsPopped: onScreen.filter(popElmnt => popElmnt.type !== poppedElmnt.type).length,
+            onScreenDifferentTypeAsPopped: onScreen.filter(popElmnt => popElmnt.type !== poppedElmnt.type).length,
         }
         return onScreenComparativeLogs;
     }
