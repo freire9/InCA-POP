@@ -1,5 +1,5 @@
 <script>
-    import { menuSettings, appSettings, user, gameDirection, isIphone, modifyingConfig, subjectName, popElmntDirections, localUserId, isLoggedIn, gameId, availableModes } from "../stores";
+    import { menuSettings, appSettings, user, gameDirection, isIphone, modifyingConfig, subjectName, popElmntDirections, localUserId, isLoggedIn, gameId, availableModes, actionsOpts } from "../stores";
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
     import { TrainerButton, Fa } from 'inca-utils';
@@ -60,14 +60,14 @@
     async function handleClick(event){
         startGame(event.detail);
         const gameStartedLog = {
-            ...setGeneralLogs('Game started'), 
+            ...setGeneralLogs(actionsOpts.GAME_STARTED), 
             details: deepCopy({gameMode: event.detail, menuBackgroundColor: $menuSettings.menuBackgroundColor, color: $menuSettings.availableModes[event.detail].color, gameId: $gameId, position: $menuSettings.availableModes[event.detail].position})
         };
         addLog(gameStartedLog);
     }
 
     async function handleBackgroundClick(event){
-        const backgroundClickLog = {...setGeneralLogs('Menu background click'), details: deepCopy({x: event.clientX, y: event.clientY, menuBackgroundColor: $menuSettings.menuBackgroundColor})};
+        const backgroundClickLog = {...setGeneralLogs(actionsOpts.MENU_BACKGROUND_CLICK), details: deepCopy({x: event.clientX, y: event.clientY, menuBackgroundColor: $menuSettings.menuBackgroundColor})};
         addLog(backgroundClickLog);
     }
 

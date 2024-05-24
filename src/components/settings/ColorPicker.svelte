@@ -6,18 +6,27 @@
   export let value;
   export let id;
   export let label;
+  export let selectAllOption = false;
+  let gradient;
   const dispatch = createEventDispatcher();
+    
+  function handleInput(event) {
+    dispatch('input', event.target.value);
+  }
 
-  function handleInput() {
-    dispatch('input');
+  $: {
+    if(!value && selectAllOption) gradient = `linear-gradient(45deg, ${Object.values(availableColorsOpts).join(', ')})`;
   }
 
 </script>
 
 <label for={id}>{label}</label>
 <div class="select-container">
-    <span class="color-preview" style:background-color={value}/>
-    <select id={id} bind:value={value} on:input={handleInput}>
+    <span class="color-preview" style:background={value ? value : gradient}/>
+    <select class="not-selectable" id={id} bind:value={value} on:input={handleInput}>
+        {#if selectAllOption}
+            <option value="">All colors</option>
+        {/if}
         {#each Object.values(availableColorsNames) as colorName}
             <option value={availableColorsOpts[colorName]}>{capitalizeFirstLetter(colorName)}</option>
         {/each}

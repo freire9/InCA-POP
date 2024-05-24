@@ -2,9 +2,10 @@
 	import { onMount } from "svelte";
     import UserNavBar from "../../components/UserNavBar.svelte";
     import Profile from "../../components/settings/Profile.svelte";
-    import { availableColorsNames, availableColorsOpts, isFullScreen, isLoggedIn, user } from "../../stores";
+    import { actionsOpts, availableColorsNames, availableColorsOpts, availableColorsOptsByHex, isFullScreen, isLoggedIn, user } from "../../stores";
 	import { getRemoteLogs } from "$lib/logService";
 	import { capitalizeFirstLetter, deepCopy } from "$lib/utils";
+	import ColorPicker from "../../components/settings/ColorPicker.svelte";
 
     let loading;
     let formattedLogs = [];
@@ -19,6 +20,11 @@
     $: filteredLogs = [];
     $: visibleColumns = [];
     let seenColorsPercentModeEnabled = false;
+    let filteredPopElmntColors = Object.values(availableColorsNames);
+    let filteredInnerFigColors = Object.values(availableColorsNames);
+    let fetchedSubjects = [];
+
+    let currentFilters = {};
 
     onMount(async () => {
         loading = true;
@@ -31,6 +37,8 @@
 
         // Get the logs from the server
         let fetchedLogs = await getRemoteLogs($user.uid);
+
+        fetchedSubjects = Array.from(new Set(fetchedLogs.map(log => log.subject)));
 
         // Extract the details from the logs and merge them with the rest of the log data
         fetchedLogs = fetchedLogs.map(log => {
@@ -65,11 +73,67 @@
         console.log(colorPairsSeen)
     })
 
-    // Function to handle the selection of the action filter
-    function handleSelect(event) {
-        const selectedAction = event.target.value;
-        filterDataByAction(selectedAction);
+    // Function to filter the data by the selected filters
+    const applyFilters = (item, filters) => {
+        for (const key in filters) {
+            if (item[key] !== filters[key]) {
+                return false;
+            }
+        }
+        return true;
+    };
+
+    // Function to handle select input filter
+    function handleSelect(value, filterFunction) {
+        filterFunction(value);
+        getColorPairsSeen();
+        getColorPairsPopped();
         filterColumns()
+    }
+
+    // Function to handle the selection of the action filter
+    const handleActionFilter = (event) => {
+        currentFilters['action'] = event.target.value;
+        handleSelect(event.target.value, filterDataByAction);
+    }
+    
+    const handlePopElmntColorFilter = (event) => {
+        currentFilters['popElmntColor'] = availableColorsOptsByHex[event.detail];
+        handleSelect(event.detail, filterStatsByPopElmntColor);
+    }
+    
+    const handleInnerFigColorFilter = (event) => {
+        currentFilters['innerFigColor'] = availableColorsOptsByHex[event.detail];
+        handleSelect(event.detail, filterStatsByInnerFigColor);
+    }
+
+    const handleSubjectSelect = (event) => {
+        currentFilters['subject'] = event.target.value;
+        handleSelect(event.target.value, filterDataBySubject);
+    }
+
+    function filterDataBySubject(selectedSubject) {
+        if (selectedSubject === '') {
+            filteredLogs = formattedLogs;
+        } else {
+            filteredLogs = formattedLogs.filter(item => applyFilters(item, currentFilters));
+        }
+    }
+    
+    function filterStatsByPopElmntColor(selectedColor) {
+        if (selectedColor === '') {
+            filteredPopElmntColors = Object.values(availableColorsNames);
+        } else {
+            filteredPopElmntColors = Object.values(availableColorsNames).filter(color => applyFilters(color, currentFilters));
+        }
+    }
+
+    function filterStatsByInnerFigColor(selectedColor) {
+        if (selectedColor === '') {
+            filteredInnerFigColors = Object.values(availableColorsNames);
+        } else {
+            filteredInnerFigColors = Object.values(availableColorsNames).filter(color => applyFilters(color, currentFilters));
+        }
     }
 
     // Function to filter the data by the selected action
@@ -77,7 +141,7 @@
         if (selectedAction === '') {
             filteredLogs = formattedLogs;
         } else {
-            filteredLogs = formattedLogs.filter(item => item.action === selectedAction);
+            filteredLogs = formattedLogs.filter(item => applyFilters(item, currentFilters));
         }
     }
 
@@ -90,7 +154,8 @@
 
     // Function to get total times that a color pairs has been seen
     function getColorPairsSeen(){
-        const exitEndLogs = formattedLogs.filter(log => log.action === 'Exit game' || log.action === 'Game end');
+        const exitEndLogs = filteredLogs.filter(log => log.action === 'Exit game' || log.action === 'Game end');
+        colorPairsSeen = {};
         exitEndLogs.forEach(log => {
             Object.values(availableColorsOpts).forEach(color1 =>{
                 Object.values(availableColorsOpts).forEach(color2 =>{
@@ -105,11 +170,19 @@
 
     // Function to get total times that a color pairs has been popped
     function getColorPairsPopped(){
-        const specialPoppedElmntLogs = formattedLogs.filter(log => log.action === 'Popped element' && log.isSpecial);
+        const specialPoppedElmntLogs = filteredLogs.filter(log => log.action === 'Popped element' && log.isSpecial);
+        colorPairsPopped = {};
         specialPoppedElmntLogs.forEach(log => {
             const colorPair = [log.color, log.innerFigColor].join(',');
             colorPairsPopped[colorPair] = colorPairsPopped[colorPair] ? colorPairsPopped[colorPair] + 1 : 1;
         });
+    }
+
+    function showPoppedVsSeenPercent(popElmntColor, innerFigColor){
+        const colorPair = [popElmntColor, innerFigColor].join(',');
+        if (colorPairsSeen[colorPair] === 0) return 'N/A';
+
+        return ((colorPairsPopped[colorPair] / colorPairsSeen[colorPair]) * 100).toFixed(2).toString() + '%';
     }
 
 </script>
@@ -121,19 +194,28 @@
 
     <h2>Profile:</h2>
     <Profile />
+    <div class="subject-name-select-container">
+        <label for="subjectNameSelect">Select a subject:</label>
+        <select id="subjectNameSelect" class="not-selectable subject-name-select" on:input={handleSubjectSelect}>
+            <option value="">All subjects</option>
+            {#each fetchedSubjects as subject}
+                <option value={subject}>{subject}</option>
+            {/each}
+        </select>
+    </div>
 
     <h2>Data:</h2>
     {#if loading}
         <p>Loading...</p>
     {:else}
-        {#if !filteredLogs.length}
+        {#if !formattedLogs.length}
             <p>No logs found for this user ID</p>
         {:else}
         <label for="actionsFilter">Filter by action:</label>
-        <select id="actionsFilter" class="not-selectable action-filter-select" on:input={handleSelect}>
+        <select id="actionsFilter" class="not-selectable action-filter-select" on:input={handleActionFilter}>
             <option value="">All actions</option>
-            {#each actions as action}
-            <option value={action}>{action}</option>
+            {#each Object.values(actionsOpts) as action}
+                <option value={action}>{action}</option>
             {/each}
         </select>
         
@@ -165,16 +247,22 @@
     {#if loading}
         <p>Loading...</p>
     {:else}
-        {#if !filteredLogs.length}
+        {#if !formattedLogs.length}
             <p>No logs found for this user ID</p>
         {:else}
+            <ColorPicker selectAllOption={true} id={"popElmntColorsFilter"} label={"Filter by pop element color:"} on:input={handlePopElmntColorFilter}/>
+            <ColorPicker selectAllOption={true} id={"innerFigColorsFilter"} label={"Filter by inner figure color:"} on:input={handleInnerFigColorFilter}/>
+
+            <label for="seenColorsPercentMode">View percents:</label>
+            <input type="checkbox" id="seenColorsPercentMode" bind:checked={seenColorsPercentModeEnabled} />
+
             <h3>Color\inner fig color popped vs total seen:</h3>
             <div class="table-container">
                 <table>
                     <thead>
                         <tr>
                             <th>Color\Inner fig color</th>
-                            {#each Object.values(availableColorsNames) as color2Name}
+                            {#each filteredInnerFigColors as color2Name}
                                 <th>
                                     <span class="tr-color-square" style="background-color: {availableColorsOpts[color2Name]};"></span>
                                     {capitalizeFirstLetter(color2Name)}
@@ -183,18 +271,17 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {#each Object.values(availableColorsNames) as color1Name}
+                        {#each filteredPopElmntColors as color1Name}
                             <tr>
                                 <th>
                                     <span class="tr-color-square" style="background-color: {availableColorsOpts[color1Name]};"></span>
                                     {capitalizeFirstLetter(color1Name)}
                                 </th>
 
-                                {#each Object.values(availableColorsNames) as color2Name}
+                                {#each filteredInnerFigColors as color2Name}
                                     <td>
                                         {#if seenColorsPercentModeEnabled}
-                                            {((colorPairsPopped[`${availableColorsOpts[color1Name]},${availableColorsOpts[color2Name]}`] /
-                                            colorPairsSeen[`${availableColorsOpts[color1Name]},${availableColorsOpts[color2Name]}`]) * 100).toFixed(2)} %
+                                            {showPoppedVsSeenPercent(availableColorsOpts[color1Name], availableColorsOpts[color2Name])}
                                         {:else}
                                             {colorPairsPopped[`${availableColorsOpts[color1Name]},${availableColorsOpts[color2Name]}`]}
                                             /
@@ -270,5 +357,11 @@
     height: 20px;
     display: inline-block;
     margin-right: 5px;
+  }
+  .subject-name-select-container{
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background-color: white;
   }
 </style>

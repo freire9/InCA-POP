@@ -3,7 +3,7 @@
     import { onDestroy, onMount } from 'svelte';
     import { capitalizeFirstLetter, deepCopy, getRandomColorFromPalette, getRandomFrom } from '$lib/utils';
     import { addLog } from "$lib/logService";
-    import { appSettings, gameSettings, user, popElmntSizeOpts, gameDirection, subjectName, popElmntShapes, popElmntTypes, popElmntSpeedsOpts, popElmntDirections, localUserId, isLoggedIn, endGameConditionsOpts, gameId, availableColorsOpts } from '../../stores.js';
+    import { appSettings, gameSettings, user, popElmntSizeOpts, gameDirection, subjectName, popElmntShapes, popElmntTypes, popElmntSpeedsOpts, popElmntDirections, localUserId, isLoggedIn, endGameConditionsOpts, gameId, availableColorsOpts, actionsOpts } from '../../stores.js';
     import SubjectNavBar from '../../components/SubjectNavBar.svelte';
     import InGameStats from '../../components/InGameStats.svelte';
     import { goto } from '$app/navigation';
@@ -278,7 +278,7 @@
     }
 
     function poppedElmntLogs(popElmnt){
-        const generalLogs = setGeneralLogs('Popped element');
+        const generalLogs = setGeneralLogs(actionsOpts.POPPED_ELMNT);
         const onScreenElmntsLogs = setOnScreenElmntsLogs();
         const onScreenComparativeLogs = setOnScreenComparativeLogs(popElmnt);
         let specialDetails = {};
@@ -310,7 +310,7 @@
     }
 
     function backgroundClickLogs(event){
-        const generalLogs = setGeneralLogs('Game background click');
+        const generalLogs = setGeneralLogs(actionsOpts.GAME_BACKGROUND_CLICK);
         const onScreenElmntsLogs = setOnScreenElmntsLogs();
         const detailLogs = {
             x: event.clientX,
@@ -324,7 +324,7 @@
     }
 
     function ExitClickLogs(){
-        const generalLogs = setGeneralLogs('Exit game');
+        const generalLogs = setGeneralLogs(actionsOpts.EXIT_GAME);
         const onScreenElmntsLogs = setOnScreenElmntsLogs();
         const poppedStatsLogs = Object.fromEntries(
             Object.values(popElmntTypes).map(type => [
@@ -351,7 +351,7 @@
     }
 
     function endGameLogs(condition){
-        const generalLogs = setGeneralLogs('End game');
+        const generalLogs = setGeneralLogs(actionsOpts.END_GAME);
         const poppedStatsLogs = Object.fromEntries(
             Object.values(popElmntTypes).map(type => [
                 type + 'PoppedTotal',
