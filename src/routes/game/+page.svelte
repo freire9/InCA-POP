@@ -46,6 +46,7 @@
     let totalPopElmntsPopped = 0;
     let endGameTimer;
     let specialColorPairsSeen = {};
+    let normalColorSeen = {};
     let awayFromWindowTimer;
     let timeSinceLastInteraction = 0;
     const timeForTrackInactivity = 20000;
@@ -53,6 +54,7 @@
     const timeForInactivityWindowEndGame = 10000;
 
     Object.values(availableColorsOpts).forEach(color1 => {
+        normalColorSeen[color1] = 0;
         Object.values(availableColorsOpts).forEach(color2 => {
             const pair = `${color1},${color2}`;
             specialColorPairsSeen[pair] = 0;
@@ -60,6 +62,7 @@
     });
 
     let specialColorPairsSeenPovisory = deepCopy(specialColorPairsSeen);
+    let normalColorSeenPovisory = deepCopy(normalColorSeen);
 
     //Max quantities of special popElmnts
     const specialPopElmntsMaxQuantities = Object.fromEntries(
@@ -80,6 +83,12 @@
         specialColorPairsSeenPovisory[pair] += 1;
     }
 
+    //function to increment the quantity of color seen of normal pop elmnts
+    function addToSeenNormalColors(color){
+        if(timeSinceLastInteraction < timeForTrackInactivity) normalColorSeen[color] += 1;
+        normalColorSeenPovisory[color] += 1;
+    }
+
     function startTimer(time) {
         endGameTimer = setInterval(() => {
             clearInterval(endGameTimer);
@@ -91,6 +100,7 @@
         if(timeSinceLastInteraction >= timeForTrackInactivity && timeSinceLastInteraction < timeForInactivityEndGame){
             currentStats = deepCopy(provisoryStats);
             specialColorPairsSeen = deepCopy(specialColorPairsSeenPovisory);
+            normalColorSeen = deepCopy(normalColorSeenPovisory);
         }
         timeSinceLastInteraction = 0;
     }
@@ -140,6 +150,7 @@
 
 
         if(isSpecial) addToSeenSpecialColors(color, innerFigColor);
+        else addToSeenNormalColors(color);
 
         popElmnts.push(
             { id, color, randomizedColor, innerFigType, innerFigColor, randomizedInnerFigColor, x, y, speed, direction, size, rotation, isSpecial, type, shape}
@@ -183,6 +194,9 @@
                 specialPopElmntsQuantities[type] += 1;
                 specialPopElmntsTotalQty += 1;
                 addToSeenSpecialColors(color, innerFigColor);
+            }
+            else {
+                addToSeenNormalColors(color);
             }
 
             popElmnts.push(
@@ -352,6 +366,7 @@
             ...totalStatsLogs,
             gameId: actualGameId,
             specialColorPairsSeen: specialColorPairsSeen,
+            normalColorSeen: normalColorSeen,
         }
         return {...generalLogs, details: deepCopy(detailLogs)};
     }
@@ -377,6 +392,7 @@
             gameId: actualGameId,
             gameMode: gameMode,
             specialColorPairsSeen: specialColorPairsSeen,
+            normalColorSeen: normalColorSeen,
         }
         return {...generalLogs, details: deepCopy(detailLogs)};
     }
