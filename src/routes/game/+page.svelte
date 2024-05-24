@@ -127,12 +127,14 @@
         const rotation = Math.random() * 20 - 10;
         const innerFigType = isSpecial ? popElmntConfig[type].innerFigType : '';
         const shape = popElmntConfig[type].shape;
+        const randomizedColor = popElmntConfig[type].enableRandColor;
+        const randomizedInnerFigColor = isSpecial ? popElmntConfig[type].enableRandInnerFigColor : '';
 
-        const innerFigColor = isSpecial ? 
-            ((false && popElmntConfig[type].enableInnerFigRangeColor) ? getRandomFrom(popElmntConfig[type].innerFigInterpColors) : popElmntConfig[type].innerFigColor)
+        const innerFigColor = isSpecial ?
+            (randomizedInnerFigColor ? getRandomColorFromPalette() : ((false && popElmntConfig[type].enableInnerFigRangeColor) ? getRandomFrom(popElmntConfig[type].innerFigInterpColors) : popElmntConfig[type].innerFigColor))
             : '';
 
-        const color = popElmntConfig[type].enableRandColor ?
+        const color = randomizedColor ?
             getRandomColorFromPalette({filterColor: isSpecial ? innerFigColor : ''}) :
             ((false && popElmntConfig[type].enableRangeColor) ? getRandomFrom(popElmntConfig[type].interpColors) : popElmntConfig[type].color);
 
@@ -140,7 +142,7 @@
         if(isSpecial) addToSeenSpecialColors(color, innerFigColor);
 
         popElmnts.push(
-            { id, color, innerFigType, innerFigColor, x, y, speed, direction, size, rotation, isSpecial, type, shape}
+            { id, color, randomizedColor, innerFigType, innerFigColor, randomizedInnerFigColor, x, y, speed, direction, size, rotation, isSpecial, type, shape}
         );
         
         if(timeSinceLastInteraction < timeForTrackInactivity) currentStats[type].total += 1;
@@ -165,12 +167,14 @@
             const type = isSpecial ? setInitialSpecialType(specialPopElmntsQuantities) : popElmntTypes.NORMAL;
             const innerFigType = isSpecial ? popElmntConfig[type].innerFigType : '';
             const shape = popElmntConfig[type].shape;
+            const randomizedColor = popElmntConfig[type].enableRandColor;
+            const randomizedInnerFigColor = isSpecial ? popElmntConfig[type].enableRandInnerFigColor : '';
 
-            const innerFigColor = isSpecial ? 
-                ((false && popElmntConfig[type].enableInnerFigRangeColor) ? getRandomFrom(popElmntConfig[type].innerFigInterpColors) : popElmntConfig[type].innerFigColor)
+            const innerFigColor = isSpecial ?
+                (randomizedInnerFigColor ? getRandomColorFromPalette() : ((false && popElmntConfig[type].enableInnerFigRangeColor) ? getRandomFrom(popElmntConfig[type].innerFigInterpColors) : popElmntConfig[type].innerFigColor))
                 : '';
 
-            const color = popElmntConfig[type].enableRandColor ?
+            const color = randomizedColor ?
                 getRandomColorFromPalette({filterColor: isSpecial ? innerFigColor : ''})
                 : ((false && popElmntConfig[type].enableRangeColor) ? getRandomFrom(popElmntConfig[type].interpColors) : popElmntConfig[type].color);
             
@@ -182,7 +186,7 @@
             }
 
             popElmnts.push(
-                { id, color, innerFigType, innerFigColor, x, y, speed, direction, size, rotation, isSpecial, type, shape}
+                { id, color, randomizedColor, innerFigType, innerFigColor, randomizedInnerFigColor, x, y, speed, direction, size, rotation, isSpecial, type, shape}
             );
 
             if(timeSinceLastInteraction < timeForTrackInactivity) currentStats[type].total += 1;
@@ -286,10 +290,12 @@
             specialDetails = {
                 innerFigType: popElmnt.innerFigType,
                 innerFigColor: popElmnt.innerFigColor,
+                isRandomizedInnerFigColor: popElmnt.randomizedInnerFigColor,
             }
         }
         const detailLogs = {
             color: popElmnt.color,
+            isRandomizedColor: popElmnt.randomizedColor,
             x: Math.floor(popElmnt.x),
             y: Math.floor(popElmnt.y),
             speed: popElmntSpeedType,

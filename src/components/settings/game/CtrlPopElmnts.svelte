@@ -83,32 +83,40 @@
     {/each}
 </select>
 
-{#if false}
-    <div class="checkbox-flex">
-        <input id="colorRangeCtrlInnerFigCheckbox" type="checkbox" bind:checked={$gameSettings[gameMode].popElmntConfig[popElmntTypes.CTRL].enableInnerFigRangeColor} on:input={updatePreferences}>
-        <label for="colorRangeCtrlInnerFigCheckbox">Enable {ctrlLabel} inner figure range color?</label>
-    </div>
-{/if}
-{#if $gameSettings[gameMode].popElmntConfig[popElmntTypes.CTRL].enableInnerFigRangeColor && false}
-    <div class="inner-fig-range-color-container">
-        <ColorPicker id={"color1CtrlInnerFigRangeInput"} label={ctrlLabelUp + " inner figure color 1:"} bind:value={$gameSettings[gameMode].popElmntConfig[popElmntTypes.CTRL].innerFigRangeColor1} on:input={handleCtrlInnerFigColorChange}/>
-        <ColorPicker id={"color2CtrlInnerFigRangeInput"} label={ctrlLabelUp + " inner figure color 2:"} bind:value={$gameSettings[gameMode].popElmntConfig[popElmntTypes.CTRL].innerFigRangeColor2} on:input={handleCtrlInnerFigColorChange}/>
+<div class="checkbox-flex">
+    <input id="randomizeCtrlInnerFigColorsCheckbox" type="checkbox" bind:checked={$gameSettings[gameMode].popElmntConfig[popElmntTypes.CTRL].enableRandInnerFigColor} on:input={updatePreferences}>
+    <label for="randomizeCtrlInnerFigColorsCheckbox">Randomize {ctrlLabel} {ctrlPopElmntLabel} inner figure colors?</label>
+</div>
 
-        <div class="range-input">
-            <label for="definitionCtrlInnerFigColorInput">{ctrlLabelUp} inner figure definition:</label>
-            <p>{$gameSettings[gameMode].popElmntConfig[popElmntTypes.CTRL].innerFigColorRangeDef}</p>
+{#if !$gameSettings[gameMode].popElmntConfig[popElmntTypes.CTRL].enableRandInnerFigColor}
+    {#if false}
+        <div class="checkbox-flex">
+            <input id="colorRangeCtrlInnerFigCheckbox" type="checkbox" bind:checked={$gameSettings[gameMode].popElmntConfig[popElmntTypes.CTRL].enableInnerFigRangeColor} on:input={updatePreferences}>
+            <label for="colorRangeCtrlInnerFigCheckbox">Enable {ctrlLabel} inner figure range color?</label>
         </div>
-        <input id="definitionCtrlInnerFigColorInput" type="range" min="1" max="100" step="1" bind:value={$gameSettings[gameMode].popElmntConfig[popElmntTypes.CTRL].innerFigColorRangeDef} on:input={handleCtrlInnerFigColorChange}>
-        <br>
-        <div class="color-box">
-            {#each $gameSettings[gameMode].popElmntConfig[popElmntTypes.CTRL].innerFigInterpColors as color (color)}
-                <div class="color-square" style="background-color: {color}"></div>
-            {/each}
+    {/if}
+    {#if $gameSettings[gameMode].popElmntConfig[popElmntTypes.CTRL].enableInnerFigRangeColor && false}
+        <div class="inner-fig-range-color-container">
+            <ColorPicker id={"color1CtrlInnerFigRangeInput"} label={ctrlLabelUp + " inner figure color 1:"} bind:value={$gameSettings[gameMode].popElmntConfig[popElmntTypes.CTRL].innerFigRangeColor1} on:input={handleCtrlInnerFigColorChange}/>
+            <ColorPicker id={"color2CtrlInnerFigRangeInput"} label={ctrlLabelUp + " inner figure color 2:"} bind:value={$gameSettings[gameMode].popElmntConfig[popElmntTypes.CTRL].innerFigRangeColor2} on:input={handleCtrlInnerFigColorChange}/>
+
+            <div class="range-input">
+                <label for="definitionCtrlInnerFigColorInput">{ctrlLabelUp} inner figure definition:</label>
+                <p>{$gameSettings[gameMode].popElmntConfig[popElmntTypes.CTRL].innerFigColorRangeDef}</p>
+            </div>
+            <input id="definitionCtrlInnerFigColorInput" type="range" min="1" max="100" step="1" bind:value={$gameSettings[gameMode].popElmntConfig[popElmntTypes.CTRL].innerFigColorRangeDef} on:input={handleCtrlInnerFigColorChange}>
+            <br>
+            <div class="color-box">
+                {#each $gameSettings[gameMode].popElmntConfig[popElmntTypes.CTRL].innerFigInterpColors as color (color)}
+                    <div class="color-square" style="background-color: {color}"></div>
+                {/each}
+            </div>
         </div>
-    </div>
-{:else}
-    <ColorPicker id={"ctrlPopElmntInnerFigColorInput"} label={ctrlLabelUp + " " + ctrlPopElmntLabel + " inner figure color:"} bind:value={$gameSettings[gameMode].popElmntConfig[popElmntTypes.CTRL].innerFigColor} on:input={updatePreferences}/>
+    {:else}
+        <ColorPicker id={"ctrlPopElmntInnerFigColorInput"} label={ctrlLabelUp + " " + ctrlPopElmntLabel + " inner figure color:"} bind:value={$gameSettings[gameMode].popElmntConfig[popElmntTypes.CTRL].innerFigColor} on:input={updatePreferences}/>
+    {/if}
 {/if}
+
 
 <style>
     .color-box {
