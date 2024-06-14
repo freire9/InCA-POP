@@ -3,17 +3,14 @@
     import { capitalizeFirstLetter, toCamelCase } from "$lib/utils";
     import { endGameConditionsOpts, endGameConditionsTooltip, gameSettings, popElmntSizes, popElmntSpeeds } from "../../../stores";
 	import ColorPicker from "../ColorPicker.svelte";
+	import NumericInput from "../NumericInput.svelte";
     import PopElmntsTabs from "./PopElmntsTabs.svelte";
 
     export let mode;
 
 </script>
 
-<div class="range-input">
-    <label for="maxPopElmntQtyInput">Max pop elements quantity on screen:</label>
-    <p>{$gameSettings[mode].maxPopElmntQty}</p>
-</div>
-<input id="maxPopElmntQtyInput" min="1" max="50" step="1" type="range" bind:value={$gameSettings[mode].maxPopElmntQty} on:input={updatePreferences}>
+<NumericInput id={"maxPopElmntQtyInput"} label={"Max pop elements quantity on screen:"} bind:value={$gameSettings[mode].maxPopElmntQty} on:input={updatePreferences}/>
 
 <label for="popElmntSpeedSelect">Pop element speed:</label>
 <select id="popElmntSpeedSelect" bind:value={$gameSettings[mode].popElmntSpeed} on:input={updatePreferences}>
@@ -40,11 +37,7 @@
 
 {#if $gameSettings[mode].enableRampageMode}
     <div class="rampage-mode-container">
-        <div class="range-input">
-            <label for="rampageModeLength">Rampage mode chain length:</label>
-            <p>{$gameSettings[mode].rampageModeChain}</p>
-        </div>
-        <input id="rampageModeLength" type="range" min="2" max="50" step="1" bind:value={$gameSettings[mode].rampageModeChain} on:input={updatePreferences}>
+        <NumericInput id={"rampageModeLength"} label={"Rampage mode chain length:"} bind:value={$gameSettings[mode].rampageModeChain} on:input={updatePreferences}/>
     </div>
 {/if}
 
@@ -65,13 +58,7 @@
             </label>
         </div>
         {#if $gameSettings[mode].endGameConditions[condition].enabled}
-            <div class="end-game-values-container">
-                <div class="range-input">
-                    <label for={"endGameCondition" + toCamelCase(condition) + "Value"}>Value:</label>
-                    <p>{$gameSettings[mode].endGameConditions[condition].value}</p>
-                </div>
-                <input type="range" min="1" max="{$gameSettings[mode].endGameConditions[condition].rangeMax}" step="1" id={"endGameCondition" + toCamelCase(condition) + "Value"} bind:value={$gameSettings[mode].endGameConditions[condition].value} on:input={updatePreferences}>
-            </div>
+            <NumericInput elementClass={'end-game-conditions-input'} id={"endGameCondition" + toCamelCase(condition) + "Value"} label={"Value:"} bind:value={$gameSettings[mode].endGameConditions[condition].value} on:input={updatePreferences}/>
         {/if}
     {/each}
 </div>
@@ -86,18 +73,8 @@
         gap: 10px;
     }
     .rampage-mode-container,
-    .end-game-values-container{
+    :global(.NumericInput.end-game-conditions-input){
         margin-left: 30px;
-    }
-    .range-input{
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        gap: 10px;
-        margin-top: 25px;
-    }
-    .range-input label{
-        margin: 0px;
     }
     .end-game-container{
         margin-top: 25px;
