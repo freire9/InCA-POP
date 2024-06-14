@@ -60,6 +60,12 @@
         align-items: center;
         width: 40px;
         height: 40px;
+        touch-action: manipulation;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
     }
     input {
         padding: 5px;
