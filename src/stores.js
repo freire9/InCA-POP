@@ -58,7 +58,16 @@ export const endGameConditionsOpts = {
     POP_ELMNTS_POPPED: 'pop elements popped',
     SPECIAL_POP_ELMNTS_POPPED: 'special pop elements popped',
     INACTIVITY: 'inactivity',
-}
+};
+
+export const actionsOpts = {
+    POPPED_ELMNT: 'Popped element',
+    GAME_BACKGROUND_CLICK: 'Game background click',
+    EXIT_GAME: 'Exit game',
+    END_GAME: 'End game',
+    GAME_STARTED: 'Game started',
+    MENU_BACKGROUND_CLICK: 'Menu background click',
+};
 
 const specialPopElmnts = Object.values(popElmntTypes).filter(type => type !== popElmntTypes.NORMAL);
 
@@ -137,6 +146,11 @@ export const availableColorsOpts = {
     [availableColorsNames.WHITE]: '#ffffff',
     [availableColorsNames.GRAY]: '#808080',
 };
+
+export const availableColorsOptsByHex = Object.entries(availableColorsOpts).reduce((acc, [colorName, hexValue]) => {
+    acc[hexValue] = colorName;
+    return acc;
+}, {});
 
 export const availableModes = {
     [popElmntDirections.RIGHT_TO_LEFT]: { enabled: true, icon: 'faLeftLong', color: availableColorsOpts[availableColorsNames.RED], position: 0},
