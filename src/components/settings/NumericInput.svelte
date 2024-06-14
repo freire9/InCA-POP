@@ -14,8 +14,8 @@
 
     function handleInput(event) {
         let newValue = +event.target.value;
-        if (newValue < min) value = min;
-        else if (newValue > max) value = max;
+        if (newValue > max) value = max;
+        
         dispatch('input');
     }
 
