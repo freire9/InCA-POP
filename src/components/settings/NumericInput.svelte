@@ -12,7 +12,10 @@
 
     const dispatch = createEventDispatcher();
 
-    function handleInput() {
+    function handleInput(event) {
+        let newValue = +event.target.value;
+        if (newValue < min) value = min;
+        else if (newValue > max) value = max;
         dispatch('input');
     }
 
