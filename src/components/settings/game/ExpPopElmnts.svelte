@@ -4,6 +4,7 @@
     import { gameSettings, popElmntInnerFigs, popElmntTypes } from "../../../stores";
     import lodash from 'lodash';
 	import ColorPicker from "../ColorPicker.svelte";
+	import NumericInput from "../NumericInput.svelte";
     
     const { debounce } = lodash;
     export let gameMode;
@@ -12,6 +13,9 @@
     const expLabel = popElmntTypes.EXP;
     const expLabelUp = capitalizeFirstLetter(expLabel);
     let expPopElmntLabel;
+
+    const otherPopElmntsProportion = Object.values(popElmntTypes).filter(popElmntType => popElmntType !== popElmntTypes.EXP && popElmntType !== popElmntTypes.NORMAL).reduce((acc, popElmntType) => acc + $gameSettings[gameMode].popElmntConfig[popElmntType].proportion, 0);
+    const maxProportion = 100 - otherPopElmntsProportion;
 
     $: expPopElmntLabel = $gameSettings[gameMode].popElmntConfig[popElmntTypes.EXP].shape;
 
@@ -28,11 +32,15 @@
     }
 </script>
 
-<div class="range-input">
-    <label for="expPopElmntPropInput">Proportion of {expLabel} {expPopElmntLabel}:</label>
-    <p>{$gameSettings[gameMode].popElmntConfig[popElmntTypes.EXP].proportion}% ({Math.floor($gameSettings[gameMode].popElmntConfig[popElmntTypes.EXP].proportion/100 * $gameSettings[gameMode].maxPopElmntQty)}/{$gameSettings[gameMode].maxPopElmntQty}) (Floor rounded)</p>
-</div>
-<input id="expPopElmntPropInput" min="0" max="{100-$gameSettings[gameMode].popElmntConfig[popElmntTypes.EXP].proportion}" step="1" type="range" bind:value={$gameSettings[gameMode].popElmntConfig[popElmntTypes.EXP].proportion} on:input={updatePreferences}>
+<NumericInput 
+    inputType={"range"} 
+    id={"expPopElmntPropInput"} 
+    min={0} 
+    max={maxProportion} 
+    label={"Proportion of " + expLabelUp + " " + expPopElmntLabel + ": " + $gameSettings[gameMode].popElmntConfig[popElmntTypes.EXP].proportion + "% (" + Math.floor($gameSettings[gameMode].popElmntConfig[popElmntTypes.EXP].proportion/100 * $gameSettings[gameMode].maxPopElmntQty) + "/" + $gameSettings[gameMode].maxPopElmntQty + ") (Floor rounded)"}  
+    bind:value={$gameSettings[gameMode].popElmntConfig[popElmntTypes.EXP].proportion}  
+    on:input={updatePreferences}
+/>
 
 <div class="checkbox-flex">
     <input id="randomizeExpColorsCheckbox" type="checkbox" bind:checked={$gameSettings[gameMode].popElmntConfig[popElmntTypes.EXP].enableRandColor} on:input={updatePreferences}>
