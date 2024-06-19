@@ -5,6 +5,7 @@
     import { faPlay } from '@fortawesome/free-solid-svg-icons';
     import lodash from 'lodash';
 	import { updatePreferences } from '$lib/preferences';
+	import NumericInput from './NumericInput.svelte';
 
     const { debounce } = lodash;
     let noCustomCorrect;
@@ -96,15 +97,38 @@
             {/each}
         </select>
 
-        <label for="speechVolumeRange">Volume: {$speechSettings.volume}</label>
-        <input id="speechVolumeRange" type="range" min="0" max="1" step="0.01" bind:value={$speechSettings.volume} on:input={handleVolumeChange}>
+        <NumericInput
+            inputType={"range"}
+            id={"speechVolumeRange"}
+            label={'Volume: ' + $speechSettings.volume.toString()}
+            bind:value={$speechSettings.volume}
+            min={0}
+            max={1}
+            step={0.01}
+            on:input={handleVolumeChange}
+        />
 
-        <label for="speechPitchRange">Pitch: {$speechSettings.pitch}</label>
-        <input id="speechPitchRange" type="range" min="0" max="2" step="0.1" bind:value={$speechSettings.pitch} on:input={handlePitchChange}>
+        <NumericInput
+            inputType={"range"}
+            id={"speechPitchRange"}
+            label={'Pitch: ' + $speechSettings.pitch.toString()}
+            bind:value={$speechSettings.pitch}
+            min={0}
+            max={2}
+            step={0.1}
+            on:input={handlePitchChange}
+        />
 
-        <label for="speechRateRange">Rate: {$speechSettings.rate}</label>
-        <input id="speechRateRange" type="range" min="0.1" max="2" step="0.1" bind:value={$speechSettings.rate} on:input={handleRateChange}>
-
+        <NumericInput
+            inputType={"range"}
+            id={"speechRateRange"}
+            label={'Rate: ' + $speechSettings.rate.toString()}
+            bind:value={$speechSettings.rate}
+            min={0.1}
+            max={2}
+            step={0.1}
+            on:input={handleRateChange}
+        />
 
         <label for="speechCorrectInput">Correct speech:</label>
         <div class="speech-input">
