@@ -180,6 +180,8 @@ const expPopElmntSettings = {
     innerFigColorRangeDef: 10,
     innerFigInterpColors: deepCopy(dfltInnerFigInterpColors),
     enableInnerFigContour: false,
+    innerFigContourColor: availableColorsOpts[availableColorsNames.BLACK],
+    innerFigContourWidth: 2,
     proportion: 20,
 };
 
@@ -201,6 +203,8 @@ const ctrlPopElmntSettings = {
     innerFigColorRangeDef: 10,
     innerFigInterpColors: deepCopy(dfltInnerFigInterpColors),
     enableInnerFigContour: false,
+    innerFigContourColor: availableColorsOpts[availableColorsNames.BLACK],
+    innerFigContourWidth: 2,
     proportion: 30,
 };
 

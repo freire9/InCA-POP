@@ -22,14 +22,14 @@
     function handlePlus() {
         if(value + step > max) return;
 
-        value = value + 1;
+        value = value + step;
         dispatch('input');
     }
 
     function handleMinus() {
         if(value - step < min) return;
 
-        value = value - 1;
+        value = value - step;
         dispatch('input');
     }
 </script>

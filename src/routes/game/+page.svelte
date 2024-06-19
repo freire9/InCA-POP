@@ -305,6 +305,14 @@
                 innerFigType: popElmnt.innerFigType,
                 innerFigColor: popElmnt.innerFigColor,
                 isRandomizedInnerFigColor: popElmnt.randomizedInnerFigColor,
+                hasInnerFigContour : popElmnt.enableInnerFigContour,
+            }
+            if(popElmnt.enableInnerFigContour){
+                specialDetails = {
+                    ...specialDetails,
+                    innerFigContourColor: popElmnt.innerFigContourColor,
+                    innerFigContourWidth: popElmnt.innerFigContourWidth,
+                }
             }
         }
         const detailLogs = {
