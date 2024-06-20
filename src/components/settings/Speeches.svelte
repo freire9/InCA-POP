@@ -104,7 +104,7 @@
             bind:value={$speechSettings.volume}
             min={0}
             max={1}
-            step={0.01}
+            step={0.1}
             on:input={handleVolumeChange}
         />
 
