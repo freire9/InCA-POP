@@ -22,14 +22,16 @@
     function handlePlus() {
         if(value + step > max) return;
 
-        value = value + step;
+        // Round to 1 decimal
+        value = Math.round((value + step) * 10) / 10;
         dispatch('input');
     }
 
     function handleMinus() {
         if(value - step < min) return;
 
-        value = value - step;
+        // Round to 1 decimal
+        value = Math.round((value - step) * 10) / 10;
         dispatch('input');
     }
 </script>

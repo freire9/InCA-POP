@@ -91,7 +91,7 @@
         min={1} 
         max={10}
         step={0.1}
-        label={expLabelUp + " " + expPopElmntLabel + " inner figure contour width: " + $gameSettings[gameMode].popElmntConfig[popElmntTypes.EXP].innerFigContourWidth}  
+        label={expLabelUp + " " + expPopElmntLabel + " inner figure contour width: " + $gameSettings[gameMode].popElmntConfig[popElmntTypes.EXP].innerFigContourWidth + "px"}  
         bind:value={$gameSettings[gameMode].popElmntConfig[popElmntTypes.EXP].innerFigContourWidth}  
         on:input={updatePreferences}
     />
