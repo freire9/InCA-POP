@@ -139,6 +139,10 @@
         const shape = popElmntConfig[type].shape;
         const randomizedColor = popElmntConfig[type].enableRandColor;
         const randomizedInnerFigColor = isSpecial ? popElmntConfig[type].enableRandInnerFigColor : '';
+        const enableInnerFigContour = isSpecial ? popElmntConfig[type].enableInnerFigContour : '';
+        const innerFigContourColor = isSpecial && enableInnerFigContour ? popElmntConfig[type].innerFigContourColor : '';
+        const innerFigContourWidth = isSpecial && enableInnerFigContour ? popElmntConfig[type].innerFigContourWidth : '';
+
 
         const innerFigColor = isSpecial ?
             (randomizedInnerFigColor ? getRandomColorFromPalette() : ((false && popElmntConfig[type].enableInnerFigRangeColor) ? getRandomFrom(popElmntConfig[type].innerFigInterpColors) : popElmntConfig[type].innerFigColor))
@@ -153,7 +157,7 @@
         else addToSeenNormalColors(color);
 
         popElmnts.push(
-            { id, color, randomizedColor, innerFigType, innerFigColor, randomizedInnerFigColor, x, y, speed, direction, size, rotation, isSpecial, type, shape}
+            { id, color, randomizedColor, innerFigType, innerFigColor, randomizedInnerFigColor, enableInnerFigContour, innerFigContourColor, innerFigContourWidth, x, y, speed, direction, size, rotation, isSpecial, type, shape}
         );
         
         if(timeSinceLastInteraction < timeForTrackInactivity) currentStats[type].total += 1;
@@ -180,6 +184,9 @@
             const shape = popElmntConfig[type].shape;
             const randomizedColor = popElmntConfig[type].enableRandColor;
             const randomizedInnerFigColor = isSpecial ? popElmntConfig[type].enableRandInnerFigColor : '';
+            const enableInnerFigContour = isSpecial ? popElmntConfig[type].enableInnerFigContour : '';
+            const innerFigContourColor = isSpecial && enableInnerFigContour ? popElmntConfig[type].innerFigContourColor : '';
+            const innerFigContourWidth = isSpecial && enableInnerFigContour ? popElmntConfig[type].innerFigContourWidth : '';
 
             const innerFigColor = isSpecial ?
                 (randomizedInnerFigColor ? getRandomColorFromPalette() : ((false && popElmntConfig[type].enableInnerFigRangeColor) ? getRandomFrom(popElmntConfig[type].innerFigInterpColors) : popElmntConfig[type].innerFigColor))
@@ -200,7 +207,7 @@
             }
 
             popElmnts.push(
-                { id, color, randomizedColor, innerFigType, innerFigColor, randomizedInnerFigColor, x, y, speed, direction, size, rotation, isSpecial, type, shape}
+                { id, color, randomizedColor, innerFigType, innerFigColor, randomizedInnerFigColor, enableInnerFigContour, innerFigContourColor, innerFigContourWidth, x, y, speed, direction, size, rotation, isSpecial, type, shape}
             );
 
             if(timeSinceLastInteraction < timeForTrackInactivity) currentStats[type].total += 1;
@@ -277,20 +284,29 @@
     function setOnScreenComparativeLogs(poppedElmnt){
         const onScreen = onScreenPopElmnts(popElmnts);
         const onScreenComparativeLogs = {
-            onScreenExactlySameAsPopped: onScreen.filter(popElmnt => 
+            onScreenExactlySameAsPopped: onScreen.filter(popElmnt =>
+                    popElmnt.id !== poppedElmnt.id && //exclude the popped element
                     popElmnt.type === poppedElmnt.type &&
                     popElmnt.color === poppedElmnt.color &&
                     popElmnt.innerFigColor === poppedElmnt.innerFigColor &&
-                    popElmnt.innerFigType === poppedElmnt.innerFigType
+                    popElmnt.innerFigType === poppedElmnt.innerFigType &&
+                    popElmnt.innerFigContourColor === poppedElmnt.innerFigContourColor &&
+                    popElmnt.innerFigContourWidth === poppedElmnt.innerFigContourWidth
                 ).length,
-            onScreenDiffButSameTypeAsPopped: onScreen.filter(popElmnt => 
+            onScreenDiffButSameTypeAsPopped: onScreen.filter(popElmnt =>
+                    popElmnt.id !== poppedElmnt.id && //exclude the popped element
                     popElmnt.type === poppedElmnt.type &&
                     (popElmnt.color !== poppedElmnt.color ||
                         popElmnt.innerFigColor !== poppedElmnt.innerFigColor ||
-                        popElmnt.innerFigType !== poppedElmnt.innerFigType
+                        popElmnt.innerFigType !== poppedElmnt.innerFigType ||
+                        popElmnt.innerFigContourColor !== poppedElmnt.innerFigContourColor ||
+                        popElmnt.innerFigContourWidth !== poppedElmnt.innerFigContourWidth
                     )
-                ).length + 1,
-            onScreenDifferentTypeAsPopped: onScreen.filter(popElmnt => popElmnt.type !== poppedElmnt.type).length,
+                ).length,
+            onScreenDifferentTypeAsPopped: onScreen.filter(popElmnt =>
+                popElmnt.id !== poppedElmnt.id && //exclude the popped element 
+                popElmnt.type !== poppedElmnt.type
+            ).length,
         }
         return onScreenComparativeLogs;
     }
@@ -305,6 +321,14 @@
                 innerFigType: popElmnt.innerFigType,
                 innerFigColor: popElmnt.innerFigColor,
                 isRandomizedInnerFigColor: popElmnt.randomizedInnerFigColor,
+                hasInnerFigContour : popElmnt.enableInnerFigContour,
+            }
+            if(popElmnt.enableInnerFigContour){
+                specialDetails = {
+                    ...specialDetails,
+                    innerFigContourColor: popElmnt.innerFigContourColor,
+                    innerFigContourWidth: popElmnt.innerFigContourWidth,
+                }
             }
         }
         const detailLogs = {
