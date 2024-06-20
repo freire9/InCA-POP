@@ -284,20 +284,29 @@
     function setOnScreenComparativeLogs(poppedElmnt){
         const onScreen = onScreenPopElmnts(popElmnts);
         const onScreenComparativeLogs = {
-            onScreenExactlySameAsPopped: onScreen.filter(popElmnt => 
+            onScreenExactlySameAsPopped: onScreen.filter(popElmnt =>
+                    popElmnt.id !== poppedElmnt.id && //exclude the popped element
                     popElmnt.type === poppedElmnt.type &&
                     popElmnt.color === poppedElmnt.color &&
                     popElmnt.innerFigColor === poppedElmnt.innerFigColor &&
-                    popElmnt.innerFigType === poppedElmnt.innerFigType
+                    popElmnt.innerFigType === poppedElmnt.innerFigType &&
+                    popElmnt.innerFigContourColor === poppedElmnt.innerFigContourColor &&
+                    popElmnt.innerFigContourWidth === poppedElmnt.innerFigContourWidth
                 ).length,
-            onScreenDiffButSameTypeAsPopped: onScreen.filter(popElmnt => 
+            onScreenDiffButSameTypeAsPopped: onScreen.filter(popElmnt =>
+                    popElmnt.id !== poppedElmnt.id && //exclude the popped element
                     popElmnt.type === poppedElmnt.type &&
                     (popElmnt.color !== poppedElmnt.color ||
                         popElmnt.innerFigColor !== poppedElmnt.innerFigColor ||
-                        popElmnt.innerFigType !== poppedElmnt.innerFigType
+                        popElmnt.innerFigType !== poppedElmnt.innerFigType ||
+                        popElmnt.innerFigContourColor !== poppedElmnt.innerFigContourColor ||
+                        popElmnt.innerFigContourWidth !== poppedElmnt.innerFigContourWidth
                     )
-                ).length + 1,
-            onScreenDifferentTypeAsPopped: onScreen.filter(popElmnt => popElmnt.type !== poppedElmnt.type).length,
+                ).length,
+            onScreenDifferentTypeAsPopped: onScreen.filter(popElmnt =>
+                popElmnt.id !== poppedElmnt.id && //exclude the popped element 
+                popElmnt.type !== poppedElmnt.type
+            ).length,
         }
         return onScreenComparativeLogs;
     }
