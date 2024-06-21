@@ -82,6 +82,21 @@
     <label for="enableExpPopElmntInnerFigContour">Enable {expLabel} {expPopElmntLabel} inner figure contour:</label>
 </div>
 
+{#if $gameSettings[gameMode].popElmntConfig[popElmntTypes.EXP].enableInnerFigContour}
+    <ColorPicker id={"expPopElmntInnerFigContourColorInput"} label={expLabelUp + " " + expPopElmntLabel + " inner figure contour color:"} bind:value={$gameSettings[gameMode].popElmntConfig[popElmntTypes.EXP].innerFigContourColor} on:input={updatePreferences}/>
+
+    <NumericInput 
+        inputType={"range"} 
+        id={"expPopElmntInnerFigContourWidthInput"} 
+        min={1} 
+        max={10}
+        step={0.1}
+        label={expLabelUp + " " + expPopElmntLabel + " inner figure contour width: " + $gameSettings[gameMode].popElmntConfig[popElmntTypes.EXP].innerFigContourWidth + "px"}  
+        bind:value={$gameSettings[gameMode].popElmntConfig[popElmntTypes.EXP].innerFigContourWidth}  
+        on:input={updatePreferences}
+    />
+{/if}
+
 <label for="expInnerFigSelect">{expLabelUp} {expPopElmntLabel} inner figure type:</label>
 <select id="expInnerFigSelect" bind:value={$gameSettings[gameMode].popElmntConfig[popElmntTypes.EXP].innerFigType} on:input={updatePreferences}>
     {#each Object.values(popElmntInnerFigs) as innerFigOption}
