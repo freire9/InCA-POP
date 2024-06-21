@@ -9,7 +9,6 @@
     export let mode;
 
     function handleDirectionChange(event){
-        console.log(event.target.value)
         $menuSettings.availableGameModes[mode].icon = directionIcons[event.target.value];
         updatePreferences();
     }
