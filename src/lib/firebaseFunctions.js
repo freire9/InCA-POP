@@ -1,5 +1,5 @@
 import { doc, updateDoc } from "firebase/firestore";
-import { appSettings, appSettingsDEFAULT, availableModes, gameSettings, gameSettingsDEFAULT, isLoggedIn, menuSettings, menuSettingsDEFAULT, user } from "../stores";
+import { appSettings, appSettingsDEFAULT, availableGameModes, gameSettings, gameSettingsDEFAULT, isLoggedIn, menuSettings, menuSettingsDEFAULT, user } from "../stores";
 import { deepCopy } from "./utils";
 import lodash from 'lodash';
 import { db, dbUsersCollectionName } from "./firebaseConfig";
@@ -45,7 +45,7 @@ export function syncPreferencesToStores(userData) {
         let updatedGameSettings = {};
         let gameSettingsHasChanged = false;
         //for each mode settings, update settings with default
-        Object.keys(availableModes).forEach((mode) => {
+        Object.keys(availableGameModes).forEach((mode) => {
             const { settings: updatedGameSettingsMode, hasChanged: modeSettingsHasChanged } = updateSettingsWithDefault(gameSettingsDEFAULT[mode], userData.incaPopPreferences.gameSettings[mode] || {});
             updatedGameSettings[mode] = updatedGameSettingsMode;
             if(modeSettingsHasChanged) {

@@ -3,14 +3,14 @@
     import { onDestroy, onMount } from 'svelte';
     import { capitalizeFirstLetter, deepCopy, getRandomColorFromPalette, getRandomFrom } from '$lib/utils';
     import { addLog } from "$lib/logService";
-    import { appSettings, gameSettings, user, popElmntSizeOpts, gameDirection, subjectName, popElmntShapes, popElmntTypes, popElmntSpeedsOpts, popElmntDirections, localUserId, isLoggedIn, endGameConditionsOpts, gameId, availableColorsOpts } from '../../stores.js';
+    import { appSettings, gameSettings, user, popElmntSizeOpts, subjectName, popElmntShapes, popElmntTypes, popElmntSpeedsOpts, popElmntDirections, localUserId, isLoggedIn, endGameConditionsOpts, gameId, availableColorsOpts, currentGameMode } from '../../stores.js';
     import SubjectNavBar from '../../components/SubjectNavBar.svelte';
     import InGameStats from '../../components/InGameStats.svelte';
     import { goto } from '$app/navigation';
 
     //app constants
-    const currentGameDirection = $gameDirection;
-    const gameMode = currentGameDirection;
+    const gameMode = $currentGameMode;
+    const currentGameDirection = $gameSettings[gameMode].popElmntDirection;
     const popElmntSpeed = popElmntSpeedsOpts[$gameSettings[gameMode].popElmntSpeed];
     const popElmntSize = popElmntSizeOpts[$gameSettings[gameMode].popElmntSize];
     const popElmntSpeedType = $gameSettings[gameMode].popElmntSpeed;
@@ -345,6 +345,7 @@
             rampageChainForExcellent: rampageModeChain,
             gameBackgroundColor: gameBackgroundColor,
             gameMode: gameMode,
+            direction: popElmnt.direction,
             ...specialDetails,
             ...onScreenElmntsLogs,
             ...onScreenComparativeLogs,
@@ -361,6 +362,7 @@
             y: event.clientY,
             gameBackgroundColor: gameBackgroundColor,
             gameMode: gameMode,
+            direction: currentGameDirection,
             ...onScreenElmntsLogs,
             gameId: actualGameId,
         }
@@ -385,6 +387,7 @@
         const detailLogs = {
             gameBackgroundColor: gameBackgroundColor,
             gameMode: gameMode,
+            direction: currentGameDirection,
             ...onScreenElmntsLogs,
             ...poppedStatsLogs,
             ...totalStatsLogs,
@@ -415,6 +418,7 @@
             endCondition: condition,
             gameId: actualGameId,
             gameMode: gameMode,
+            direction: currentGameDirection,
             specialColorPairsSeen: specialColorPairsSeen,
             normalColorSeen: normalColorSeen,
         }

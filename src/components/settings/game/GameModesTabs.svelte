@@ -1,6 +1,6 @@
 <script>
 	import { capitalizeFirstLetter } from "$lib/utils";
-	import { popElmntDirections } from "../../../stores";
+	import { availableGameModes } from "../../../stores";
     import Game from "./Game.svelte";
 
     let activeTabValue = 1;
@@ -9,11 +9,11 @@
 
     let gameModeTabs;
     // List of tab game modes, values and assigned components
-    $: gameModeTabs = Object.values(popElmntDirections).map((direction, index) => ({
-        label: capitalizeFirstLetter(direction),
+    $: gameModeTabs = Object.keys(availableGameModes).map((mode, index) => ({
+        label: capitalizeFirstLetter(mode),
         value: index + 1,
         component: Game,
-        mode: direction
+        mode: mode
     }));
 </script>
 
@@ -66,7 +66,7 @@
         border-top-left-radius: 0.25rem;
         border-top-right-radius: 0.25rem;
         display: block;
-        padding: 0.5rem 1rem;
+        padding: 0.5rem 2rem;
         cursor: pointer;
         height: 100%;
     }
@@ -92,7 +92,7 @@
             font-size: xx-small;
         }
         button{
-            padding: 0.25rem 0.4rem;
+            padding: 0.25rem 0.7rem;
         }
     }
     @media (min-width: 600px) and (max-width: 1024px) {

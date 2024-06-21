@@ -1,5 +1,5 @@
 <script>
-    import { menuSettings, appSettings, user, gameDirection, isIphone, modifyingConfig, subjectName, popElmntDirections, localUserId, isLoggedIn, gameId, availableModes } from "../stores";
+    import { menuSettings, appSettings, user, isIphone, modifyingConfig, subjectName, localUserId, isLoggedIn, gameId, availableGameModes, gameSettings, currentGameMode } from "../stores";
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
     import { TrainerButton, Fa } from 'inca-utils';
@@ -9,7 +9,7 @@
     import { addLog } from "$lib/logService";
 
     let fullscreen;
-    let orderedModes = Object.keys($menuSettings.availableModes).sort((a, b) => availableModes[a].position - availableModes[b].position);
+    let orderedModes = Object.keys($menuSettings.availableGameModes).sort((a, b) => availableGameModes[a].position - availableGameModes[b].position);
 
     onMount(async () => {
         ({fullscreen} = await import('inca-utils/api'));
@@ -23,12 +23,12 @@
 
     function handleAuthFinally(){
         if($menuSettings.mainMenuRandomColors){
-            Object.values(popElmntDirections).forEach(function(mode) {
-                $menuSettings.availableModes[mode].color = getRandomColorFromPalette();
+            Object.keys(availableGameModes).forEach(function(mode) {
+                $menuSettings.availableGameModes[mode].color = getRandomColorFromPalette();
             });
         }
         if($menuSettings.enableModesRandomPos){
-            const modeKeys = Object.keys($menuSettings.availableModes);
+            const modeKeys = Object.keys($menuSettings.availableGameModes);
             const positions = Array.from({ length: modeKeys.length }, (_, index) => index);
             // Shuffle the positions array randomly
             for (let i = positions.length - 1; i > 0; i--) {
@@ -36,10 +36,10 @@
                 [positions[i], positions[j]] = [positions[j], positions[i]];
             }
             modeKeys.forEach((mode, index) => {
-                $menuSettings.availableModes[mode].position = positions[index];
+                $menuSettings.availableGameModes[mode].position = positions[index];
             });
         }
-        orderedModes = Object.keys($menuSettings.availableModes).sort((a, b) => $menuSettings.availableModes[a].position - $menuSettings.availableModes[b].position);
+        orderedModes = Object.keys($menuSettings.availableGameModes).sort((a, b) => $menuSettings.availableGameModes[a].position - $menuSettings.availableGameModes[b].position);
     }
 
     function setGeneralLogs(action){
@@ -61,7 +61,7 @@
         startGame(event.detail);
         const gameStartedLog = {
             ...setGeneralLogs('Game started'), 
-            details: deepCopy({gameMode: event.detail, menuBackgroundColor: $menuSettings.menuBackgroundColor, color: $menuSettings.availableModes[event.detail].color, gameId: $gameId, position: $menuSettings.availableModes[event.detail].position})
+            details: deepCopy({gameMode: event.detail, menuBackgroundColor: $menuSettings.menuBackgroundColor, color: $menuSettings.availableGameModes[event.detail].color, gameId: $gameId, position: $menuSettings.availableGameModes[event.detail].position})
         };
         addLog(gameStartedLog);
     }
@@ -76,7 +76,7 @@
     }
 
     function startGame(mode){
-        $gameDirection = mode;
+        $currentGameMode = mode;
         $gameId = crypto.randomUUID();
         goto('/game');
     }
@@ -160,11 +160,11 @@
         </header>
         <div class="game-modes">
             {#each orderedModes as mode}
-                {#if $menuSettings.availableModes[mode].enabled}
+                {#if $menuSettings.availableGameModes[mode].enabled}
                     <StaticBalloon 
                         on:modeClicked={handleClick}
                         mode={mode}
-                        icon={icons[$menuSettings.availableModes[mode].icon]} --bg-pseudo={$menuSettings.availableModes[mode].color} 
+                        icon={icons[$menuSettings.availableGameModes[mode].icon]} --bg-pseudo={$menuSettings.availableGameModes[mode].color} 
                     />
                 {/if}
             {/each}
