@@ -50,7 +50,7 @@ export const popElmntDirections ={
     BOTTOM_TO_TOP: 'bottom to top',
     TOP_TO_BOTTOM: 'top to bottom',
 }
-export const gameDirection = writable(popElmntDirections.LEFT_TO_RIGHT);
+
 export const gameId = writable('');
 
 export const endGameConditionsOpts = {
@@ -109,7 +109,6 @@ export const appSettingsDEFAULT = {
     enableCustomSpeeches: true,
 };
 
-
 export const availableColorsNames = {
     RED: 'red',
     GREEN: 'green',
@@ -138,16 +137,33 @@ export const availableColorsOpts = {
     [availableColorsNames.GRAY]: '#808080',
 };
 
-export const availableModes = {
-    [popElmntDirections.RIGHT_TO_LEFT]: { enabled: true, icon: 'faLeftLong', color: availableColorsOpts[availableColorsNames.RED], position: 0},
-    [popElmntDirections.BOTTOM_TO_TOP]: { enabled: true, icon: 'faUpLong', color: availableColorsOpts[availableColorsNames.GREEN], position: 1},
-    [popElmntDirections.TOP_TO_BOTTOM]: { enabled: true, icon: 'faDownLong', color: availableColorsOpts[availableColorsNames.BLUE], position: 2},
-    [popElmntDirections.LEFT_TO_RIGHT]: { enabled: true, icon: 'faRightLong', color: availableColorsOpts[availableColorsNames.YELLOW], position: 3},
+// Direction icons
+export const directionIcons = {
+    [popElmntDirections.RIGHT_TO_LEFT]: 'faLeftLong',
+    [popElmntDirections.BOTTOM_TO_TOP]: 'faUpLong',
+    [popElmntDirections.TOP_TO_BOTTOM]: 'faDownLong',
+    [popElmntDirections.LEFT_TO_RIGHT]: 'faRightLong',
 };
+
+// Generate game modes
+const generateGameModes = length => Object.fromEntries([...Array(length)].map((_, i) => [String.fromCharCode('A'.charCodeAt(0) + i), 
+    { 
+        enabled: true,
+        icon: directionIcons[Object.values(popElmntDirections)[i%Object.values(popElmntDirections).length]],
+        color: Object.values(availableColorsOpts)[i%Object.values(availableColorsOpts).length], 
+        position: i,
+    }
+]));
+
+// Available game modes
+export const availableGameModes = generateGameModes(6);
+
+export const currentGameMode = writable(Object.keys(availableGameModes)[0]);
+
 export const menuSettingsDEFAULT = {
     mainMenuRandomColors: true,
     menuBackgroundColor: availableColorsOpts[availableColorsNames.WHITE],
-    availableModes: deepCopy(availableModes),
+    availableGameModes: deepCopy(availableGameModes),
     enableModesRandomPos: true,
 };
 
@@ -230,7 +246,14 @@ const gameModeSettingsDEFAULT = {
     endGameConditions: deepCopy(endGameConditions),
 };
 
-export const gameSettingsDEFAULT = Object.fromEntries(Object.values(popElmntDirections).map(mode => [mode, {...gameModeSettingsDEFAULT}]));
+export const gameSettingsDEFAULT = Object.fromEntries(Object.keys(availableGameModes).map((mode, index)=> 
+    [mode, 
+        {
+            // Dinamically generate direction for each game mode
+            popElmntDirection: Object.values(popElmntDirections)[index%Object.values(popElmntDirections).length],
+            ...gameModeSettingsDEFAULT
+        }
+    ]));
 
 export const appSettings = writable(deepCopy(appSettingsDEFAULT));
 export const menuSettings = writable(deepCopy(menuSettingsDEFAULT));

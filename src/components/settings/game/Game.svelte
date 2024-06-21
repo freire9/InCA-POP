@@ -1,14 +1,29 @@
 <script>
     import { updatePreferences } from "$lib/preferences";
     import { capitalizeFirstLetter, toCamelCase } from "$lib/utils";
-    import { endGameConditionsOpts, endGameConditionsTooltip, gameSettings, popElmntSizes, popElmntSpeeds } from "../../../stores";
+    import { directionIcons, endGameConditionsOpts, endGameConditionsTooltip, gameSettings, menuSettings, popElmntDirections, popElmntSizes, popElmntSpeeds } from "../../../stores";
 	import ColorPicker from "../ColorPicker.svelte";
 	import NumericInput from "../NumericInput.svelte";
     import PopElmntsTabs from "./PopElmntsTabs.svelte";
 
     export let mode;
 
+    function handleDirectionChange(event){
+        console.log(event.target.value)
+        $menuSettings.availableGameModes[mode].icon = directionIcons[event.target.value];
+        updatePreferences();
+    }
+
 </script>
+
+<label for="popElmntDirectionSelect">Pop element direction:</label>
+<select id="popElmntDirectionSelect" bind:value={$gameSettings[mode].popElmntDirection} on:input={handleDirectionChange}>
+    {#each Object.values(popElmntDirections) as directionOption}
+        <option value={directionOption}>
+            {capitalizeFirstLetter(directionOption)}
+        </option>
+    {/each}
+</select>
 
 <NumericInput 
     id={"maxPopElmntQtyInput"}

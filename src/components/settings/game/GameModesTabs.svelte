@@ -1,6 +1,6 @@
 <script>
 	import { capitalizeFirstLetter } from "$lib/utils";
-	import { popElmntDirections } from "../../../stores";
+	import { availableGameModes } from "../../../stores";
     import Game from "./Game.svelte";
 
     let activeTabValue = 1;
@@ -9,11 +9,11 @@
 
     let gameModeTabs;
     // List of tab game modes, values and assigned components
-    $: gameModeTabs = Object.values(popElmntDirections).map((direction, index) => ({
-        label: capitalizeFirstLetter(direction),
+    $: gameModeTabs = Object.keys(availableGameModes).map((mode, index) => ({
+        label: capitalizeFirstLetter(mode),
         value: index + 1,
         component: Game,
-        mode: direction
+        mode: mode
     }));
 </script>
 

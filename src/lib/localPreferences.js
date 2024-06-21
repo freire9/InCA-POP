@@ -1,4 +1,4 @@
-import { appSettings, appSettingsDEFAULT, availableModes, gameSettings, gameSettingsDEFAULT, localUserId, menuSettings, menuSettingsDEFAULT, modifyingConfig, subjectName } from "../stores";
+import { appSettings, appSettingsDEFAULT, availableGameModes, gameSettings, gameSettingsDEFAULT, localUserId, menuSettings, menuSettingsDEFAULT, modifyingConfig, subjectName } from "../stores";
 import { updateSettingsWithDefault } from "./preferences";
 import lodash from 'lodash';
 import { deepCopy } from "./utils";
@@ -38,7 +38,7 @@ export function setLocalPreferencesToStores(){
     let updatedLocalGameSettings = {};
     let gameSettingsHasChanged = false;
     //for each mode settings, update settings with default
-    Object.keys(availableModes).forEach((mode) => {
+    Object.keys(availableGameModes).forEach((mode) => {
         const { settings: updatedGameSettingsMode, hasChanged: modeSettingsHasChanged } = updateSettingsWithDefault(gameSettingsDEFAULT[mode], incaPopPreferencesLocal.gameSettings[mode] || {});
         updatedLocalGameSettings[mode] = updatedGameSettingsMode;
         if(modeSettingsHasChanged) {
