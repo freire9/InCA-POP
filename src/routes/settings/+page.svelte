@@ -1,6 +1,6 @@
 <script>
-    import { gameSettings, appSettings, menuSettings, isLoggedIn, user, isFullScreen, menuSettingsDEFAULT, appSettingsDEFAULT, gameSettingsDEFAULT, subjectName, localUserId, modifyingConfig, syncPreferencesFromRemote, availableGameModes } from '../../stores.js';
-    import { deepCopy, toCamelCase, capitalizeFirstLetter } from '$lib/utils.js'
+    import { gameSettings, appSettings, menuSettings, isLoggedIn, user, isFullScreen, menuSettingsDEFAULT, appSettingsDEFAULT, gameSettingsDEFAULT, subjectName, localUserId, modifyingConfig } from '../../stores.js';
+    import { deepCopy } from '$lib/utils.js'
     import { Fa } from 'inca-utils';
     import { faFileArrowDown } from '@fortawesome/free-solid-svg-icons';
     import Profile from '../../components/settings/Profile.svelte';
@@ -12,19 +12,9 @@
     import { db, dbUsersCollectionName } from '$lib/firebaseConfig.js';
     import { updatePreferences } from '$lib/preferences.js';
     import GameModesTabs from '../../components/settings/game/GameModesTabs.svelte';
-	import { updateRemotePreferences } from '$lib/firebaseFunctions.js';
-	import { updateLocalPreferences } from '$lib/localPreferences.js';
-    import ColorPicker from '../../components/settings/ColorPicker.svelte';
+	import MainMenu from '../../components/settings/MainMenu.svelte';
     
     const { debounce } = lodash;
-    let modesByPositions = {};
-    let positionByModes = {};
-
-    $:{
-        if(!$modifyingConfig){
-            handleAuthFinally();
-        }
-    }
 
     function handleRemoteJsonDownload (){
         if ($isLoggedIn && $user) downloadLogs('json', $user.uid);
@@ -81,31 +71,6 @@
         }
     }
 
-    function handleAuthFinally(){
-        modesByPositions = Object.fromEntries(Object.keys($menuSettings.availableGameModes).map(mode => [$menuSettings.availableGameModes[mode].position, mode]));
-        positionByModes = Object.fromEntries(Object.keys($menuSettings.availableGameModes).map(mode => [mode, $menuSettings.availableGameModes[mode].position]));
-    }
-
-    function managePositionChange(newModeInPos){
-        if($menuSettings.enableModesRandomPos || Object.keys(modesByPositions).length === 0 || Object.keys(positionByModes).length === 0) return;
-        
-        const newPosition = $menuSettings.availableGameModes[newModeInPos].position;
-        const oldModeInPos = modesByPositions[newPosition];
-        const oldPos = positionByModes[newModeInPos];
-
-        // Update position of the mode that was in the new position
-        $menuSettings.availableGameModes[oldModeInPos].position = oldPos;
-
-        modesByPositions[newPosition] = newModeInPos;
-        positionByModes[newModeInPos] = newPosition;
-        modesByPositions[oldPos] = oldModeInPos;
-        positionByModes[oldModeInPos] = oldPos;
-        
-        if($syncPreferencesFromRemote && $isLoggedIn && $user) updateRemotePreferences();
-        else updateLocalPreferences();
-    }
-
-    const handlePositionChange = debounce((NewModeInPos) => managePositionChange(NewModeInPos), 1500);
     const handleSaveSubject = debounce(saveSubjectName, 1500);
     const handleSaveInstructor = debounce(saveInstructorName, 1500);
 </script>
@@ -142,44 +107,7 @@
             <GameModesTabs />
     
             <h2>Main menu</h2>
-
-            <p>Game modes to display (direction of pop elements):</p>
-            <div class="flex-column">
-                <div class="game-modes-container">
-                    {#each Object.keys(availableGameModes) as mode}
-                        <div class="checkbox-flex">
-                            <input id={"gameMode" + toCamelCase(mode) + "Checkbox"} type="checkbox" bind:checked={$menuSettings.availableGameModes[mode].enabled} on:input={updatePreferences}>
-                            <label for={"gameMode" + toCamelCase(mode) + "Checkbox"}>{capitalizeFirstLetter(mode)}:</label>
-                        </div>
-                        <div class="game-mode-extras">
-                            {#if !$menuSettings.mainMenuRandomColors}
-                                <ColorPicker id={"gameMode" + mode + "ColorInput"} label={"Color:"} bind:value={$menuSettings.availableGameModes[mode].color} on:input={updatePreferences}/>
-                            {/if}
-
-                            {#if !$menuSettings.enableModesRandomPos}
-                                <label for={"gameMode" + mode + "PositionSelect"}>Position:</label>
-                                <select id={"gameMode" + mode + "PositionSelect"} bind:value={$menuSettings.availableGameModes[mode].position} on:input={() => handlePositionChange(mode)}>
-                                    {#each Object.keys($menuSettings.availableGameModes) as position, index}
-                                        <option value={index}>{index}</option>
-                                    {/each}
-                                </select>
-                            {/if}
-                        </div>
-                    {/each}
-                </div>
-    
-                <div class="checkbox-flex">
-                    <input id="modeRandomColorsCheckbox" type="checkbox" bind:checked={$menuSettings.mainMenuRandomColors} on:input={updatePreferences}>
-                    <label for="modeRandomColorsCheckbox">Enable random colors in mode representations:</label>
-                </div>
-
-                <div class="checkbox-flex">
-                    <input id="randomModePosCheckbox" type="checkbox" bind:checked={$menuSettings.enableModesRandomPos} on:input={updatePreferences}>
-                    <label for="randomModePosCheckbox">Randomize mode positions:</label>
-                </div>
-
-                <ColorPicker id="mainMenuColorInput" label={"Main menu background color:"} bind:value={$menuSettings.menuBackgroundColor} on:input={updatePreferences}/>
-            </div>
+            <MainMenu />
 
             <h2>Speeches</h2>
             <Speeches />
@@ -200,11 +128,6 @@
     }
     main{
         padding: 2rem;
-    }
-    .checkbox-flex{
-        display: flex;
-        align-items: baseline;
-        gap: 10px;
     }
     button.download-logs-btn,
     button.restore-btn{
@@ -236,18 +159,6 @@
         flex-direction: row;
         gap: 50px;
     }
-
-    .game-modes-container,
-    .game-mode-extras{
-        margin-left: 30px;
-    }
-    .game-mode-extras{
-        display: flex;
-        gap: 10px;
-        align-items: center;
-        padding-top: 12px;
-        padding-bottom: 12px;
-    }
     @media (max-width: 600px) {
         button.download-logs-btn{
             width: 220px;
@@ -255,10 +166,6 @@
         .remote-logs-container{
             flex-direction: column;
             gap: 10px;
-        }
-        .game-mode-extras{
-            flex-direction: column;
-            align-items: flex-start;
         }
     }
     @media (min-width: 600px) and (max-width: 1024px) {

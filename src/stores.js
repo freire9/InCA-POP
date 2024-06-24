@@ -148,7 +148,7 @@ export const directionIcons = {
 // Generate game modes
 const generateGameModes = length => Object.fromEntries([...Array(length)].map((_, i) => [String.fromCharCode('A'.charCodeAt(0) + i), 
     { 
-        enabled: true,
+        enabled: i<=3 ? true : false, // Enable first 4 game modes by default
         icon: directionIcons[Object.values(popElmntDirections)[i%Object.values(popElmntDirections).length]],
         color: Object.values(availableColorsOpts)[i%Object.values(availableColorsOpts).length], 
         position: i,
