@@ -59,7 +59,7 @@
         {#each Object.keys(availableGameModes) as mode}
             <div class="checkbox-flex">
                 <input id={"gameMode" + toCamelCase(mode) + "Checkbox"} type="checkbox" bind:checked={$menuSettings.availableGameModes[mode].enabled} on:input={handleModeCheckbox}>
-                <label for={"gameMode" + toCamelCase(mode) + "Checkbox"}>{capitalizeFirstLetter(mode)}:</label>
+                <label for={"gameMode" + toCamelCase(mode) + "Checkbox"}>{capitalizeFirstLetter(mode)}</label>
             </div>
             <div class="game-mode-extras">
                 {#if !$menuSettings.mainMenuRandomColors}
