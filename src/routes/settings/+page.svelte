@@ -1,29 +1,19 @@
 <script>
-    import { gameSettings, appSettings, menuSettings, isLoggedIn, user, isFullScreen, menuSettingsDEFAULT, appSettingsDEFAULT, gameSettingsDEFAULT, subjectName, localUserId, modifyingConfig } from '../../stores.js';
+    import { gameSettings, appSettings, menuSettings, isLoggedIn, user, isFullScreen, menuSettingsDEFAULT, appSettingsDEFAULT, gameSettingsDEFAULT, subjectName } from '../../stores.js';
     import { deepCopy } from '$lib/utils.js'
-    import { Fa } from 'inca-utils';
-    import { faFileArrowDown } from '@fortawesome/free-solid-svg-icons';
+
     import Profile from '../../components/settings/Profile.svelte';
     import UserNavBar from '../../components/UserNavBar.svelte';
     import Speeches from '../../components/settings/Speeches.svelte';
     import lodash from 'lodash';
-    import { downloadLogs } from '$lib/logService.js';
     import { arrayUnion, doc, getDoc, updateDoc } from 'firebase/firestore';
     import { db, dbUsersCollectionName } from '$lib/firebaseConfig.js';
     import { updatePreferences } from '$lib/preferences.js';
     import GameModesTabs from '../../components/settings/game/GameModesTabs.svelte';
 	import MainMenu from '../../components/settings/MainMenu.svelte';
+	import Logs from '../../components/settings/Logs.svelte';
     
     const { debounce } = lodash;
-
-    function handleRemoteJsonDownload (){
-        if ($isLoggedIn && $user) downloadLogs('json', $user.uid);
-        else downloadLogs('json', $localUserId);
-    }
-    function handleRemoteCsvDownload(){
-        if ($isLoggedIn && $user) downloadLogs('csv', $user.uid);
-        else downloadLogs('csv', $localUserId);
-    }
 
     function handleRestoreDefaults(){
         gameSettings.set(deepCopy(gameSettingsDEFAULT));
@@ -92,17 +82,8 @@
             <input id="instructorNameInput" type="text" bind:value={$appSettings.instructorName} on:input={handleSaveInstructor}>
             
             <h2>Logs</h2>
-            <div class="remote-logs-container">
-                <button class="download-logs-btn" on:click={handleRemoteJsonDownload}>
-                    <Fa icon={faFileArrowDown} />
-                    Download remote database logs file (JSON)
-                </button>
-                <button class="download-logs-btn" on:click={handleRemoteCsvDownload}>
-                    <Fa icon={faFileArrowDown} />
-                    Download remote database logs file (CSV)
-                </button>
-            </div>
-
+            <Logs />
+            
             <h2>Game modes</h2>
             <GameModesTabs />
     
@@ -129,53 +110,20 @@
     main{
         padding: 2rem;
     }
-    button.download-logs-btn,
     button.restore-btn{
         background-color: beige;
         border-radius: 10px;
         padding: 10px;
         text-align: center;
     }
-    button.download-logs-btn{
-        margin-top: 10px;
-    }
     button.restore-btn{
         margin-top: 70px;
     }
-
-    button.download-logs-btn:hover,
     button.restore-btn:hover{
         background-color: #e6e6e6;
     }
-
-    button.download-logs-btn:focus,
     button.restore-btn:focus{
         outline: none;
         box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.2);
-    }
-    
-    .remote-logs-container{
-        display: flex;
-        flex-direction: row;
-        gap: 50px;
-    }
-    @media (max-width: 600px) {
-        button.download-logs-btn{
-            width: 220px;
-        }
-        .remote-logs-container{
-            flex-direction: column;
-            gap: 10px;
-        }
-    }
-    @media (min-width: 600px) and (max-width: 1024px) {
-        button.download-logs-btn{
-            width: 230px;
-        }
-    }
-    @media (min-width: 1024px){
-        button.download-logs-btn{
-            width: 300px;
-        }
     }
 </style>
