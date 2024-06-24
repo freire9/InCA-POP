@@ -1,8 +1,8 @@
 
-# InCA-POP!
+# InCA-Pop
 
-## About InCA-POP!
-InCA-POP! is a touch-based life enrichment application focused on other animals than humans (OATHs), as well as a research tool for assessing visual ability limits in the context of Animal-Computer Interaction (ACI). It focuses on assessing color perception abilities and contrast sensitivity by presenting balloons across the screen, including special balloons that subjects must pop. Based on which special balloons (and in particular their colors) are popped and which are not, their ranges of capabilities and limits are analyzed. Color sensitivity is measured based on the diversity of colors exposed and the frequency with which they are popped. Contrast sensitivity works in the same way but by evaluating balloons of colors slightly different from the game background. The application presents several balloons on the screen, mixing easy and difficult test instances in order to evaluate capacity limits in an ethical way, since the subject always has easy instances if the difficult ones exceed his capacities.
+## About InCA-Pop
+InCA-Pop is a touch-based life enrichment application focused on other animals than humans (OATHs), as well as a research tool for assessing visual ability limits in the context of Animal-Computer Interaction (ACI). It focuses on assessing color perception abilities and contrast sensitivity by presenting balloons across the screen, including special balloons that subjects must pop. Based on which special balloons (and in particular their colors) are popped and which are not, their ranges of capabilities and limits are analyzed. Color sensitivity is measured based on the diversity of colors exposed and the frequency with which they are popped. Contrast sensitivity works in the same way but by evaluating balloons of colors slightly different from the game background. The application presents several balloons on the screen, mixing easy and difficult test instances in order to evaluate capacity limits in an ethical way, since the subject always has easy instances if the difficult ones exceed his capacities.
 
 ## How to use the app
 1.  The _Instructor_ configures the game parameters on the _Settings_ page. This includes the size of the balloons, speed, colors, available game modes, etc.
@@ -14,7 +14,7 @@ InCA-POP! is a touch-based life enrichment application focused on other animals 
 
 ##  How to install it
 
-InCA-POP is a web application developed in sveltekit, so it does not require installation and can be found [here](https://inca-pop.vercel.app/).
+InCA-Pop is a web application developed in sveltekit, so it does not require installation and can be found [here](https://inca-pop.vercel.app/).
 On the other hand, if you want to mount your own version on a server you must follow the following steps:
 
 1. Clone this repository.

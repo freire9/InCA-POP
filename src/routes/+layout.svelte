@@ -109,5 +109,5 @@
     }
 </style>
 
-<p class="app-version">v{appVersion}</p>
+<p class="app-version">InCA-Pop v{appVersion}</p>
 <slot />
