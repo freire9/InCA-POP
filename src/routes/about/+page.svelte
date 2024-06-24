@@ -26,9 +26,9 @@
 
     <UserNavBar />
     <main>
-        <h1>About InCA-POP!</h1>
+        <h1>About InCA-Pop</h1>
         <p>
-            InCA-POP! is a touch-based life enrichment application focused on other animals 
+            InCA-Pop is a touch-based life enrichment application focused on other animals 
             than humans (OATHs), as well as a research tool for assessing visual ability limits 
             in the context of Animal-Computer Interaction (ACI). It focuses on assessing color 
             perception abilities and contrast sensitivity by presenting balloons across the screen, 

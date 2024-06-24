@@ -143,7 +143,7 @@
 <div on:click={handleBackgroundClick} role="menu" aria-label="Main menu" tabindex="0" on:keydown={handleBackgroundKeyboard} >
     <main class="not-selectable" style:background-color={$menuSettings.menuBackgroundColor}>
         <header>
-            <h1>InCA-POP!</h1>
+            <h1>InCA-Pop</h1>
             <nav>
                 <TrainerButton label="Settings" on:click={() => goto('/settings')}>
                     <Fa icon={faGear} />

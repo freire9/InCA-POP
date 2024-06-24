@@ -101,13 +101,17 @@
         font-size: small;
         z-index: 1;
         user-select: none;
+        text-align: center;
     }
     @media (min-width: 600px){
         .app-version{
             font-size: medium;
         }
+        br.version-br{
+            display: none;
+        }
     }
 </style>
 
-<p class="app-version">v{appVersion}</p>
+<p class="app-version">InCA-Pop <br class="version-br"> v{appVersion}</p>
 <slot />
