@@ -99,7 +99,7 @@
         right: 0;
         bottom: 0;
         font-size: small;
-        z-index: 1;
+        z-index: 3;
         user-select: none;
         text-align: center;
     }
