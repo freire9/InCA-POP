@@ -53,6 +53,8 @@
         updatePreferences();
     }
 </script>
+
+<h2>Main menu</h2>
 <p>Game modes to display (direction of pop elements):</p>
 <div class="flex-column">
     <div class="game-modes-container">

@@ -84,6 +84,7 @@
     const handleRateChange = debounce(rateChange, 500);
 </script>
 
+<h2>Speeches</h2>
 <div class="checkbox-flex">
     <input id="enableCustomSpeechesCheckbox" type="checkbox" bind:checked={$appSettings.enableCustomSpeeches} on:input={updatePreferences}>
     <label for="enableCustomSpeechesCheckbox">Enable custom speeches:</label>

@@ -17,6 +17,7 @@
     }));
 </script>
 
+<h2>Game modes</h2>
 <div>
     <ul>
         {#each gameModeTabs as tab}
