@@ -8,6 +8,11 @@ export const modifyingConfig = writable(true);
 export const isFullScreen = writable(false);
 export const localUserId = writable('');
 export const syncPreferencesFromRemote = writable(false);
+
+export const syncAppSettingsToRemote = writable(false);
+export const syncMenuSettingsToRemote = writable(false);
+export const syncGameSettingsToRemote = writable(false);
+
 export const subjectName = writable('subject-name');
 
 // Pop element types: NORMAL AND SPECIAL (EXP, CTRL, etc.)

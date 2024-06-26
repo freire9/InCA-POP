@@ -3,9 +3,10 @@
 	import { updateLocalPreferences } from "$lib/localPreferences";
 	import { updatePreferences } from "$lib/preferences";
 	import { capitalizeFirstLetter, toCamelCase } from "$lib/utils";
-	import { availableGameModes, isLoggedIn, menuSettings, modifyingConfig, syncPreferencesFromRemote, user } from "../../stores";
+	import { availableGameModes, isLoggedIn, menuSettings, modifyingConfig, syncAppSettingsToRemote, syncGameSettingsToRemote, syncMenuSettingsToRemote, syncPreferencesFromRemote, user } from "../../stores";
 	import ColorPicker from "./ColorPicker.svelte";
     import lodash from 'lodash';
+	import SliderInput from "./SliderInput.svelte";
     
     const { debounce } = lodash;
 
@@ -52,9 +53,26 @@
         }
         updatePreferences();
     }
+    function handleToggle(checked) {
+        if (checked) toggleSaveRemotePreferences(true);
+        else toggleSaveRemotePreferences(false);
+    }
+    const toggleSaveRemotePreferences = (toggle) => {
+        if(toggle){
+            if($syncGameSettingsToRemote || $syncAppSettingsToRemote || $syncMenuSettingsToRemote) $syncPreferencesFromRemote = true;
+            else $syncPreferencesFromRemote = false;
+            updateRemotePreferences();
+        }
+    }
+    const handleToggleSaveRemotePreferences = debounce((toggle) => handleToggle(toggle), 1500);
 </script>
 
 <h2>Main menu</h2>
+<SliderInput 
+    bind:value={$syncMenuSettingsToRemote}
+    on:change={handleToggleSaveRemotePreferences}
+    label={"Save preferences remotely"}
+/>
 <p>Game modes to display (direction of pop elements):</p>
 <div class="flex-column">
     <div class="game-modes-container">

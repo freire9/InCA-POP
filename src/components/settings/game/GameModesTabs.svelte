@@ -1,12 +1,17 @@
 <script>
+	import { updateRemotePreferences } from "$lib/firebaseFunctions";
 	import { capitalizeFirstLetter } from "$lib/utils";
-	import { availableGameModes } from "../../../stores";
+	import { availableGameModes, syncAppSettingsToRemote, syncGameSettingsToRemote, syncMenuSettingsToRemote, syncPreferencesFromRemote } from "../../../stores";
+	import SliderInput from "../SliderInput.svelte";
     import Game from "./Game.svelte";
+    import lodash from 'lodash';
+
+    const { debounce } = lodash;
 
     let activeTabValue = 1;
 
     const handleClick = tabValue => () => (activeTabValue = tabValue);
-
+    
     let gameModeTabs;
     // List of tab game modes, values and assigned components
     $: gameModeTabs = Object.keys(availableGameModes).map((mode, index) => ({
@@ -15,9 +20,27 @@
         component: Game,
         mode: mode
     }));
+    
+    function handleToggle(checked) {
+        if (checked) toggleSaveRemotePreferences(true);
+        else toggleSaveRemotePreferences(false);
+    }
+    const toggleSaveRemotePreferences = (toggle) => {
+        if(toggle){
+            if($syncGameSettingsToRemote || $syncAppSettingsToRemote || $syncMenuSettingsToRemote) $syncPreferencesFromRemote = true;
+            else $syncPreferencesFromRemote = false;
+            updateRemotePreferences();
+        }
+    }
+    const handleToggleSaveRemotePreferences = debounce((toggle) => handleToggle(toggle), 1500);
 </script>
 
 <h2>Game modes</h2>
+<SliderInput 
+    bind:value={$syncGameSettingsToRemote}
+    label={"Save preferences remotely"}
+    on:change={handleToggleSaveRemotePreferences}
+/>
 <div>
     <ul>
         {#each gameModeTabs as tab}

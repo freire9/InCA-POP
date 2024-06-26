@@ -80,11 +80,23 @@
         if($isLoggedIn && $user) {
             const userDocRef = doc(db, dbUsersCollectionName, $user.uid);
             const userDoc = await getDoc(userDocRef);
-            if(!userDoc.data().learners || !userDoc.data().learners.includes($subjectName)){
+            console.log(dbUsersCollectionName)
+            console.log(userDoc.data());
+            console.log(userDoc);
+
+            if(!userDoc.exists()){
+                await setDoc(userDocRef, {
+                    learners: [$subjectName],
+                });
+                console.log('Document created with new learner');
+            }else{
+                if(!userDoc?.data()?.learners || !userDoc?.data()?.learners.includes($subjectName)){
                     await updateDoc(userDocRef, {
                         learners: arrayUnion($subjectName),
                     });
                 }
+                console.log('Learner added to existing document');
+            }
         }
     }
 

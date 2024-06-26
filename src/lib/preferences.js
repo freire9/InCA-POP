@@ -27,8 +27,8 @@ export function updatePreferences(){
     const unsubscribeSyncPreferencesFromRemote = syncPreferencesFromRemote.subscribe((value) => syncPreferencesFromRemote_value = value);
     const unsubscribeIsLoggedIn = isLoggedIn.subscribe((value) => isLoggedIn_value = value);
     const unsubscribeUser = user.subscribe((value) => user_value = value);
-    if(syncPreferencesFromRemote_value && isLoggedIn_value && user_value) handleUpdateRemotePreferences();
-    else handleUpdateLocalPreferences();
+    handleUpdateLocalPreferences();
+    if(syncPreferencesFromRemote_value && isLoggedIn_value && user_value) handleUpdateRemotePreferences()
     unsubscribeSyncPreferencesFromRemote();
     unsubscribeIsLoggedIn();
     unsubscribeUser();
