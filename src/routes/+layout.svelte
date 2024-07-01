@@ -1,31 +1,16 @@
 <script>
     import 'inca-utils/styles.css';
-    import { user, isLoggedIn, appSettings, isIphone, modifyingConfig, speechCorrect, speechSettings, speechExcellent, voices, syncPreferencesFromRemote } from '../stores';
-    import { auth, db, dbUsersCollectionName } from '$lib/firebaseConfig';
+    import { user, isLoggedIn, isIphone, modifyingConfig, speechCorrect, speechSettings, speechExcellent, voices, loadPreferencesFromRemote, savePreferencesToRemote, syncGameSettingsFromRemote, syncGameSettingsToRemote, syncMenuSettingsFromRemote, syncMenuSettingsToRemote } from '../stores';
+    import { auth } from '$lib/firebaseConfig';
     import { onAuthStateChanged } from 'firebase/auth';
-    import { doc, getDoc } from 'firebase/firestore';
 	import { onMount } from 'svelte';
     import packageJson from '../../package.json';
-	import { syncPreferencesToStores } from '$lib/firebaseFunctions';
+	import { syncPreferencesFromFirestore } from '$lib/firebaseFunctions';
 	import { loadSubjectNameLocal, setLocalPreferencesToStores, setLocalUserId } from '$lib/localPreferences';
 
     const appVersion = packageJson.version;
 
-    async function syncPreferencesFromFirestore() {
-        if ($user && $isLoggedIn) {
-            $modifyingConfig = true;
-            const userDocRef = doc(db, dbUsersCollectionName, $user.uid);
-            const docSnapshot = await getDoc(userDocRef);
-            const userData = docSnapshot.data();
-            
-            if(!userData) return;
-
-            syncPreferencesToStores(userData);
-        }
-    }
-
     onAuthStateChanged(auth, async authUser => {
-        
         $user = authUser;
         $isLoggedIn = !!authUser;
         if (!$user || !$isLoggedIn) {
@@ -34,7 +19,7 @@
         }
         
         try {
-            if($syncPreferencesFromRemote) await syncPreferencesFromFirestore();
+            if($loadPreferencesFromRemote) await syncPreferencesFromFirestore();
         } catch(error) {
             console.error(error);
         } finally{
@@ -88,7 +73,13 @@
         }
         loadSubjectNameLocal();
         setLocalUserId();
-        if(!$syncPreferencesFromRemote) setLocalPreferencesToStores();
+        $loadPreferencesFromRemote = localStorage.getItem('loadPreferencesFromRemote') === 'true';
+        $savePreferencesToRemote = localStorage.getItem('savePreferencesToRemote') === 'true';
+        $syncGameSettingsFromRemote = localStorage.getItem('syncGameSettingsFromRemote') === 'true';
+        $syncGameSettingsToRemote = localStorage.getItem('syncGameSettingsToRemote') === 'true';
+        $syncMenuSettingsFromRemote = localStorage.getItem('syncMenuSettingsFromRemote') === 'true';
+        $syncMenuSettingsToRemote = localStorage.getItem('syncMenuSettingsToRemote') === 'true';
+        setLocalPreferencesToStores();
     });
 </script>
 

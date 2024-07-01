@@ -24,6 +24,7 @@
     }
 </script>
 
+<h2>Logs</h2>
 <div class="remote-logs-container">
     <button class="download-logs-btn" on:click={()=> handleRemoteLogsDownload('json')} disabled={loadingJsonLogsDownload}>
         {#if loadingJsonLogsDownload}
