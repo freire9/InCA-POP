@@ -1,4 +1,4 @@
-import { appSettings, appSettingsDEFAULT, availableGameModes, gameSettings, gameSettingsDEFAULT, localUserId, menuSettings, menuSettingsDEFAULT, modifyingConfig, subjectName, syncGameSettingsFromRemote, syncMenuSettingsFromRemote } from "../stores";
+import { appSettings, appSettingsDEFAULT, availableGameModes, gameSettings, gameSettingsDEFAULT, isLoggedIn, localUserId, menuSettings, menuSettingsDEFAULT, modifyingConfig, subjectName, syncGameSettingsFromRemote, syncMenuSettingsFromRemote, user } from "../stores";
 import { updateSettingsWithDefault } from "./preferences";
 import lodash from 'lodash';
 import { deepCopy } from "./utils";
@@ -23,9 +23,10 @@ function getLocalPreferences(){
 }
 
 export function setLocalPreferencesToStores(){
-    let syncGameSettingsFromRemote_value, syncMenuSettingsFromRemote_value;
+    let syncGameSettingsFromRemote_value, syncMenuSettingsFromRemote_value, isLoggedIn_value;
     const unsubscribeSyncGameSettingsFromRemote = syncGameSettingsFromRemote.subscribe((value) => syncGameSettingsFromRemote_value = value);
     const unsubscribeSyncMenuSettingsFromRemote = syncMenuSettingsFromRemote.subscribe((value) => syncMenuSettingsFromRemote_value = value);
+    const unsubscribeLoggedIn = isLoggedIn.subscribe((value) => isLoggedIn_value = value);
     modifyingConfig.set(true);
     const incaPopPreferencesLocal = getLocalPreferences();
     if(!incaPopPreferencesLocal) {
@@ -33,15 +34,16 @@ export function setLocalPreferencesToStores(){
         modifyingConfig.set(false);
         unsubscribeSyncGameSettingsFromRemote();
         unsubscribeSyncMenuSettingsFromRemote();
+        unsubscribeLoggedIn();
         return;
     }
     const { settings: updatedLocalAppSettings, hasChanged: appSettingsHasChanged } = updateSettingsWithDefault(appSettingsDEFAULT, incaPopPreferencesLocal.appSettings || {});
     const { settings: updatedLocalMenuSettings, hasChanged: menuSettingsHasChanged } = updateSettingsWithDefault(menuSettingsDEFAULT, incaPopPreferencesLocal.menuSettings || {});
     appSettings.set(deepCopy(updatedLocalAppSettings));
-    if(!syncMenuSettingsFromRemote_value) menuSettings.set(deepCopy(updatedLocalMenuSettings));
+    if(!isLoggedIn_value || !syncMenuSettingsFromRemote_value) menuSettings.set(deepCopy(updatedLocalMenuSettings));
     
     let gameSettingsHasChanged = false;
-    if(!syncGameSettingsFromRemote_value) {
+    if(!isLoggedIn_value || !syncGameSettingsFromRemote_value) {
         let updatedLocalGameSettings = {};
         //for each mode settings, update settings with default
         Object.keys(availableGameModes).forEach((mode) => {
@@ -60,6 +62,7 @@ export function setLocalPreferencesToStores(){
     console.log('Preferences set from local storage');
     unsubscribeSyncGameSettingsFromRemote();
     unsubscribeSyncMenuSettingsFromRemote();
+    unsubscribeLoggedIn();
     modifyingConfig.set(false);
 }
 

@@ -87,20 +87,22 @@
 
 <div class="main-menu-title-wrapper">
     <h2>Main menu</h2>
-    <div class="remote-preferences-btn-wrapper">
-        <SliderInput 
-            bind:value={$syncMenuSettingsToRemote}
-            label={"Save preferences remotely"}
-            on:change={handleToggleSaveRemotePreferences}
-        />
-        <SliderInput 
-            bind:value={$syncMenuSettingsFromRemote}
-            label={"Load preferences remotely"}
-            on:change={handleToggleLoadRemotePreferences}
-        />
-    </div>
+    {#if $isLoggedIn && $user}
+        <div class="remote-preferences-btn-wrapper">
+            <SliderInput 
+                bind:value={$syncMenuSettingsToRemote}
+                label={"Save preferences remotely"}
+                on:change={handleToggleSaveRemotePreferences}
+            />
+            <SliderInput 
+                bind:value={$syncMenuSettingsFromRemote}
+                label={"Load preferences remotely"}
+                on:change={handleToggleLoadRemotePreferences}
+            />
+        </div>
+    {/if}
 </div>
-<p>Game modes to display (direction of pop elements):</p>
+<p>Game modes to display:</p>
 <div class="flex-column">
     <div class="game-modes-container">
         {#each Object.keys(availableGameModes) as mode}
@@ -169,5 +171,16 @@
     .remote-preferences-btn-wrapper{
         display: flex;
         gap: 10px;
+    }
+    @media (max-width: 600px) {
+        .main-menu-title-wrapper{
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: flex-start;
+        }
+        .remote-preferences-btn-wrapper{
+            margin-bottom: 30px;
+        }
     }
 </style>
