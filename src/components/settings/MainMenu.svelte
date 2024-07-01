@@ -3,7 +3,7 @@
 	import { updateLocalPreferences } from "$lib/localPreferences";
 	import { updatePreferences } from "$lib/preferences";
 	import { capitalizeFirstLetter, toCamelCase } from "$lib/utils";
-	import { availableGameModes, isLoggedIn, loadPreferencesFromRemote, menuSettings, modifyingConfig, savePreferencesToRemote, syncAppSettingsToRemote, syncGameSettingsFromRemote, syncGameSettingsToRemote, syncMenuSettingsFromRemote, syncMenuSettingsToRemote, user } from "../../stores";
+	import { availableGameModes, isLoggedIn, loadPreferencesFromRemote, menuSettings, modifyingConfig, savePreferencesToRemote, syncAppSettingsFromRemote, syncAppSettingsToRemote, syncGameSettingsFromRemote, syncGameSettingsToRemote, syncMenuSettingsFromRemote, syncMenuSettingsToRemote, user } from "../../stores";
 	import ColorPicker from "./ColorPicker.svelte";
     import lodash from 'lodash';
 	import SliderInput from "./SliderInput.svelte";
@@ -73,7 +73,7 @@
     }
     async function toggleLoadRemotePreferences(toggle) {
         if(toggle){
-            if($syncGameSettingsFromRemote || $syncMenuSettingsFromRemote){
+            if($syncGameSettingsFromRemote || $syncMenuSettingsFromRemote || $syncAppSettingsFromRemote){
                 $loadPreferencesFromRemote = true;
                 await syncPreferencesFromFirestore();
             } else $loadPreferencesFromRemote = false;

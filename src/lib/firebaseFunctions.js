@@ -1,5 +1,5 @@
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import { appSettings, appSettingsDEFAULT, availableGameModes, gameSettings, gameSettingsDEFAULT, isLoggedIn, menuSettings, menuSettingsDEFAULT, modifyingConfig, syncAppSettingsToRemote, syncGameSettingsFromRemote, syncGameSettingsToRemote, syncMenuSettingsFromRemote, syncMenuSettingsToRemote, user } from "../stores";
+import { appSettings, appSettingsDEFAULT, availableGameModes, gameSettings, gameSettingsDEFAULT, isLoggedIn, menuSettings, menuSettingsDEFAULT, modifyingConfig, syncAppSettingsFromRemote, syncAppSettingsToRemote, syncGameSettingsFromRemote, syncGameSettingsToRemote, syncMenuSettingsFromRemote, syncMenuSettingsToRemote, user } from "../stores";
 import { deepCopy } from "./utils";
 import lodash from 'lodash';
 import { db, dbUsersCollectionName } from "./firebaseConfig";
@@ -54,9 +54,10 @@ export async function updateRemotePreferences({defaultSettings = false} = {}){
 
 export function syncPreferencesToStores(userData) {
     if (userData && userData.incaPopPreferences.hasOwnProperty('appSettings') && userData.incaPopPreferences.hasOwnProperty('menuSettings') && userData.incaPopPreferences.hasOwnProperty('gameSettings')){
-        let syncGameSettingsFromRemote_value, syncMenuSettingsFromRemote_value;
+        let syncGameSettingsFromRemote_value, syncMenuSettingsFromRemote_value, syncAppSettingsFromRemote_value;
         const unsubscribeSyncGameSettingsFromRemote = syncGameSettingsFromRemote.subscribe((value) => syncGameSettingsFromRemote_value = value);
         const unsubscribeSyncMenuSettingsFromRemote = syncMenuSettingsFromRemote.subscribe((value) => syncMenuSettingsFromRemote_value = value);
+        const unsubscribeSyncAppSettingsFromRemote = syncAppSettingsFromRemote.subscribe((value) => syncAppSettingsFromRemote_value = value);
         const { settings: updatedAppSettings, hasChanged: appSettingsHasChanged } = updateSettingsWithDefault(appSettingsDEFAULT, userData.incaPopPreferences.appSettings || {});
         const { settings: updatedMenuSettings, hasChanged: menuSettingsHasChanged } = updateSettingsWithDefault(menuSettingsDEFAULT, userData.incaPopPreferences.menuSettings || {});
 
@@ -73,10 +74,11 @@ export function syncPreferencesToStores(userData) {
 
         if(syncGameSettingsFromRemote_value) gameSettings.set(deepCopy(updatedGameSettings));
         if(syncMenuSettingsFromRemote_value) menuSettings.set(deepCopy(updatedMenuSettings));
-        // appSettings.set(deepCopy(updatedAppSettings));
+        if(syncAppSettingsFromRemote_value) appSettings.set(deepCopy(updatedAppSettings));
         
         unsubscribeSyncGameSettingsFromRemote();
         unsubscribeSyncMenuSettingsFromRemote();
+        unsubscribeSyncAppSettingsFromRemote();
         console.log('User preferences loaded');
 
         if(appSettingsHasChanged || gameSettingsHasChanged || menuSettingsHasChanged) updateRemotePreferences();

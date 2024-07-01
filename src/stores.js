@@ -17,6 +17,7 @@ export const syncGameSettingsToRemote = writable(false);
 
 export const syncGameSettingsFromRemote = writable(false);
 export const syncMenuSettingsFromRemote = writable(false);
+export const syncAppSettingsFromRemote = writable(false);
 
 export const subjectName = writable('subject-name');
 

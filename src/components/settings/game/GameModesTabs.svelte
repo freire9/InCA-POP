@@ -1,7 +1,7 @@
 <script>
 	import { syncPreferencesFromFirestore, updateRemotePreferences } from "$lib/firebaseFunctions";
 	import { capitalizeFirstLetter } from "$lib/utils";
-	import { availableGameModes, isLoggedIn, loadPreferencesFromRemote, savePreferencesToRemote, syncAppSettingsToRemote, syncGameSettingsFromRemote, syncGameSettingsToRemote, syncMenuSettingsFromRemote, syncMenuSettingsToRemote, user } from "../../../stores";
+	import { availableGameModes, isLoggedIn, loadPreferencesFromRemote, savePreferencesToRemote, syncAppSettingsFromRemote, syncAppSettingsToRemote, syncGameSettingsFromRemote, syncGameSettingsToRemote, syncMenuSettingsFromRemote, syncMenuSettingsToRemote, user } from "../../../stores";
 	import SliderInput from "../SliderInput.svelte";
     import Game from "./Game.svelte";
     import lodash from 'lodash';
@@ -41,7 +41,7 @@
     }
     async function toggleLoadRemotePreferences(toggle) {
         if(toggle){
-            if($syncGameSettingsFromRemote || $syncMenuSettingsFromRemote){
+            if($syncGameSettingsFromRemote || $syncMenuSettingsFromRemote || $syncAppSettingsFromRemote){
                 $loadPreferencesFromRemote = true;
                 await syncPreferencesFromFirestore();
             } else $loadPreferencesFromRemote = false;
