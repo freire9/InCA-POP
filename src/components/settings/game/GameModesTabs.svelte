@@ -1,7 +1,7 @@
 <script>
-	import { updateRemotePreferences } from "$lib/firebaseFunctions";
+	import { syncPreferencesFromFirestore, updateRemotePreferences } from "$lib/firebaseFunctions";
 	import { capitalizeFirstLetter } from "$lib/utils";
-	import { availableGameModes, syncAppSettingsToRemote, syncGameSettingsToRemote, syncMenuSettingsToRemote, syncPreferencesFromRemote } from "../../../stores";
+	import { availableGameModes, loadPreferencesFromRemote, savePreferencesToRemote, syncAppSettingsToRemote, syncGameSettingsFromRemote, syncGameSettingsToRemote, syncMenuSettingsFromRemote, syncMenuSettingsToRemote } from "../../../stores";
 	import SliderInput from "../SliderInput.svelte";
     import Game from "./Game.svelte";
     import lodash from 'lodash';
@@ -25,22 +25,49 @@
         if (checked) toggleSaveRemotePreferences(true);
         else toggleSaveRemotePreferences(false);
     }
+    function handleToggleLoad(checked) {
+        if (checked) toggleLoadRemotePreferences(true);
+        else toggleLoadRemotePreferences(false);
+    }
     const toggleSaveRemotePreferences = (toggle) => {
         if(toggle){
-            if($syncGameSettingsToRemote || $syncAppSettingsToRemote || $syncMenuSettingsToRemote) $syncPreferencesFromRemote = true;
-            else $syncPreferencesFromRemote = false;
-            updateRemotePreferences();
+            if($syncGameSettingsToRemote || $syncAppSettingsToRemote || $syncMenuSettingsToRemote){
+                $savePreferencesToRemote = true;
+                updateRemotePreferences();
+            } else $savePreferencesToRemote = false;
+            localStorage.setItem('savePreferencesToRemote', $savePreferencesToRemote.toString());
+            localStorage.setItem('syncGameSettingsToRemote', $syncGameSettingsToRemote.toString());
+        }
+    }
+    async function toggleLoadRemotePreferences(toggle) {
+        if(toggle){
+            if($syncGameSettingsFromRemote || $syncMenuSettingsFromRemote){
+                $loadPreferencesFromRemote = true;
+                await syncPreferencesFromFirestore();
+            } else $loadPreferencesFromRemote = false;
+            localStorage.setItem('loadPreferencesFromRemote', $loadPreferencesFromRemote.toString());
+            localStorage.setItem('syncGameSettingsFromRemote', $syncGameSettingsFromRemote.toString());
         }
     }
     const handleToggleSaveRemotePreferences = debounce((toggle) => handleToggle(toggle), 1500);
+    const handleToggleLoadRemotePreferences = debounce((toggle) => handleToggleLoad(toggle), 1500);
 </script>
 
-<h2>Game modes</h2>
-<SliderInput 
-    bind:value={$syncGameSettingsToRemote}
-    label={"Save preferences remotely"}
-    on:change={handleToggleSaveRemotePreferences}
-/>
+<div class='game-modes-title-wrapper'>
+    <h2>Game modes</h2>
+    <div class='remote-preferences-btn-wrapper'>
+        <SliderInput 
+            bind:value={$syncGameSettingsToRemote}
+            label={"Save preferences remotely"}
+            on:change={handleToggleSaveRemotePreferences}
+        />
+        <SliderInput
+            bind:value={$syncGameSettingsFromRemote}
+            label={"Load preferences remotely"}
+            on:change={handleToggleLoadRemotePreferences}
+        />
+    </div>
+</div>
 <div>
     <ul>
         {#each gameModeTabs as tab}
@@ -123,5 +150,14 @@
         ul{
             flex-wrap: unset;
         }
+    }
+    .remote-preferences-btn-wrapper{
+        display: flex;
+        gap: 10px;
+    }
+    .game-modes-title-wrapper{
+        display: flex;
+        gap: 80px;
+        align-items: center;
     }
 </style>

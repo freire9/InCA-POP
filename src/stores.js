@@ -7,11 +7,16 @@ export const isLoggedIn = writable(false);
 export const modifyingConfig = writable(true);
 export const isFullScreen = writable(false);
 export const localUserId = writable('');
-export const syncPreferencesFromRemote = writable(false);
+
+export const savePreferencesToRemote = writable(false);
+export const loadPreferencesFromRemote = writable(false);
 
 export const syncAppSettingsToRemote = writable(false);
 export const syncMenuSettingsToRemote = writable(false);
 export const syncGameSettingsToRemote = writable(false);
+
+export const syncGameSettingsFromRemote = writable(false);
+export const syncMenuSettingsFromRemote = writable(false);
 
 export const subjectName = writable('subject-name');
 

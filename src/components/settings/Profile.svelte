@@ -80,9 +80,6 @@
         if($isLoggedIn && $user) {
             const userDocRef = doc(db, dbUsersCollectionName, $user.uid);
             const userDoc = await getDoc(userDocRef);
-            console.log(dbUsersCollectionName)
-            console.log(userDoc.data());
-            console.log(userDoc);
 
             if(!userDoc.exists()){
                 await setDoc(userDocRef, {
@@ -101,6 +98,9 @@
     }
 
     async function saveInstructorName(){
+        let localPreferences = JSON.parse(localStorage.getItem('incaPopPreferences'));
+        localPreferences.appSettings.instructorName = $appSettings.instructorName;
+        localStorage.setItem('incaPopPreferences', JSON.stringify(localPreferences));
         if($isLoggedIn && $user) {
             const userDocRef = doc(db, dbUsersCollectionName, $user.uid);
             const userDoc = await getDoc(userDocRef);
@@ -111,10 +111,16 @@
                     }
                 }
             };
-            if(!userDoc.data().teachers || !userDoc.data().teachers.includes($appSettings.instructorName)){
-                forUpdateData.teachers = arrayUnion($appSettings.instructorName);
+            if(!userDoc.exists()){
+                await setDoc(userDocRef, forUpdateData);
+                console.log('Document created with new instructor');
+            }else{
+                if(!userDoc.data().teachers || !userDoc.data().teachers.includes($appSettings.instructorName)){
+                    forUpdateData.teachers = arrayUnion($appSettings.instructorName);
+                }
+                await updateDoc(userDocRef, forUpdateData);
+                console.log('Instructor added to existing document');
             }
-            await updateDoc(userDocRef, forUpdateData);
         }
     }
 

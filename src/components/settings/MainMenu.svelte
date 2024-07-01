@@ -1,9 +1,9 @@
 <script>
-	import { updateRemotePreferences } from "$lib/firebaseFunctions";
+	import { syncPreferencesFromFirestore, updateRemotePreferences } from "$lib/firebaseFunctions";
 	import { updateLocalPreferences } from "$lib/localPreferences";
 	import { updatePreferences } from "$lib/preferences";
 	import { capitalizeFirstLetter, toCamelCase } from "$lib/utils";
-	import { availableGameModes, isLoggedIn, menuSettings, modifyingConfig, syncAppSettingsToRemote, syncGameSettingsToRemote, syncMenuSettingsToRemote, syncPreferencesFromRemote, user } from "../../stores";
+	import { availableGameModes, isLoggedIn, loadPreferencesFromRemote, menuSettings, modifyingConfig, savePreferencesToRemote, syncAppSettingsToRemote, syncGameSettingsFromRemote, syncGameSettingsToRemote, syncMenuSettingsFromRemote, syncMenuSettingsToRemote, user } from "../../stores";
 	import ColorPicker from "./ColorPicker.svelte";
     import lodash from 'lodash';
 	import SliderInput from "./SliderInput.svelte";
@@ -34,7 +34,7 @@
         modesByPositions[oldPos] = oldModeInPos;
         positionByModes[oldModeInPos] = oldPos;
         
-        if($syncPreferencesFromRemote && $isLoggedIn && $user) updateRemotePreferences();
+        if($savePreferencesToRemote && $isLoggedIn && $user) updateRemotePreferences();
         else updateLocalPreferences();
     }
 
@@ -57,22 +57,49 @@
         if (checked) toggleSaveRemotePreferences(true);
         else toggleSaveRemotePreferences(false);
     }
+    function handleToggleLoad(checked) {
+        if (checked) toggleLoadRemotePreferences(true);
+        else toggleLoadRemotePreferences(false);
+    }
     const toggleSaveRemotePreferences = (toggle) => {
         if(toggle){
-            if($syncGameSettingsToRemote || $syncAppSettingsToRemote || $syncMenuSettingsToRemote) $syncPreferencesFromRemote = true;
-            else $syncPreferencesFromRemote = false;
-            updateRemotePreferences();
+            if($syncGameSettingsToRemote || $syncAppSettingsToRemote || $syncMenuSettingsToRemote){
+                $savePreferencesToRemote = true;
+                updateRemotePreferences();
+            } else $savePreferencesToRemote = false;
+            localStorage.setItem('savePreferencesToRemote', $savePreferencesToRemote.toString());
+            localStorage.setItem('syncMenuSettingsToRemote', $syncMenuSettingsToRemote.toString());
+        }
+    }
+    async function toggleLoadRemotePreferences(toggle) {
+        if(toggle){
+            if($syncGameSettingsFromRemote || $syncMenuSettingsFromRemote){
+                $loadPreferencesFromRemote = true;
+                await syncPreferencesFromFirestore();
+            } else $loadPreferencesFromRemote = false;
+            localStorage.setItem('loadPreferencesFromRemote', $loadPreferencesFromRemote.toString());
+            localStorage.setItem('syncMenuSettingsFromRemote', $syncMenuSettingsFromRemote.toString());
         }
     }
     const handleToggleSaveRemotePreferences = debounce((toggle) => handleToggle(toggle), 1500);
+    const handleToggleLoadRemotePreferences = debounce((toggle) => handleToggleLoad(toggle), 1500);
 </script>
 
-<h2>Main menu</h2>
-<SliderInput 
-    bind:value={$syncMenuSettingsToRemote}
-    on:change={handleToggleSaveRemotePreferences}
-    label={"Save preferences remotely"}
-/>
+<div class="main-menu-title-wrapper">
+    <h2>Main menu</h2>
+    <div class="remote-preferences-btn-wrapper">
+        <SliderInput 
+            bind:value={$syncMenuSettingsToRemote}
+            label={"Save preferences remotely"}
+            on:change={handleToggleSaveRemotePreferences}
+        />
+        <SliderInput 
+            bind:value={$syncMenuSettingsFromRemote}
+            label={"Load preferences remotely"}
+            on:change={handleToggleLoadRemotePreferences}
+        />
+    </div>
+</div>
 <p>Game modes to display (direction of pop elements):</p>
 <div class="flex-column">
     <div class="game-modes-container">
@@ -133,5 +160,14 @@
             flex-direction: column;
             align-items: flex-start;
         }
+    }
+    .main-menu-title-wrapper{
+        display: flex;
+        gap: 80px;
+        align-items: center;
+    }
+    .remote-preferences-btn-wrapper{
+        display: flex;
+        gap: 10px;
     }
 </style>
