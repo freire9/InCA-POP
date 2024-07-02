@@ -100,7 +100,7 @@
         *: Caution, local logs are limited by the localStorage maximum size (5MB).<br>
         If you exceed this limit, after each new interaction the oldest log entry will be deleted.
         Always prefer to use the remote database logs.<br>
-        Current size used by local storage data (local logs and app preferences): {localStorageSize / (1024 * 1024)}MB/5MB ({(localStorageSize / (1024 * 1024)) / 5 * 100}%)
+        Current size used by local storage data (local logs and app preferences): {(localStorageSize / (1024 * 1024)).toFixed(2)}MB/5MB ({((localStorageSize / (1024 * 1024)) / 5 * 100).toFixed(2)}%)
     </strong>
 </p>
 
