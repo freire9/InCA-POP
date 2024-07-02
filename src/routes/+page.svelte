@@ -1,5 +1,5 @@
 <script>
-    import { menuSettings, appSettings, user, isIphone, modifyingConfig, subjectName, localUserId, isLoggedIn, gameId, availableGameModes, gameSettings, currentGameMode } from "../stores";
+    import { menuSettings, appSettings, user, isIphone, modifyingConfig, subjectName, localUserId, isLoggedIn, gameId, availableGameModes, gameSettings, currentGameMode, speechGameModeStarted, speechSettings, speechMenuBackgroundTouched } from "../stores";
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
     import { TrainerButton, Fa } from 'inca-utils';
@@ -58,6 +58,9 @@
     }
 
     async function handleClick(event){
+        $speechSettings.speechGameModeStarted = "Game Mode '" + event.detail.toString() + "' started";
+        $speechGameModeStarted.text = $speechSettings.speechGameModeStarted;
+        playCustomGameModeStarted();
         startGame(event.detail);
         const gameStartedLog = {
             ...setGeneralLogs('Game started'), 
@@ -67,6 +70,7 @@
     }
 
     async function handleBackgroundClick(event){
+        playCustomMenuBackgroundTouched();
         const backgroundClickLog = {...setGeneralLogs('Menu background click'), details: deepCopy({x: event.clientX, y: event.clientY, menuBackgroundColor: $menuSettings.menuBackgroundColor})};
         addLog(backgroundClickLog);
     }
@@ -87,6 +91,13 @@
         'faUpLong': faUpLong,
         'faDownLong': faDownLong,
     };
+
+    function playCustomGameModeStarted(){
+        window.speechSynthesis.speak($speechGameModeStarted);
+    }
+    function playCustomMenuBackgroundTouched(){
+        window.speechSynthesis.speak($speechMenuBackgroundTouched);
+    }
 </script>
 
 <style>

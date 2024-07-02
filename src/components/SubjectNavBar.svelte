@@ -1,7 +1,7 @@
 <script>
     import { ActionButton, TrainerButton } from "inca-utils";
     import { faExpand } from '@fortawesome/free-solid-svg-icons';
-    import { isIphone } from "../stores";
+    import { isIphone, speechExitGame } from "../stores";
     import { Fa }  from "inca-utils";
     import { createEventDispatcher, onMount } from "svelte";
 	import { goto } from "$app/navigation";
@@ -14,7 +14,12 @@
         ({fullscreen} = await import('inca-utils/api'));
     })
 
+    function playCustomExitGame(){
+        window.speechSynthesis.speak($speechExitGame);
+    }
+
     function handleExitClick(event){
+        playCustomExitGame();
         event.stopPropagation();
         dispatch('exit');
         goto('/');

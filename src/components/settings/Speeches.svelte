@@ -1,6 +1,6 @@
 <script>
     import { onMount } from 'svelte';
-	import { appSettings, speechCorrect, speechExcellent, speechSettings, voices } from '../../stores';
+	import { appSettings, speechCorrect, speechExcellent, speechExitGame, speechGameBackgroundTouched, speechGameEndedByCondition, speechGameEndedByInactivity, speechGameModeStarted, speechMenuBackgroundTouched, speechSettings, voices } from '../../stores';
     import { Fa } from 'inca-utils';
     import { faPlay } from '@fortawesome/free-solid-svg-icons';
     import lodash from 'lodash';
@@ -24,6 +24,12 @@
             selectedVoiceURI: $speechSettings.voice ? $speechSettings.voice.voiceURI : '',
             speechCorrect: $speechSettings.speechCorrect,
             speechExcellent: $speechSettings.speechExcellent,
+            speechGameModeStarted: $speechSettings.speechGameModeStarted,
+            speechMenuBackgroundTouched: $speechSettings.speechMenuBackgroundTouched,
+            speechExitGame: $speechSettings.speechExitGame,
+            speechGameBackgroundTouched: $speechSettings.speechGameBackgroundTouched,
+            speechGameEndedByCondition: $speechSettings.speechGameEndedByCondition,
+            speechGameEndedByInactivity: $speechSettings.speechGameEndedByInactivity,
             volume: $speechSettings.volume,
             pitch: $speechSettings.pitch,
             rate: $speechSettings.rate,
@@ -49,21 +55,45 @@
     function voiceChange(){
         $speechCorrect.voice = $voices.find(voice => voice.name === $speechSettings.voice.name);
         $speechExcellent.voice = $voices.find(voice => voice.name === $speechSettings.voice.name);
+        $speechGameModeStarted.voice = $voices.find(voice => voice.name === $speechSettings.voice.name);
+        $speechMenuBackgroundTouched.voice = $voices.find(voice => voice.name === $speechSettings.voice.name);
+        $speechExitGame.voice = $voices.find(voice => voice.name === $speechSettings.voice.name);
+        $speechGameBackgroundTouched.voice = $voices.find(voice => voice.name === $speechSettings.voice.name);
+        $speechGameEndedByCondition.voice = $voices.find(voice => voice.name === $speechSettings.voice.name);
+        $speechGameEndedByInactivity.voice = $voices.find(voice => voice.name === $speechSettings.voice.name);
         saveSpeechConfigLocal();
     }
     function volumeChange(){
         $speechCorrect.volume = $speechSettings.volume;
         $speechExcellent.volume = $speechSettings.volume;
+        $speechGameModeStarted.volume = $speechSettings.volume;
+        $speechMenuBackgroundTouched.volume = $speechSettings.volume;
+        $speechExitGame.volume = $speechSettings.volume;
+        $speechGameBackgroundTouched.volume = $speechSettings.volume;
+        $speechGameEndedByCondition.volume = $speechSettings.volume;
+        $speechGameEndedByInactivity.volume = $speechSettings.volume;
         saveSpeechConfigLocal();
     }
     function pitchChange(){
         $speechCorrect.pitch = $speechSettings.pitch;
         $speechExcellent.pitch = $speechSettings.pitch;
+        $speechGameModeStarted.pitch = $speechSettings.pitch;
+        $speechMenuBackgroundTouched.pitch = $speechSettings.pitch;
+        $speechExitGame.pitch = $speechSettings.pitch;
+        $speechGameBackgroundTouched.pitch = $speechSettings.pitch;
+        $speechGameEndedByCondition.pitch = $speechSettings.pitch;
+        $speechGameEndedByInactivity.pitch = $speechSettings.pitch;
         saveSpeechConfigLocal();
     }
     function rateChange(){
         $speechCorrect.rate = $speechSettings.rate;
         $speechExcellent.rate = $speechSettings.rate;
+        $speechGameModeStarted.rate = $speechSettings.rate;
+        $speechMenuBackgroundTouched.rate = $speechSettings.rate;
+        $speechExitGame.rate = $speechSettings.rate;
+        $speechGameBackgroundTouched.rate = $speechSettings.rate;
+        $speechGameEndedByCondition.rate = $speechSettings.rate;
+        $speechGameEndedByInactivity.rate = $speechSettings.rate;
         saveSpeechConfigLocal();
     }
 
