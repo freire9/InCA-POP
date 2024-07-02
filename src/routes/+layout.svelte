@@ -113,7 +113,7 @@
     onMount(() => {
         const userAgent = navigator.userAgent.toLowerCase();
         $isIphone = /iphone/.test(userAgent);
-        $useRemoteDb = localStorage.getItem('useRemoteDb') === 'true';
+        if(localStorage.getItem('useRemoteDb') !== null) $useRemoteDb = localStorage.getItem('useRemoteDb') === 'true';
         loadVoices();
         window.speechSynthesis.onvoiceschanged = loadVoices;
         if($speechCorrect.rate != $speechSettings.rate || 
