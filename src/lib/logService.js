@@ -1,8 +1,55 @@
-import { db, dbExitEndCollectionName, dbLogsCollectionName } from "$lib/firebaseConfig";
+import { USE_FIREBASE, db, dbExitEndCollectionName, dbLogsCollectionName } from "$lib/firebaseConfig";
 import { addDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { useRemoteDb } from "../stores";
+
+const MAX_LOG_SIZE = 4 * 1024 * 1024; // 4MB, 1MB reserved for other data
+let localLogs = [];
+
+function getStringSize(str) {
+  return new Blob([str]).size;
+}
+
+export function getTotalLocalStorageSize() {
+  let totalSize = 0;
+  for (let key in localStorage) {
+      if (localStorage.hasOwnProperty(key)) {
+          totalSize += getStringSize(localStorage[key]);
+      }
+  }
+  return totalSize;
+}
+
+function getLocalLogs(){
+  localStorage.getItem('localLogs') ? localLogs = JSON.parse(localStorage.getItem('localLogs')) : localLogs = [];
+}
+
+function saveLocalLogs() {
+  localStorage.setItem('localLogs', JSON.stringify(localLogs));
+}
+
+function addLocalLog(logs) {
+  getLocalLogs();
+  localLogs.push(logs);
+
+  // Check if logs exceed the maximum size
+  let logsSize = getStringSize(JSON.stringify(localLogs));
+  let currentStorageSize = getTotalLocalStorageSize();
+
+  // Delete oldest logs until the size is less than the maximum
+  while (logsSize + currentStorageSize >= MAX_LOG_SIZE) {
+    logs.shift(); // Delete oldest logs
+    logsSize = getStringSize(JSON.stringify(logs));
+    currentStorageSize = getTotalLocalStorageSize();
+  }
+
+  saveLocalLogs();
+  localLogs = []; // Clear local logs variable
+}
 
 // Function for send log to Firestore
 const addRemoteLog = async (dataLogs, {isExitEndLog = false} = {}) => {
+  if(!USE_FIREBASE) return;
+
   try {
     const collectionName = isExitEndLog ? dbExitEndCollectionName : dbLogsCollectionName;
     const logsCollection = collection(db, collectionName);
@@ -14,12 +61,26 @@ const addRemoteLog = async (dataLogs, {isExitEndLog = false} = {}) => {
 
 // Function to add a log
 export const addLog = async (dataLogs, {isExitEndLog = false} = {}) => {
+  let useRemoteDb_value;
+  const unsubscribeUseRemoteDb = useRemoteDb.subscribe((value) => useRemoteDb_value = value);
+
   const logEntry = dataLogs;
-  addRemoteLog(logEntry, {isExitEndLog: isExitEndLog});
+  addLocalLog(logEntry);// Add log to local storage
+  if(useRemoteDb_value) addRemoteLog(logEntry, {isExitEndLog: isExitEndLog});
+  unsubscribeUseRemoteDb();
 };
 
 // Function to get logs (remote: Firestore)
 export const getRemoteLogs = async (userUid) => {
+  if(!USE_FIREBASE) return null;
+
+  let useRemoteDb_value;
+  const unsubscribeUseRemoteDb = useRemoteDb.subscribe((value) => useRemoteDb_value = value);
+  if(!useRemoteDb_value){
+    unsubscribeUseRemoteDb();
+    return null;
+  }
+
   try {
     const qId = query(collection(db, dbLogsCollectionName), where('userId', '==', userUid));
     const idQuerySnapshot = await getDocs(qId);
@@ -34,10 +95,12 @@ export const getRemoteLogs = async (userUid) => {
       remoteLogs.push({...doc.data(), id: doc.id});
     });
 
+    unsubscribeUseRemoteDb();
     return remoteLogs;
 
   } catch (error) {
     console.error('Error at obtain user logs: ', error);
+    unsubscribeUseRemoteDb();
     return null;
   }
 };
@@ -89,10 +152,14 @@ export function convertToCSV(data) {
 }
 
 // Function to download logs in JSON or CSV format and from local or remote (Firestore)
-export async function downloadLogs(format = 'json', userUid) {
-  const logs = await getRemoteLogs(userUid) || [];
+export async function downloadLogs(format = 'json', userUid, {local = false} = {}) {
+  if(local){
+    getLocalLogs();
+  }
+  const logs = local ? localLogs : (await getRemoteLogs(userUid) || []);
   if(logs.length === 0) {
-    alert('No logs to download for user ID: ' + userUid + '.');
+    if(local) alert('No logs to download from local storage.');
+    else alert('No logs to download for user ID: ' + userUid + '.');
     return;
   }
   let data;

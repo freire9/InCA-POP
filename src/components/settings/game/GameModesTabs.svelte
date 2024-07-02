@@ -1,12 +1,18 @@
 <script>
+	import { USE_FIREBASE } from "$lib/firebaseConfig";
+    import { syncPreferencesFromFirestore, updateRemotePreferences } from "$lib/firebaseFunctions";
 	import { capitalizeFirstLetter } from "$lib/utils";
-	import { availableGameModes } from "../../../stores";
+	import { availableGameModes, isLoggedIn, loadPreferencesFromRemote, savePreferencesToRemote, syncAppSettingsFromRemote, syncAppSettingsToRemote, syncGameSettingsFromRemote, syncGameSettingsToRemote, syncMenuSettingsFromRemote, syncMenuSettingsToRemote, user, useRemoteDb } from "../../../stores";
+	import SliderInput from "../SliderInput.svelte";
     import Game from "./Game.svelte";
+    import lodash from 'lodash';
+
+    const { debounce } = lodash;
 
     let activeTabValue = 1;
 
     const handleClick = tabValue => () => (activeTabValue = tabValue);
-
+    
     let gameModeTabs;
     // List of tab game modes, values and assigned components
     $: gameModeTabs = Object.keys(availableGameModes).map((mode, index) => ({
@@ -15,8 +21,56 @@
         component: Game,
         mode: mode
     }));
+    
+    function handleToggle(checked) {
+        if (checked) toggleSaveRemotePreferences(true);
+        else toggleSaveRemotePreferences(false);
+    }
+    function handleToggleLoad(checked) {
+        if (checked) toggleLoadRemotePreferences(true);
+        else toggleLoadRemotePreferences(false);
+    }
+    const toggleSaveRemotePreferences = (toggle) => {
+        if(toggle){
+            if($syncGameSettingsToRemote || $syncAppSettingsToRemote || $syncMenuSettingsToRemote){
+                $savePreferencesToRemote = true;
+                updateRemotePreferences();
+            } else $savePreferencesToRemote = false;
+            localStorage.setItem('savePreferencesToRemote', $savePreferencesToRemote.toString());
+            localStorage.setItem('syncGameSettingsToRemote', $syncGameSettingsToRemote.toString());
+        }
+    }
+    async function toggleLoadRemotePreferences(toggle) {
+        if(toggle){
+            if($syncGameSettingsFromRemote || $syncMenuSettingsFromRemote || $syncAppSettingsFromRemote){
+                $loadPreferencesFromRemote = true;
+                await syncPreferencesFromFirestore();
+            } else $loadPreferencesFromRemote = false;
+            localStorage.setItem('loadPreferencesFromRemote', $loadPreferencesFromRemote.toString());
+            localStorage.setItem('syncGameSettingsFromRemote', $syncGameSettingsFromRemote.toString());
+        }
+    }
+    const handleToggleSaveRemotePreferences = debounce((toggle) => handleToggle(toggle), 1500);
+    const handleToggleLoadRemotePreferences = debounce((toggle) => handleToggleLoad(toggle), 1500);
 </script>
 
+<div class='game-modes-title-wrapper'>
+    <h2>Game modes</h2>
+    {#if USE_FIREBASE && $isLoggedIn && $user && $useRemoteDb}
+        <div class='remote-preferences-btn-wrapper'>
+            <SliderInput 
+                bind:value={$syncGameSettingsToRemote}
+                label={"Save preferences remotely"}
+                on:change={handleToggleSaveRemotePreferences}
+            />
+            <SliderInput
+                bind:value={$syncGameSettingsFromRemote}
+                label={"Load preferences remotely"}
+                on:change={handleToggleLoadRemotePreferences}
+            />
+        </div>
+    {/if}
+</div>
 <div>
     <ul>
         {#each gameModeTabs as tab}
@@ -84,6 +138,15 @@
         border-color: #dee2e6 #dee2e6 #fff;
         font-weight: bold;
     }
+    .remote-preferences-btn-wrapper{
+        display: flex;
+        gap: 10px;
+    }
+    .game-modes-title-wrapper{
+        display: flex;
+        gap: 80px;
+        align-items: center;
+    }
     @media (max-width: 600px) {
         ul{
             flex-wrap: unset;
@@ -93,6 +156,15 @@
         }
         button{
             padding: 0.25rem 0.7rem;
+        }
+        .game-modes-title-wrapper{
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: flex-start;
+        }
+        .remote-preferences-btn-wrapper{
+            margin-bottom: 30px;
         }
     }
     @media (min-width: 600px) and (max-width: 1024px) {

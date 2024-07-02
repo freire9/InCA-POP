@@ -1,5 +1,5 @@
 <script>
-    import { menuSettings, appSettings, user, isIphone, modifyingConfig, subjectName, localUserId, isLoggedIn, gameId, availableGameModes, gameSettings, currentGameMode } from "../stores";
+    import { menuSettings, appSettings, user, isIphone, modifyingConfig, subjectName, localUserId, isLoggedIn, gameId, availableGameModes, gameSettings, currentGameMode, speechGameModeStarted, speechSettings, speechMenuBackgroundTouched } from "../stores";
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
     import { TrainerButton, Fa } from 'inca-utils';
@@ -58,6 +58,11 @@
     }
 
     async function handleClick(event){
+        $speechSettings.speechGameModeStarted = $speechSettings.speechGameModeStarted.replace("{gameMode}", "{" + event.detail.toString() + "}");
+        $speechGameModeStarted.text = $speechSettings.speechGameModeStarted;
+        playCustomGameModeStarted();
+        $speechSettings.speechGameModeStarted = $speechSettings.speechGameModeStarted.replace("{" + event.detail.toString() + "}", "{gameMode}");
+        $speechGameModeStarted.text = $speechSettings.speechGameModeStarted;
         startGame(event.detail);
         const gameStartedLog = {
             ...setGeneralLogs('Game started'), 
@@ -67,6 +72,7 @@
     }
 
     async function handleBackgroundClick(event){
+        playCustomMenuBackgroundTouched();
         const backgroundClickLog = {...setGeneralLogs('Menu background click'), details: deepCopy({x: event.clientX, y: event.clientY, menuBackgroundColor: $menuSettings.menuBackgroundColor})};
         addLog(backgroundClickLog);
     }
@@ -87,6 +93,18 @@
         'faUpLong': faUpLong,
         'faDownLong': faDownLong,
     };
+
+    function playCustomGameModeStarted(){
+        const text = new SpeechSynthesisUtterance($speechSettings.speechGameModeStarted);
+        text.voice = $speechSettings.voice;
+        text.volume = $speechSettings.volume;
+        text.pitch = $speechSettings.pitch;
+        text.rate = $speechSettings.rate;
+        window.speechSynthesis.speak(text);
+    }
+    function playCustomMenuBackgroundTouched(){
+        window.speechSynthesis.speak($speechMenuBackgroundTouched);
+    }
 </script>
 
 <style>
@@ -143,7 +161,7 @@
 <div on:click={handleBackgroundClick} role="menu" aria-label="Main menu" tabindex="0" on:keydown={handleBackgroundKeyboard} >
     <main class="not-selectable" style:background-color={$menuSettings.menuBackgroundColor}>
         <header>
-            <h1>InCA-POP!</h1>
+            <h1>InCA-Pop</h1>
             <nav>
                 <TrainerButton label="Settings" on:click={() => goto('/settings')}>
                     <Fa icon={faGear} />

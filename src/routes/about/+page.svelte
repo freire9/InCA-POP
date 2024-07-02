@@ -26,21 +26,20 @@
 
     <UserNavBar />
     <main>
-        <h1>About InCA-POP!</h1>
+        <h1>About InCA-Pop</h1>
         <p>
-            InCA-POP! is a touch-based life enrichment application focused on other animals 
-            than humans (OATHs), as well as a research tool for assessing visual ability limits 
-            in the context of Animal-Computer Interaction (ACI). It focuses on assessing color 
-            perception abilities and contrast sensitivity by presenting balloons across the screen, 
-            including special balloons that subjects must pop. Based on which special balloons 
-            (and in particular their colors) are popped and which are not, their ranges of 
-            capabilities and limits are analyzed. Color sensitivity is measured based on the 
-            diversity of colors exposed and the frequency with which they are popped. Contrast 
-            sensitivity works in the same way but by evaluating balloons of colors slightly 
-            different from the game background. The application presents several balloons on the 
-            screen, mixing easy and difficult test instances in order to evaluate capacity limits 
-            in an ethical way, since the subject always has easy instances if the difficult ones 
-            exceed his capacities.
+            InCA-Pop is a touch-based life enrichment application focused on other animals 
+            than humans (OATHs), as well as a research tool for be able to assess visual ability limits 
+            in the context of Animal-Computer Interaction (ACI). It focuses on gather data to be able
+            to assess color perception abilities by presenting balloons across the screen, 
+            including special balloons that subjects must pop. Since special ballons have a color mark
+            inside, based on which special balloons (and in particular their ballon 
+            color-inner mark color pair of colors) are popped and which are not, their ranges of capabilities and 
+            limits can be analyzed. The application proposes to measure color sensitivity based on the diversity of color pairs 
+            exposed and the frequency with which they are popped. The application presents several 
+            balloons on the screen, mixing easy and difficult test instances in order to evaluate 
+            capacity limits in an ethical way, since the subject always has easy instances if the 
+            difficult ones exceed his capacities.
         </p>
     
         <h2>How to use it?</h2>
@@ -61,7 +60,7 @@
                 The results logs can be downloaded at the <i>Settings</i> page in JSON or CSV format.
             </li>
             <li>
-                The results logs can be analyzed at the <i>Researcher</i> page.
+                The results logs can be analyzed at the <i>Researcher</i> page (InCA Researcher Tool).
             </li>
         </ol>
     
@@ -84,7 +83,10 @@
                 <a href="https://barbay.cl/">Jérémy Barbay</a> from <a href="https://buho.dcc.uchile.cl/~inca/">InCA Labs</a>.
             </li>
             <li>
-                Fabián Jaña, who provided the <a href="https://shockerqt.gitlab.io/inca-utils/">InCA-Utils</a> library for in common elements in InCA apps.
+                <strong>Fabián Jaña</strong>, who provided the <a href="https://shockerqt.gitlab.io/inca-utils/">InCA-Utils</a> library for in common elements in InCA apps.
+            </li>
+            <li>
+                <strong>Cristóbal Sepulveda</strong>, developer and provider of <strong>InCA Researcher Tool</strong>, the web-app for analyzing the logs of InCA apps.
             </li>
         </ul>
     </main>

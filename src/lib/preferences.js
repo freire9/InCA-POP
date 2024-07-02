@@ -1,4 +1,5 @@
-import { isLoggedIn, syncPreferencesFromRemote, user } from "../stores";
+import { isLoggedIn, savePreferencesToRemote, user } from "../stores";
+import { USE_FIREBASE } from "./firebaseConfig";
 import { handleUpdateRemotePreferences } from "./firebaseFunctions";
 import { handleUpdateLocalPreferences } from "./localPreferences";
 
@@ -23,13 +24,13 @@ export function updateSettingsWithDefault(settingsDEFAULT, userPreferences) {
 }
 
 export function updatePreferences(){
-    let syncPreferencesFromRemote_value, isLoggedIn_value, user_value;
-    const unsubscribeSyncPreferencesFromRemote = syncPreferencesFromRemote.subscribe((value) => syncPreferencesFromRemote_value = value);
+    let savePreferencesToRemote_value, isLoggedIn_value, user_value;
+    const unsubscribeSavePreferencesToRemote = savePreferencesToRemote.subscribe((value) => savePreferencesToRemote_value = value);
     const unsubscribeIsLoggedIn = isLoggedIn.subscribe((value) => isLoggedIn_value = value);
     const unsubscribeUser = user.subscribe((value) => user_value = value);
-    if(syncPreferencesFromRemote_value && isLoggedIn_value && user_value) handleUpdateRemotePreferences();
-    else handleUpdateLocalPreferences();
-    unsubscribeSyncPreferencesFromRemote();
+    handleUpdateLocalPreferences();
+    if(USE_FIREBASE && savePreferencesToRemote_value && isLoggedIn_value && user_value) handleUpdateRemotePreferences()
+    unsubscribeSavePreferencesToRemote();
     unsubscribeIsLoggedIn();
     unsubscribeUser();
 }

@@ -59,7 +59,7 @@
 
 <style>
     .balloon {
-        z-index: 2;
+        z-index: 4;
         cursor: pointer;
         position: absolute;
         text-align: center;

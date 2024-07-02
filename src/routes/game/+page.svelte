@@ -3,7 +3,7 @@
     import { onDestroy, onMount } from 'svelte';
     import { capitalizeFirstLetter, deepCopy, getRandomColorFromPalette, getRandomFrom } from '$lib/utils';
     import { addLog } from "$lib/logService";
-    import { appSettings, gameSettings, user, popElmntSizeOpts, subjectName, popElmntShapes, popElmntTypes, popElmntSpeedsOpts, popElmntDirections, localUserId, isLoggedIn, endGameConditionsOpts, gameId, availableColorsOpts, currentGameMode } from '../../stores.js';
+    import { appSettings, gameSettings, user, popElmntSizeOpts, subjectName, popElmntShapes, popElmntTypes, popElmntSpeedsOpts, popElmntDirections, localUserId, isLoggedIn, endGameConditionsOpts, gameId, availableColorsOpts, currentGameMode, speechGameBackgroundTouched, speechGameEndedByCondition, speechGameEndedByInactivity } from '../../stores.js';
     import SubjectNavBar from '../../components/SubjectNavBar.svelte';
     import InGameStats from '../../components/InGameStats.svelte';
     import { goto } from '$app/navigation';
@@ -438,7 +438,12 @@
         if(specialPoppedCondEnabled && specialPopElmntsPopped >= specialPoppedCondValue) handleGameEnd(endGameConditionsOpts.SPECIAL_POP_ELMNTS_POPPED);
     }
 
+    function playCustomGameBackgroundTouched(){
+        window.speechSynthesis.speak($speechGameBackgroundTouched);
+    }
+
     async function handleBackgroundClick(event){
+        playCustomGameBackgroundTouched();
         restartInactivityTracking();
         addLog(backgroundClickLogs(event));
     }
@@ -449,7 +454,14 @@
         addLog(ExitClickLogs(), {isExitEndLog: true});
     }
 
+    function playCustomGameEndedByCondition(){
+        window.speechSynthesis.speak($speechGameEndedByCondition);
+    }
+    function playCustomGameEndedByInactivity(){
+        window.speechSynthesis.speak($speechGameEndedByInactivity);
+    }
     async function handleGameEnd(condition){
+        condition === endGameConditionsOpts.INACTIVITY ? playCustomGameEndedByInactivity() : playCustomGameEndedByCondition();
         clearInterval(endGameTimer);
         addLog(endGameLogs(condition), {isExitEndLog: true});
         goto('/');
