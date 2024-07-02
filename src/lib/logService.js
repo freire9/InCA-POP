@@ -34,8 +34,6 @@ function addLocalLog(logs) {
   // Check if logs exceed the maximum size
   let logsSize = getStringSize(JSON.stringify(localLogs));
   let currentStorageSize = getTotalLocalStorageSize();
-  console.log('logsSize: ', logsSize / (1024 * 1024));
-  console.log('currentStorageSize: ', currentStorageSize / (1024 * 1024));
 
   // Delete oldest logs until the size is less than the maximum
   while (logsSize + currentStorageSize >= MAX_LOG_SIZE) {
