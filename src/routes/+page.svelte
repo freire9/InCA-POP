@@ -58,9 +58,11 @@
     }
 
     async function handleClick(event){
-        $speechSettings.speechGameModeStarted = "Game Mode '" + event.detail.toString() + "' started";
+        $speechSettings.speechGameModeStarted = $speechSettings.speechGameModeStarted.replace("{gameMode}", "{" + event.detail.toString() + "}");
         $speechGameModeStarted.text = $speechSettings.speechGameModeStarted;
         playCustomGameModeStarted();
+        $speechSettings.speechGameModeStarted = $speechSettings.speechGameModeStarted.replace("{" + event.detail.toString() + "}", "{gameMode}");
+        $speechGameModeStarted.text = $speechSettings.speechGameModeStarted;
         startGame(event.detail);
         const gameStartedLog = {
             ...setGeneralLogs('Game started'), 
@@ -93,7 +95,12 @@
     };
 
     function playCustomGameModeStarted(){
-        window.speechSynthesis.speak($speechGameModeStarted);
+        const text = new SpeechSynthesisUtterance($speechSettings.speechGameModeStarted);
+        text.voice = $speechSettings.voice;
+        text.volume = $speechSettings.volume;
+        text.pitch = $speechSettings.pitch;
+        text.rate = $speechSettings.rate;
+        window.speechSynthesis.speak(text);
     }
     function playCustomMenuBackgroundTouched(){
         window.speechSynthesis.speak($speechMenuBackgroundTouched);
