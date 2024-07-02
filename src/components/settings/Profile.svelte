@@ -1,11 +1,12 @@
 <script>
     import { auth, db, dbUsersCollectionName } from '$lib/firebaseConfig';
     import { GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
-    import { isLoggedIn, localUserId, subjectName, user } from "../../stores";
+    import { isLoggedIn, localUserId, subjectName, user, useRemoteDb } from "../../stores";
 	import { arrayUnion, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
     import { gameSettings, appSettings, menuSettings } from '../../stores';
 	import { deepCopy } from '$lib/utils';
     import lodash from 'lodash';
+	import SliderInput from './SliderInput.svelte';
 
     const { debounce } = lodash;
 
@@ -15,6 +16,8 @@
             const res = await signInWithPopup(auth, provider);
             $user = res.user;
             $isLoggedIn = true;
+
+            if(!$useRemoteDb) return;
 
             const userDocRef = doc(db, dbUsersCollectionName, res.user.uid);
 
@@ -78,6 +81,8 @@
         localStorage.setItem('subjectName', $subjectName);
         console.log('Subject name saved to local storage')
         if($isLoggedIn && $user) {
+            if(!$useRemoteDb) return;
+
             const userDocRef = doc(db, dbUsersCollectionName, $user.uid);
             const userDoc = await getDoc(userDocRef);
 
@@ -102,6 +107,8 @@
         localPreferences.appSettings.instructorName = $appSettings.instructorName;
         localStorage.setItem('incaPopPreferences', JSON.stringify(localPreferences));
         if($isLoggedIn && $user) {
+            if(!$useRemoteDb) return;
+
             const userDocRef = doc(db, dbUsersCollectionName, $user.uid);
             const userDoc = await getDoc(userDocRef);
             let forUpdateData = {
@@ -124,8 +131,62 @@
         }
     }
 
+    async function useRemoteDbChange(){
+        localStorage.setItem('useRemoteDb', $useRemoteDb.toString());
+
+        if(!$isLoggedIn && !$user) return;
+
+        try{
+            const userDocRef = doc(db, dbUsersCollectionName, $user.uid);
+    
+            const existingDoc = await getDoc(userDocRef);
+    
+            if (existingDoc.exists()){
+    
+                let forUpdateData = {};
+    
+                if(!existingDoc.data().incaPopPreferences){
+                    forUpdateData.incaPopPreferences = {
+                        gameSettings: deepCopy($gameSettings),
+                        appSettings: deepCopy($appSettings),
+                        menuSettings: deepCopy($menuSettings),
+                    };
+                }
+    
+                if(!existingDoc.data().learners || !existingDoc.data().learners.includes($subjectName)){
+                    forUpdateData.learners = arrayUnion($subjectName);
+                }
+    
+                if(!existingDoc.data().teachers || !existingDoc.data().teachers.includes($appSettings.instructorName)){
+                    forUpdateData.teachers = arrayUnion($appSettings.instructorName);
+                }
+    
+                await updateDoc(userDocRef, forUpdateData);
+    
+            } else {
+                await setDoc(userDocRef, {
+                    name: $user.displayName,
+                    role: 'usuario',
+                    email: $user.email,
+                    teachers: [$appSettings.instructorName],
+                    learners: [$subjectName],
+                    lastAccess: new Date(),
+                    incaPopPreferences:{
+                        gameSettings: $gameSettings, 
+                        appSettings: $appSettings, 
+                        menuSettings: $menuSettings,
+                    },
+                });
+            }
+        } 
+        catch (error) {
+            console.error(error);
+        }
+    }
+
     const handleSaveSubject = debounce(saveSubjectName, 1500);
     const handleSaveInstructor = debounce(saveInstructorName, 1500);
+    const handleUseRemoteDbChange = debounce(useRemoteDbChange, 1500);
 </script>
 
 <style>
@@ -173,9 +234,16 @@
     .login-p{
         margin-top: 20px;
     }
-    .local-id-warning-p{
+    .local-id-warning-p,
+    .remote-db-warning-p{
         font-size: 0.6rem;
         color: red;
+    }
+    .remote-db-warning-p{
+        margin-top: 15px;
+    }
+    #instructorNameInput{
+        margin-bottom: 40px;
     }
 </style>
 
@@ -203,3 +271,17 @@
 
 <label for="instructorNameInput">Instructor's name:</label>
 <input id="instructorNameInput" type="text" bind:value={$appSettings.instructorName} on:input={handleSaveInstructor}>
+
+<SliderInput
+    label="Use remote database for save logs and preferences"
+    bind:value={$useRemoteDb}
+    on:change={handleUseRemoteDbChange}
+/>
+<p class="remote-db-warning-p">
+    <strong>
+        *: Enable/disable remote database use for logs and preferences.<br>
+        If disabled, logs will be saved in local and preferences will only be saved in local storage.<br>
+        If enabled, logs will be saved in local storage and remote database.<br>
+        If enabled, preferences will be saved in local storage and remote database if logged in and if enabled the save/load option in each setting section.
+    </strong>
+</p>

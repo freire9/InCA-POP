@@ -3,7 +3,7 @@
 	import { updateLocalPreferences } from "$lib/localPreferences";
 	import { updatePreferences } from "$lib/preferences";
 	import { capitalizeFirstLetter, toCamelCase } from "$lib/utils";
-	import { availableGameModes, isLoggedIn, loadPreferencesFromRemote, menuSettings, modifyingConfig, savePreferencesToRemote, syncAppSettingsFromRemote, syncAppSettingsToRemote, syncGameSettingsFromRemote, syncGameSettingsToRemote, syncMenuSettingsFromRemote, syncMenuSettingsToRemote, user } from "../../stores";
+	import { availableGameModes, isLoggedIn, loadPreferencesFromRemote, menuSettings, modifyingConfig, savePreferencesToRemote, syncAppSettingsFromRemote, syncAppSettingsToRemote, syncGameSettingsFromRemote, syncGameSettingsToRemote, syncMenuSettingsFromRemote, syncMenuSettingsToRemote, user, useRemoteDb } from "../../stores";
 	import ColorPicker from "./ColorPicker.svelte";
     import lodash from 'lodash';
 	import SliderInput from "./SliderInput.svelte";
@@ -87,7 +87,7 @@
 
 <div class="main-menu-title-wrapper">
     <h2>Main menu</h2>
-    {#if $isLoggedIn && $user}
+    {#if $isLoggedIn && $user && $useRemoteDb}
         <div class="remote-preferences-btn-wrapper">
             <SliderInput 
                 bind:value={$syncMenuSettingsToRemote}

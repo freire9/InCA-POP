@@ -1,6 +1,6 @@
 <script>
 	import { downloadLogs, getTotalLocalStorageSize } from "$lib/logService";
-	import { isLoggedIn, localUserId, user } from "../../stores";
+	import { isLoggedIn, localUserId, user, useRemoteDb } from "../../stores";
     import { Fa } from 'inca-utils';
     import { faFileArrowDown, faTrash } from '@fortawesome/free-solid-svg-icons';
 	import { onMount } from "svelte";
@@ -13,6 +13,8 @@
     let localStorageSize = 0;
 
     async function handleRemoteLogsDownload(format){
+        if(!$useRemoteDb) return;
+
         format === 'json' ? loadingJsonLogsDownload = true : loadingCsvLogsDownload = true;
         await new Promise(resolve => setTimeout(resolve, 1000));
         try{
@@ -51,25 +53,27 @@
 </script>
 
 <h2>Logs</h2>
-<div class="remote-logs-container">
-    <button class="download-logs-btn" on:click={()=> handleRemoteLogsDownload('json')} disabled={loadingJsonLogsDownload}>
-        {#if loadingJsonLogsDownload}
-            <span class="loading"></span> Downloading JSON logs...
-        {:else}
-            <Fa icon={faFileArrowDown} />
-            Download remote database logs file (JSON)
-        {/if}
-    </button>
-    
-    <button class="download-logs-btn" on:click={()=> handleRemoteLogsDownload('csv')} disabled={loadingCsvLogsDownload}>
-        {#if loadingCsvLogsDownload}
-            <span class="loading"></span> Downloading CSV logs...
-        {:else}
-            <Fa icon={faFileArrowDown} />
-            Download remote database logs file (CSV)
-        {/if}
-    </button>
-</div>
+{#if $useRemoteDb}
+    <div class="remote-logs-container">
+        <button class="download-logs-btn" on:click={()=> handleRemoteLogsDownload('json')} disabled={loadingJsonLogsDownload}>
+            {#if loadingJsonLogsDownload}
+                <span class="loading"></span> Downloading JSON logs...
+            {:else}
+                <Fa icon={faFileArrowDown} />
+                Download remote database logs file (JSON)
+            {/if}
+        </button>
+        
+        <button class="download-logs-btn" on:click={()=> handleRemoteLogsDownload('csv')} disabled={loadingCsvLogsDownload}>
+            {#if loadingCsvLogsDownload}
+                <span class="loading"></span> Downloading CSV logs...
+            {:else}
+                <Fa icon={faFileArrowDown} />
+                Download remote database logs file (CSV)
+            {/if}
+        </button>
+    </div>
+{/if}
 
 <div class="local-logs-container">
     <button class="download-logs-btn" on:click={()=> handleLocalLogsDownload('json')} disabled={loadingLocalJsonLogsDownload}>
