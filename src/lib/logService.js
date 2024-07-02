@@ -1,4 +1,4 @@
-import { db, dbExitEndCollectionName, dbLogsCollectionName } from "$lib/firebaseConfig";
+import { USE_FIREBASE, db, dbExitEndCollectionName, dbLogsCollectionName } from "$lib/firebaseConfig";
 import { addDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { useRemoteDb } from "../stores";
 
@@ -48,6 +48,8 @@ function addLocalLog(logs) {
 
 // Function for send log to Firestore
 const addRemoteLog = async (dataLogs, {isExitEndLog = false} = {}) => {
+  if(!USE_FIREBASE) return;
+
   try {
     const collectionName = isExitEndLog ? dbExitEndCollectionName : dbLogsCollectionName;
     const logsCollection = collection(db, collectionName);
@@ -70,6 +72,8 @@ export const addLog = async (dataLogs, {isExitEndLog = false} = {}) => {
 
 // Function to get logs (remote: Firestore)
 export const getRemoteLogs = async (userUid) => {
+  if(!USE_FIREBASE) return null;
+
   let useRemoteDb_value;
   const unsubscribeUseRemoteDb = useRemoteDb.subscribe((value) => useRemoteDb_value = value);
   if(!useRemoteDb_value){

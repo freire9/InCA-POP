@@ -4,6 +4,7 @@
     import { Fa } from 'inca-utils';
     import { faFileArrowDown, faTrash } from '@fortawesome/free-solid-svg-icons';
 	import { onMount } from "svelte";
+	import { USE_FIREBASE } from "$lib/firebaseConfig";
 
     // Loading flags
     let loadingCsvLogsDownload = false;
@@ -13,7 +14,7 @@
     let localStorageSize = 0;
 
     async function handleRemoteLogsDownload(format){
-        if(!$useRemoteDb) return;
+        if(!USE_FIREBASE || !$useRemoteDb) return;
 
         format === 'json' ? loadingJsonLogsDownload = true : loadingCsvLogsDownload = true;
         await new Promise(resolve => setTimeout(resolve, 1000));
@@ -53,7 +54,7 @@
 </script>
 
 <h2>Logs</h2>
-{#if $useRemoteDb}
+{#if USE_FIREBASE && $useRemoteDb}
     <div class="remote-logs-container">
         <button class="download-logs-btn" on:click={()=> handleRemoteLogsDownload('json')} disabled={loadingJsonLogsDownload}>
             {#if loadingJsonLogsDownload}

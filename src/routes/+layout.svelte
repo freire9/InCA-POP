@@ -1,7 +1,7 @@
 <script>
     import 'inca-utils/styles.css';
     import { user, isLoggedIn, isIphone, modifyingConfig, speechCorrect, speechSettings, speechExcellent, voices, loadPreferencesFromRemote, savePreferencesToRemote, syncGameSettingsFromRemote, syncGameSettingsToRemote, syncMenuSettingsFromRemote, syncMenuSettingsToRemote, speechGameModeStarted, speechMenuBackgroundTouched, speechExitGame, speechGameBackgroundTouched, speechGameEndedByCondition, speechGameEndedByInactivity, useRemoteDb } from '../stores';
-    import { auth } from '$lib/firebaseConfig';
+    import { auth, USE_FIREBASE } from '$lib/firebaseConfig';
     import { onAuthStateChanged } from 'firebase/auth';
 	import { onMount } from 'svelte';
     import packageJson from '../../package.json';
@@ -9,23 +9,6 @@
 	import { loadSubjectNameLocal, setLocalPreferencesToStores, setLocalUserId } from '$lib/localPreferences';
 
     const appVersion = packageJson.version;
-
-    onAuthStateChanged(auth, async authUser => {
-        $user = authUser;
-        $isLoggedIn = !!authUser;
-        if (!$user || !$isLoggedIn) {
-            $modifyingConfig = false;
-            return;
-        }
-        
-        try {
-            if($loadPreferencesFromRemote) await syncPreferencesFromFirestore();
-        } catch(error) {
-            console.error(error);
-        } finally{
-            $modifyingConfig = false;
-        };
-    });
 
     function loadVoices() {
         $voices = window.speechSynthesis.getVoices();
@@ -111,6 +94,28 @@
     }
 
     onMount(() => {
+        if(auth && USE_FIREBASE){
+            onAuthStateChanged(auth||null, async authUser => {
+                if(!USE_FIREBASE) return;
+    
+                $user = authUser;
+                $isLoggedIn = !!authUser;
+                if (!$user || !$isLoggedIn) {
+                    $modifyingConfig = false;
+                    return;
+                }
+                
+                try {
+                    if($loadPreferencesFromRemote) await syncPreferencesFromFirestore();
+                } catch(error) {
+                    console.error(error);
+                } finally{
+                    $modifyingConfig = false;
+                };
+            });
+        }
+
+
         const userAgent = navigator.userAgent.toLowerCase();
         $isIphone = /iphone/.test(userAgent);
         if(localStorage.getItem('useRemoteDb') !== null) $useRemoteDb = localStorage.getItem('useRemoteDb') === 'true';

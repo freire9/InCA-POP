@@ -7,6 +7,7 @@
 	import ColorPicker from "./ColorPicker.svelte";
     import lodash from 'lodash';
 	import SliderInput from "./SliderInput.svelte";
+	import { USE_FIREBASE } from "$lib/firebaseConfig";
     
     const { debounce } = lodash;
 
@@ -34,7 +35,7 @@
         modesByPositions[oldPos] = oldModeInPos;
         positionByModes[oldModeInPos] = oldPos;
         
-        if($savePreferencesToRemote && $isLoggedIn && $user) updateRemotePreferences();
+        if(USE_FIREBASE && $savePreferencesToRemote && $isLoggedIn && $user) updateRemotePreferences();
         else updateLocalPreferences();
     }
 
@@ -87,7 +88,7 @@
 
 <div class="main-menu-title-wrapper">
     <h2>Main menu</h2>
-    {#if $isLoggedIn && $user && $useRemoteDb}
+    {#if USE_FIREBASE && $isLoggedIn && $user && $useRemoteDb}
         <div class="remote-preferences-btn-wrapper">
             <SliderInput 
                 bind:value={$syncMenuSettingsToRemote}
