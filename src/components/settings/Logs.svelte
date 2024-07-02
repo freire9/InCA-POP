@@ -54,7 +54,11 @@
 </script>
 
 <h2>Logs</h2>
+
 {#if USE_FIREBASE && $useRemoteDb}
+    <p>Check the automatic statistics in <strong><a href="https://inca-researcher-tool.vercel.app/pop" target="_blank">InCA Researcher Tool</a>.</strong></p>
+    <p class="local-logs-warning"><strong>Use your linked Google account or with your local user ID. (You must have enabled the use of the remote database for this).</strong></p>
+
     <div class="remote-logs-container">
         <button class="download-logs-btn" on:click={()=> handleRemoteLogsDownload('json')} disabled={loadingJsonLogsDownload}>
             {#if loadingJsonLogsDownload}
@@ -109,7 +113,6 @@
     Clear local logs
 </button>
 
-
 <style>
     .local-logs-warning{
         font-size: 0.6rem;
@@ -145,6 +148,7 @@
         gap: 50px;
     }
     .remote-logs-container{
+        margin-top: 50px;
         margin-bottom: 50px;
     }
     @media (max-width: 600px) {
