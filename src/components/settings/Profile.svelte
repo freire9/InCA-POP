@@ -1,5 +1,5 @@
 <script>
-    import { auth, db, dbUsersCollectionName } from '$lib/firebaseConfig';
+    import { auth, db, dbUsersCollectionName, USE_FIREBASE } from '$lib/firebaseConfig';
     import { GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
     import { isLoggedIn, localUserId, subjectName, user, useRemoteDb } from "../../stores";
 	import { arrayUnion, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
@@ -11,6 +11,8 @@
     const { debounce } = lodash;
 
     const login = async () => {
+        if(!USE_FIREBASE) return;
+
         try {
             const provider = new GoogleAuthProvider();
             const res = await signInWithPopup(auth, provider);
@@ -68,6 +70,8 @@
     };
 
     const logout = async () => {
+        if(!USE_FIREBASE) return;
+
         try {
             await signOut(auth);
             $isLoggedIn = false;
@@ -106,7 +110,7 @@
         let localPreferences = JSON.parse(localStorage.getItem('incaPopPreferences'));
         localPreferences.appSettings.instructorName = $appSettings.instructorName;
         localStorage.setItem('incaPopPreferences', JSON.stringify(localPreferences));
-        if($isLoggedIn && $user) {
+        if(USE_FIREBASE && $isLoggedIn && $user) {
             if(!$useRemoteDb) return;
 
             const userDocRef = doc(db, dbUsersCollectionName, $user.uid);
@@ -134,7 +138,7 @@
     async function useRemoteDbChange(){
         localStorage.setItem('useRemoteDb', $useRemoteDb.toString());
 
-        if(!$isLoggedIn && !$user) return;
+        if(!USE_FIREBASE || !$isLoggedIn || !$user) return;
 
         try{
             const userDocRef = doc(db, dbUsersCollectionName, $user.uid);
@@ -250,10 +254,15 @@
 {#if !$isLoggedIn}
     <p class="selectable"><strong>Local user ID*:</strong> {$localUserId}</p>
     <p class="local-id-warning-p"><strong>*: This is a local ID saved in your browser.
-        If you delete local storage the logs saved in remote DB will be unreachable.
-        Always preffer login with Google account.</strong></p>
-    <p class="login-p">Log in to associate the interaction logs to an account:</p>
-    <button class="log-in-btn" on:click={login}>Login with google</button>
+        {#if USE_FIREBASE}
+            If you delete local storage the logs saved in remote DB will be unreachable.
+            Always preffer login with Google account.
+        {/if}
+        </strong></p>
+    {#if USE_FIREBASE}
+        <p class="login-p">Log in to associate the interaction logs to an account:</p>
+        <button class="log-in-btn" on:click={login}>Login with google</button>
+    {/if}
 {:else}
     <div class="profile-container">
         <div>
@@ -272,16 +281,18 @@
 <label for="instructorNameInput">Instructor's name:</label>
 <input id="instructorNameInput" type="text" bind:value={$appSettings.instructorName} on:input={handleSaveInstructor}>
 
-<SliderInput
-    label="Use remote database for save logs and preferences"
-    bind:value={$useRemoteDb}
-    on:change={handleUseRemoteDbChange}
-/>
-<p class="remote-db-warning-p">
-    <strong>
-        *: Enable/disable remote database use for logs and preferences.<br>
-        If disabled, logs will be saved in local and preferences will only be saved in local storage.<br>
-        If enabled, logs will be saved in local storage and remote database.<br>
-        If enabled, preferences will be saved in local storage and remote database if logged in and if enabled the save/load option in each setting section.
-    </strong>
-</p>
+{#if USE_FIREBASE}
+    <SliderInput
+        label="Use remote database for save logs and preferences"
+        bind:value={$useRemoteDb}
+        on:change={handleUseRemoteDbChange}
+    />
+    <p class="remote-db-warning-p">
+        <strong>
+            *: Enable/disable remote database use for logs and preferences.<br>
+            If disabled, logs will be saved in local and preferences will only be saved in local storage.<br>
+            If enabled, logs will be saved in local storage and remote database.<br>
+            If enabled, preferences will be saved in local storage and remote database if logged in and if enabled the save/load option in each setting section.
+        </strong>
+    </p>
+{/if}

@@ -4,6 +4,7 @@
     import { Fa } from 'inca-utils';
     import { faFileArrowDown, faTrash } from '@fortawesome/free-solid-svg-icons';
 	import { onMount } from "svelte";
+	import { USE_FIREBASE } from "$lib/firebaseConfig";
 
     // Loading flags
     let loadingCsvLogsDownload = false;
@@ -13,7 +14,7 @@
     let localStorageSize = 0;
 
     async function handleRemoteLogsDownload(format){
-        if(!$useRemoteDb) return;
+        if(!USE_FIREBASE || !$useRemoteDb) return;
 
         format === 'json' ? loadingJsonLogsDownload = true : loadingCsvLogsDownload = true;
         await new Promise(resolve => setTimeout(resolve, 1000));
@@ -53,7 +54,11 @@
 </script>
 
 <h2>Logs</h2>
-{#if $useRemoteDb}
+
+{#if USE_FIREBASE && $useRemoteDb}
+    <p>Check the automatic statistics in <strong><a href="https://inca-researcher-tool.vercel.app/pop" target="_blank">InCA Researcher Tool</a>.</strong></p>
+    <p class="local-logs-warning"><strong>Use your linked Google account or with your local user ID. (You must have enabled the use of the remote database for this).</strong></p>
+
     <div class="remote-logs-container">
         <button class="download-logs-btn" on:click={()=> handleRemoteLogsDownload('json')} disabled={loadingJsonLogsDownload}>
             {#if loadingJsonLogsDownload}
@@ -99,7 +104,7 @@
         *: Caution, local logs are limited by the localStorage maximum size (5MB).<br>
         If you exceed this limit, after each new interaction the oldest log entry will be deleted.
         Always prefer to use the remote database logs.<br>
-        Current size used by local storage data (local logs and app preferences): {localStorageSize / (1024 * 1024)}MB/5MB ({(localStorageSize / (1024 * 1024)) / 5 * 100}%)
+        Current size used by local storage data (local logs and app preferences): {(localStorageSize / (1024 * 1024)).toFixed(2)}MB/5MB ({((localStorageSize / (1024 * 1024)) / 5 * 100).toFixed(2)}%)
     </strong>
 </p>
 
@@ -107,7 +112,6 @@
     <Fa icon={faTrash} />
     Clear local logs
 </button>
-
 
 <style>
     .local-logs-warning{
@@ -144,6 +148,7 @@
         gap: 50px;
     }
     .remote-logs-container{
+        margin-top: 50px;
         margin-bottom: 50px;
     }
     @media (max-width: 600px) {

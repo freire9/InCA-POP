@@ -2,13 +2,15 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { appSettings, appSettingsDEFAULT, availableGameModes, gameSettings, gameSettingsDEFAULT, isLoggedIn, menuSettings, menuSettingsDEFAULT, modifyingConfig, syncAppSettingsFromRemote, syncAppSettingsToRemote, syncGameSettingsFromRemote, syncGameSettingsToRemote, syncMenuSettingsFromRemote, syncMenuSettingsToRemote, useRemoteDb, user } from "../stores";
 import { deepCopy } from "./utils";
 import lodash from 'lodash';
-import { db, dbUsersCollectionName } from "./firebaseConfig";
+import { USE_FIREBASE, db, dbUsersCollectionName } from "./firebaseConfig";
 import { updateSettingsWithDefault } from "./preferences";
 
 const { debounce } = lodash;
 
 // Function to update app settings with data from Firestore
 export async function updateRemotePreferences({defaultSettings = false} = {}){
+    if(!USE_FIREBASE) return;
+
     let isLoggedIn_value, user_value, gameSettings_value, appSettings_value, menuSettings_value, syncAppSettings_value, syncGameSettings_value, syncMenuSettings_value, useRemoteDb_value;
     const unsubscribeLoggedIn = isLoggedIn.subscribe((value) => isLoggedIn_value = value);
     const unsubscribeUser = user.subscribe((value) => user_value = value);
@@ -62,6 +64,8 @@ export async function updateRemotePreferences({defaultSettings = false} = {}){
 }
 
 export function syncPreferencesToStores(userData) {
+    if(!USE_FIREBASE) return;
+
     if (userData && userData.incaPopPreferences.hasOwnProperty('appSettings') && userData.incaPopPreferences.hasOwnProperty('menuSettings') && userData.incaPopPreferences.hasOwnProperty('gameSettings')){
         let syncGameSettingsFromRemote_value, syncMenuSettingsFromRemote_value, syncAppSettingsFromRemote_value;
         const unsubscribeSyncGameSettingsFromRemote = syncGameSettingsFromRemote.subscribe((value) => syncGameSettingsFromRemote_value = value);
@@ -97,6 +101,8 @@ export function syncPreferencesToStores(userData) {
 }
 
 export async function syncPreferencesFromFirestore(){
+    if(!USE_FIREBASE) return;
+
     let isLoggedIn_value, user_value, useRemoteDb_value;
     const unsubscribeLoggedIn = isLoggedIn.subscribe((value) => isLoggedIn_value = value);
     const unsubscribeUser = user.subscribe((value) => user_value = value);

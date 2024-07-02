@@ -1,5 +1,6 @@
 <script>
-	import { syncPreferencesFromFirestore, updateRemotePreferences } from "$lib/firebaseFunctions";
+	import { USE_FIREBASE } from "$lib/firebaseConfig";
+    import { syncPreferencesFromFirestore, updateRemotePreferences } from "$lib/firebaseFunctions";
 	import { capitalizeFirstLetter } from "$lib/utils";
 	import { availableGameModes, isLoggedIn, loadPreferencesFromRemote, savePreferencesToRemote, syncAppSettingsFromRemote, syncAppSettingsToRemote, syncGameSettingsFromRemote, syncGameSettingsToRemote, syncMenuSettingsFromRemote, syncMenuSettingsToRemote, user, useRemoteDb } from "../../../stores";
 	import SliderInput from "../SliderInput.svelte";
@@ -55,7 +56,7 @@
 
 <div class='game-modes-title-wrapper'>
     <h2>Game modes</h2>
-    {#if $isLoggedIn && $user && $useRemoteDb}
+    {#if USE_FIREBASE && $isLoggedIn && $user && $useRemoteDb}
         <div class='remote-preferences-btn-wrapper'>
             <SliderInput 
                 bind:value={$syncGameSettingsToRemote}
