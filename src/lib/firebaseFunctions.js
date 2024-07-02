@@ -1,5 +1,5 @@
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import { appSettings, appSettingsDEFAULT, availableGameModes, gameSettings, gameSettingsDEFAULT, isLoggedIn, menuSettings, menuSettingsDEFAULT, modifyingConfig, syncAppSettingsFromRemote, syncAppSettingsToRemote, syncGameSettingsFromRemote, syncGameSettingsToRemote, syncMenuSettingsFromRemote, syncMenuSettingsToRemote, user } from "../stores";
+import { appSettings, appSettingsDEFAULT, availableGameModes, gameSettings, gameSettingsDEFAULT, isLoggedIn, menuSettings, menuSettingsDEFAULT, modifyingConfig, syncAppSettingsFromRemote, syncAppSettingsToRemote, syncGameSettingsFromRemote, syncGameSettingsToRemote, syncMenuSettingsFromRemote, syncMenuSettingsToRemote, useRemoteDb, user } from "../stores";
 import { deepCopy } from "./utils";
 import lodash from 'lodash';
 import { db, dbUsersCollectionName } from "./firebaseConfig";
@@ -9,13 +9,22 @@ const { debounce } = lodash;
 
 // Function to update app settings with data from Firestore
 export async function updateRemotePreferences({defaultSettings = false} = {}){
-    let isLoggedIn_value, user_value, gameSettings_value, appSettings_value, menuSettings_value, syncAppSettings_value, syncGameSettings_value, syncMenuSettings_value;
+    let isLoggedIn_value, user_value, gameSettings_value, appSettings_value, menuSettings_value, syncAppSettings_value, syncGameSettings_value, syncMenuSettings_value, useRemoteDb_value;
     const unsubscribeLoggedIn = isLoggedIn.subscribe((value) => isLoggedIn_value = value);
     const unsubscribeUser = user.subscribe((value) => user_value = value);
-    
+    const unsubscribeUseRemoteDb = useRemoteDb.subscribe((value) => useRemoteDb_value = value);
+
     if (!isLoggedIn_value || !user_value) {
         unsubscribeLoggedIn();
         unsubscribeUser();
+        unsubscribeUseRemoteDb();
+        return;
+    }
+    if(!useRemoteDb_value){
+        unsubscribeLoggedIn();
+        unsubscribeUser();
+        unsubscribeUseRemoteDb();
+        console.log('Remote db disabled, not updating settings')
         return;
     }
     const unsubscribAappSettings = appSettings.subscribe((value) => appSettings_value = value);
@@ -88,11 +97,20 @@ export function syncPreferencesToStores(userData) {
 }
 
 export async function syncPreferencesFromFirestore(){
-    let isLoggedIn_value, user_value;
+    let isLoggedIn_value, user_value, useRemoteDb_value;
     const unsubscribeLoggedIn = isLoggedIn.subscribe((value) => isLoggedIn_value = value);
     const unsubscribeUser = user.subscribe((value) => user_value = value);
+    const unsubscribeUseRemoteDb = useRemoteDb.subscribe((value) => useRemoteDb_value = value);
 
     if (user_value && isLoggedIn_value) {
+        if(!useRemoteDb_value){
+            unsubscribeLoggedIn();
+            unsubscribeUser();
+            unsubscribeUseRemoteDb();
+            console.log('Remote db disabled, not syncing preferences from remote')
+            return;
+        } 
+
         modifyingConfig.set(true);
         const userDocRef = doc(db, dbUsersCollectionName, user_value.uid);
         const docSnapshot = await getDoc(userDocRef);
@@ -104,6 +122,7 @@ export async function syncPreferencesFromFirestore(){
     }
     unsubscribeLoggedIn();
     unsubscribeUser();
+    unsubscribeUseRemoteDb();
 }
 
 // Debounce the function to avoid multiple calls

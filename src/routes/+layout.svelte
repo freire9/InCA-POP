@@ -1,6 +1,6 @@
 <script>
     import 'inca-utils/styles.css';
-    import { user, isLoggedIn, isIphone, modifyingConfig, speechCorrect, speechSettings, speechExcellent, voices, loadPreferencesFromRemote, savePreferencesToRemote, syncGameSettingsFromRemote, syncGameSettingsToRemote, syncMenuSettingsFromRemote, syncMenuSettingsToRemote, speechGameModeStarted, speechMenuBackgroundTouched, speechExitGame, speechGameBackgroundTouched, speechGameEndedByCondition, speechGameEndedByInactivity } from '../stores';
+    import { user, isLoggedIn, isIphone, modifyingConfig, speechCorrect, speechSettings, speechExcellent, voices, loadPreferencesFromRemote, savePreferencesToRemote, syncGameSettingsFromRemote, syncGameSettingsToRemote, syncMenuSettingsFromRemote, syncMenuSettingsToRemote, speechGameModeStarted, speechMenuBackgroundTouched, speechExitGame, speechGameBackgroundTouched, speechGameEndedByCondition, speechGameEndedByInactivity, useRemoteDb } from '../stores';
     import { auth } from '$lib/firebaseConfig';
     import { onAuthStateChanged } from 'firebase/auth';
 	import { onMount } from 'svelte';
@@ -113,6 +113,7 @@
     onMount(() => {
         const userAgent = navigator.userAgent.toLowerCase();
         $isIphone = /iphone/.test(userAgent);
+        if(localStorage.getItem('useRemoteDb') !== null) $useRemoteDb = localStorage.getItem('useRemoteDb') === 'true';
         loadVoices();
         window.speechSynthesis.onvoiceschanged = loadVoices;
         if($speechCorrect.rate != $speechSettings.rate || 

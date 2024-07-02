@@ -19,6 +19,8 @@ export const syncGameSettingsFromRemote = writable(false);
 export const syncMenuSettingsFromRemote = writable(false);
 export const syncAppSettingsFromRemote = writable(false);
 
+export const useRemoteDb = writable(true);
+
 export const subjectName = writable('subject-name');
 
 // Pop element types: NORMAL AND SPECIAL (EXP, CTRL, etc.)
