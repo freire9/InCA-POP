@@ -100,6 +100,13 @@ const dfltInnerFigInterpColors = [ "#000000", "#1a1a1a", "#333333", "#4d4d4d", "
 export const speechSettings = writable({
     speechCorrect: 'Correct!',
     speechExcellent: 'Excellent!',
+    speechGameModeStarted: 'Game mode {gameMode} started!',
+    speechGameModeStartedDefault: 'Game mode {gameMode} started!',
+    speechMenuBackgroundTouched: 'Menu background touched!',
+    speechExitGame: 'Exit game!',
+    speechGameBackgroundTouched: 'Game background touched!',
+    speechGameEndedByCondition: 'Game ended by condition, well done!',
+    speechGameEndedByInactivity: 'Game ended by inactivity',
     voice: null,
     rate: 1,
     pitch: 1,
@@ -109,10 +116,22 @@ const isClient = !import.meta.env.SSR;
 
 export let speechCorrect;
 export let speechExcellent;
+export let speechGameModeStarted;
+export let speechMenuBackgroundTouched;
+export let speechExitGame;
+export let speechGameBackgroundTouched;
+export let speechGameEndedByCondition;
+export let speechGameEndedByInactivity;
 export const voices = writable([]);
 if (isClient) {
     speechCorrect = writable(new SpeechSynthesisUtterance('Correct!'));
     speechExcellent = writable(new SpeechSynthesisUtterance('Excellent!'));
+    speechGameModeStarted = writable(new SpeechSynthesisUtterance('Game mode {gameMode} started!'));
+    speechMenuBackgroundTouched = writable(new SpeechSynthesisUtterance('Menu background touched!'));
+    speechExitGame = writable(new SpeechSynthesisUtterance('Exit game!'));
+    speechGameBackgroundTouched = writable(new SpeechSynthesisUtterance('Game background touched!'));
+    speechGameEndedByCondition = writable(new SpeechSynthesisUtterance('Game ended by condition, well done!'));
+    speechGameEndedByInactivity = writable(new SpeechSynthesisUtterance('Game ended by inactivity'));
 }
 
 export const appSettingsDEFAULT = {
