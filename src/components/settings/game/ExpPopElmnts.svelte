@@ -108,7 +108,7 @@
 
 
 <div class="checkbox-flex">
-    <input id="randomizeExpInnerFigColorsCheckbox" type="checkbox" bind:checked={$gameSettings[gameMode].popElmntConfig[popElmntTypes.EXP].enableInnerFigRandColor} on:input={updatePreferences}>
+    <input id="randomizeExpInnerFigColorsCheckbox" type="checkbox" bind:checked={$gameSettings[gameMode].popElmntConfig[popElmntTypes.EXP].enableRandInnerFigColor} on:input={updatePreferences}>
     <label for="randomizeExpInnerFigColorsCheckbox">Randomize {expLabel} {expPopElmntLabel} inner figure colors?</label>
 </div>
 
