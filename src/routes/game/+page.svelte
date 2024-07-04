@@ -52,6 +52,7 @@
     const timeForTrackInactivity = 20000;
     const timeForInactivityEndGame = 60000;
     const timeForInactivityWindowEndGame = 10000;
+    let inactivityByWindowReached = false;
 
     Object.values(availableColorsOpts).forEach(color1 => {
         normalColorSeen[color1] = 0;
@@ -558,6 +559,12 @@
         timeForNextPopElmnt += deltaTime;
         timeSinceLastInteraction += deltaTime;
 
+        if(inactivityByWindowReached) {
+            inactivityByWindowReached = false;
+            goto('/');
+            return;
+        }
+
         if (timeSinceLastInteraction >= timeForInactivityEndGame) {
             handleGameEnd(endGameConditionsOpts.INACTIVITY);
             goto('/');
@@ -598,6 +605,7 @@
                 if(currentTime - actualTime >= timeForInactivityWindowEndGame){
                     clearInterval(awayFromWindowTimer);
                     handleGameEnd(endGameConditionsOpts.INACTIVITY);
+                    inactivityByWindowReached = true;
                 }
             }, 1000);
         } else {
