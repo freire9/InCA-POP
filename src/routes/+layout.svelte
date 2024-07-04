@@ -1,12 +1,14 @@
 <script>
     import 'inca-utils/styles.css';
-    import { user, isLoggedIn, isIphone, modifyingConfig, speechCorrect, speechSettings, speechExcellent, voices, loadPreferencesFromRemote, savePreferencesToRemote, syncGameSettingsFromRemote, syncGameSettingsToRemote, syncMenuSettingsFromRemote, syncMenuSettingsToRemote, speechGameModeStarted, speechMenuBackgroundTouched, speechExitGame, speechGameBackgroundTouched, speechGameEndedByCondition, speechGameEndedByInactivity, useRemoteDb } from '../stores';
-    import { auth, USE_FIREBASE } from '$lib/firebaseConfig';
+    import { user, isLoggedIn, isIphone, modifyingConfig, speechCorrect, speechSettings, speechExcellent, voices, loadPreferencesFromRemote, speechGameModeStarted, speechMenuBackgroundTouched, speechExitGame, speechGameBackgroundTouched, speechGameEndedByCondition, speechGameEndedByInactivity, useRemoteDb, gameSettings, appSettings, menuSettings, subjectName } from '../stores';
+    import { auth, db, dbUsersCollectionName, USE_FIREBASE } from '$lib/firebaseConfig';
     import { onAuthStateChanged } from 'firebase/auth';
 	import { onMount } from 'svelte';
     import packageJson from '../../package.json';
 	import { syncPreferencesFromFirestore } from '$lib/firebaseFunctions';
 	import { loadSubjectNameLocal, setLocalPreferencesToStores, setLocalUserId } from '$lib/localPreferences';
+	import { arrayUnion, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+	import { deepCopy } from '$lib/utils';
 
     const appVersion = packageJson.version;
 
@@ -106,6 +108,56 @@
                 }
                 
                 try {
+                    const userDocRef = doc(db, dbUsersCollectionName, $user.uid);
+                    const existingDoc = await getDoc(userDocRef);
+                    if (existingDoc.exists()){
+
+                        let forUpdateData = {
+                            lastAccess: new Date(),
+                        };
+
+                        if(!existingDoc.data().incaPopPreferences){
+                            forUpdateData.incaPopPreferences = {
+                                gameSettings: deepCopy($gameSettings),
+                                appSettings: deepCopy($appSettings),
+                                menuSettings: deepCopy($menuSettings),
+                            };
+                        }
+                        if(!existingDoc.data().learners || !existingDoc.data().learners.includes($subjectName)){
+                            forUpdateData.learners = arrayUnion($subjectName);
+                        }
+
+                        if(!existingDoc.data().teachers || !existingDoc.data().teachers.includes($appSettings.instructorName)){
+                            forUpdateData.teachers = arrayUnion($appSettings.instructorName);
+                        }
+                        if(!existingDoc.data().name){
+                            forUpdateData.name = $user.displayName;
+                        }
+                        if(!existingDoc.data().role){
+                            forUpdateData.role = 'usuario';
+                        }
+                        if(!existingDoc.data().email){
+                            forUpdateData.email = $user.email;
+                        }
+
+                        await updateDoc(userDocRef, forUpdateData);
+
+                        } else {
+                            await setDoc(userDocRef, {
+                                name: $user.displayName,
+                                role: 'usuario',
+                                email: $user.email,
+                                teachers: [$appSettings.instructorName],
+                                learners: [$subjectName],
+                                lastAccess: new Date(),
+                                incaPopPreferences:{
+                                    gameSettings: $gameSettings, 
+                                    appSettings: $appSettings, 
+                                    menuSettings: $menuSettings,
+                                },
+                            });
+                        }
+
                     if($loadPreferencesFromRemote) await syncPreferencesFromFirestore();
                 } catch(error) {
                     console.error(error);
@@ -140,12 +192,6 @@
         }
         loadSubjectNameLocal();
         setLocalUserId();
-        $loadPreferencesFromRemote = localStorage.getItem('loadPreferencesFromRemote') === 'true';
-        $savePreferencesToRemote = localStorage.getItem('savePreferencesToRemote') === 'true';
-        $syncGameSettingsFromRemote = localStorage.getItem('syncGameSettingsFromRemote') === 'true';
-        $syncGameSettingsToRemote = localStorage.getItem('syncGameSettingsToRemote') === 'true';
-        $syncMenuSettingsFromRemote = localStorage.getItem('syncMenuSettingsFromRemote') === 'true';
-        $syncMenuSettingsToRemote = localStorage.getItem('syncMenuSettingsToRemote') === 'true';
         setLocalPreferencesToStores();
     });
 </script>

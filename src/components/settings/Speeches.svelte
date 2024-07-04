@@ -1,6 +1,6 @@
 <script>
     import { onMount } from 'svelte';
-	import { appSettings, speechCorrect, speechExcellent, speechExitGame, speechGameBackgroundTouched, speechGameEndedByCondition, speechGameEndedByInactivity, speechGameModeStarted, speechMenuBackgroundTouched, speechSettings, voices } from '../../stores';
+	import { appSettings, speechCorrect, speechExcellent, speechExitGame, speechGameBackgroundTouched, speechGameEndedByCondition, speechGameEndedByInactivity, speechGameModeStarted, speechIsBeingRestored, speechMenuBackgroundTouched, speechSettings, voices } from '../../stores';
     import { Fa } from 'inca-utils';
     import { faPlay } from '@fortawesome/free-solid-svg-icons';
     import lodash from 'lodash';
@@ -10,6 +10,14 @@
     const { debounce } = lodash;
     let noCustomCorrect;
     let noCustomExcellent;
+
+    $:{
+        if($speechIsBeingRestored){
+            $speechSettings.voice = $voices[0];
+            changeAllSpeechesConfigs();
+            $speechIsBeingRestored = false;
+        }
+    }
 
     function readText(speech){
         if(!$speechSettings.voice || !speech.text){
@@ -44,35 +52,35 @@
         noCustomExcellent = new Audio('/sounds/excellent.mp3');
     })
 
-    function correctSpeechChange(){
+    export function correctSpeechChange(){
         $speechCorrect.text = $speechSettings.speechCorrect;
         saveSpeechConfigLocal();
     }
-    function excellentSpeechChange(){
+    export function excellentSpeechChange(){
         $speechExcellent.text = $speechSettings.speechExcellent;
         saveSpeechConfigLocal();
     }
-    function exitGameSpeechChange(){
+    export function exitGameSpeechChange(){
         $speechExitGame.text = $speechSettings.speechExitGame;
         saveSpeechConfigLocal();
     }
-    function gameEndedByConditionSpeechChange(){
+    export function gameEndedByConditionSpeechChange(){
         $speechGameEndedByCondition.text = $speechSettings.speechGameEndedByCondition;
         saveSpeechConfigLocal();
     }
-    function gameEndedByInactivitySpeechChange(){
+    export function gameEndedByInactivitySpeechChange(){
         $speechGameEndedByInactivity.text = $speechSettings.speechGameEndedByInactivity;
         saveSpeechConfigLocal();
     }
-    function gameBackgroundTouchedSpeechChange(){
+    export function gameBackgroundTouchedSpeechChange(){
         $speechGameBackgroundTouched.text = $speechSettings.speechGameBackgroundTouched;
         saveSpeechConfigLocal();
     }
-    function menuBackgroundTouchedSpeechChange(){
+    export function menuBackgroundTouchedSpeechChange(){
         $speechMenuBackgroundTouched.text = $speechSettings.speechMenuBackgroundTouched;
         saveSpeechConfigLocal();
     }
-    function gameModeStartedSpeechChange(){
+    export function gameModeStartedSpeechChange(){
         if(!$speechSettings.speechGameModeStarted.includes("{gameMode}")){
             $speechSettings.speechGameModeStarted = $speechSettings.speechGameModeStartedDefault;
             $speechGameModeStarted.text = $speechSettings.speechGameModeStartedDefault;
@@ -83,7 +91,7 @@
         saveSpeechConfigLocal();
     }
 
-    function voiceChange(){
+    export function voiceChange(){
         $speechCorrect.voice = $voices.find(voice => voice.name === $speechSettings.voice.name);
         $speechExcellent.voice = $voices.find(voice => voice.name === $speechSettings.voice.name);
         $speechGameModeStarted.voice = $voices.find(voice => voice.name === $speechSettings.voice.name);
@@ -94,7 +102,7 @@
         $speechGameEndedByInactivity.voice = $voices.find(voice => voice.name === $speechSettings.voice.name);
         saveSpeechConfigLocal();
     }
-    function volumeChange(){
+    export function volumeChange(){
         $speechCorrect.volume = $speechSettings.volume;
         $speechExcellent.volume = $speechSettings.volume;
         $speechGameModeStarted.volume = $speechSettings.volume;
@@ -105,7 +113,7 @@
         $speechGameEndedByInactivity.volume = $speechSettings.volume;
         saveSpeechConfigLocal();
     }
-    function pitchChange(){
+    export function pitchChange(){
         $speechCorrect.pitch = $speechSettings.pitch;
         $speechExcellent.pitch = $speechSettings.pitch;
         $speechGameModeStarted.pitch = $speechSettings.pitch;
@@ -116,7 +124,7 @@
         $speechGameEndedByInactivity.pitch = $speechSettings.pitch;
         saveSpeechConfigLocal();
     }
-    function rateChange(){
+    export function rateChange(){
         $speechCorrect.rate = $speechSettings.rate;
         $speechExcellent.rate = $speechSettings.rate;
         $speechGameModeStarted.rate = $speechSettings.rate;
@@ -126,6 +134,21 @@
         $speechGameEndedByCondition.rate = $speechSettings.rate;
         $speechGameEndedByInactivity.rate = $speechSettings.rate;
         saveSpeechConfigLocal();
+    }
+
+    export function changeAllSpeechesConfigs(){
+        rateChange();
+        pitchChange();
+        volumeChange();
+        voiceChange();
+        gameModeStartedSpeechChange();
+        menuBackgroundTouchedSpeechChange();
+        gameBackgroundTouchedSpeechChange();
+        gameEndedByInactivitySpeechChange();
+        gameEndedByConditionSpeechChange();
+        exitGameSpeechChange();
+        excellentSpeechChange();
+        correctSpeechChange();
     }
 
     function handleNoCustomCorrect(){

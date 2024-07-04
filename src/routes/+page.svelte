@@ -58,11 +58,13 @@
     }
 
     async function handleClick(event){
-        $speechSettings.speechGameModeStarted = $speechSettings.speechGameModeStarted.replace("{gameMode}", "{" + event.detail.toString() + "}");
-        $speechGameModeStarted.text = $speechSettings.speechGameModeStarted;
-        playCustomGameModeStarted();
-        $speechSettings.speechGameModeStarted = $speechSettings.speechGameModeStarted.replace("{" + event.detail.toString() + "}", "{gameMode}");
-        $speechGameModeStarted.text = $speechSettings.speechGameModeStarted;
+        if($appSettings.enableCustomSpeeches){
+            $speechSettings.speechGameModeStarted = $speechSettings.speechGameModeStarted.replace("{gameMode}", "{" + event.detail.toString() + "}");
+            $speechGameModeStarted.text = $speechSettings.speechGameModeStarted;
+            playCustomGameModeStarted();
+            $speechSettings.speechGameModeStarted = $speechSettings.speechGameModeStarted.replace("{" + event.detail.toString() + "}", "{gameMode}");
+            $speechGameModeStarted.text = $speechSettings.speechGameModeStarted;
+        }
         startGame(event.detail);
         const gameStartedLog = {
             ...setGeneralLogs('Game started'), 
@@ -72,7 +74,7 @@
     }
 
     async function handleBackgroundClick(event){
-        playCustomMenuBackgroundTouched();
+        if($appSettings.enableCustomSpeeches) playCustomMenuBackgroundTouched();
         const backgroundClickLog = {...setGeneralLogs('Menu background click'), details: deepCopy({x: event.clientX, y: event.clientY, menuBackgroundColor: $menuSettings.menuBackgroundColor})};
         addLog(backgroundClickLog);
     }
