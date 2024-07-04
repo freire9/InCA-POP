@@ -464,7 +464,6 @@
         condition === endGameConditionsOpts.INACTIVITY ? playCustomGameEndedByInactivity() : playCustomGameEndedByCondition();
         clearInterval(endGameTimer);
         addLog(endGameLogs(condition), {isExitEndLog: true});
-        goto('/');
     }
 
     async function handleBackgroundKeyboard(event){
@@ -559,6 +558,8 @@
 
         if (timeSinceLastInteraction >= timeForInactivityEndGame) {
             handleGameEnd(endGameConditionsOpts.INACTIVITY);
+            goto('/');
+            return;
         }
 
         if(timeForNextPopElmnt >= popElmntInterval){
