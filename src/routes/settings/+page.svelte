@@ -1,5 +1,5 @@
 <script>
-    import { gameSettings, appSettings, menuSettings, isFullScreen, menuSettingsDEFAULT, appSettingsDEFAULT, gameSettingsDEFAULT } from '../../stores.js';
+    import { gameSettings, appSettings, menuSettings, isFullScreen, menuSettingsDEFAULT, appSettingsDEFAULT, gameSettingsDEFAULT, speechSettings, speechIsBeingRestored, speechSettingsDEFAULT, subjectName } from '../../stores.js';
     import { deepCopy } from '$lib/utils.js'
     import Profile from '../../components/settings/Profile.svelte';
     import UserNavBar from '../../components/UserNavBar.svelte';
@@ -13,12 +13,16 @@
         gameSettings.set(deepCopy(gameSettingsDEFAULT));
         appSettings.set(deepCopy(appSettingsDEFAULT));
         menuSettings.set(deepCopy(menuSettingsDEFAULT));
+        speechSettings.set(deepCopy(speechSettingsDEFAULT));
+        $speechIsBeingRestored = true;
+        $subjectName = 'subject-name'
+        localStorage.setItem('subjectName', 'subject-name');
         console.log('Default settings restored')
         updatePreferences();
     }
 
     function handleRestoreDefaultsWarning(){
-        if(confirm('Are you sure you want to restore default settings? (if logged in, changes will be saved to the database!)')){
+        if(confirm('Are you sure you want to restore default settings?')){
             handleRestoreDefaults();
         }
     }

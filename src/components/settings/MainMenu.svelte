@@ -3,16 +3,19 @@
 	import { updateLocalPreferences } from "$lib/localPreferences";
 	import { updatePreferences } from "$lib/preferences";
 	import { capitalizeFirstLetter, toCamelCase } from "$lib/utils";
-	import { availableGameModes, isLoggedIn, loadPreferencesFromRemote, menuSettings, modifyingConfig, savePreferencesToRemote, syncAppSettingsFromRemote, syncAppSettingsToRemote, syncGameSettingsFromRemote, syncGameSettingsToRemote, syncMenuSettingsFromRemote, syncMenuSettingsToRemote, user, useRemoteDb } from "../../stores";
+	import { availableGameModes, isLoggedIn, loadPreferencesFromRemote, menuSettings, modifyingConfig, savePreferencesToRemote, syncMenuSettingsFromRemote, syncMenuSettingsToRemote, user, useRemoteDb } from "../../stores";
 	import ColorPicker from "./ColorPicker.svelte";
     import lodash from 'lodash';
-	import SliderInput from "./SliderInput.svelte";
 	import { USE_FIREBASE } from "$lib/firebaseConfig";
-    
+    import { faCloudDownload, faCloudUpload } from '@fortawesome/free-solid-svg-icons';
+    import { Fa } from "inca-utils";
+
     const { debounce } = lodash;
 
     let modesByPositions = {};
     let positionByModes = {};
+    let loadingSaveRemotePreferences = false;
+    let loadingLoadRemotePreferences = false;
 
     $:{
         if(!$modifyingConfig){
@@ -54,52 +57,53 @@
         }
         updatePreferences();
     }
-    function handleToggle(checked) {
-        if (checked) toggleSaveRemotePreferences(true);
-        else toggleSaveRemotePreferences(false);
+
+    async function saveRemotePreferences(){
+        loadingSaveRemotePreferences = true;
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        $savePreferencesToRemote = true;
+        $syncMenuSettingsToRemote = true;
+        updateRemotePreferences();
+        $savePreferencesToRemote = false;
+        $syncMenuSettingsToRemote = false;
+        loadingSaveRemotePreferences = false;
+        alert('Main menu preferences saved to remote database')
     }
-    function handleToggleLoad(checked) {
-        if (checked) toggleLoadRemotePreferences(true);
-        else toggleLoadRemotePreferences(false);
+    async function loadRemotePreferences(){
+        loadingLoadRemotePreferences = true;
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        $syncMenuSettingsFromRemote = true;
+        await syncPreferencesFromFirestore();
+        updateLocalPreferences();
+        loadingLoadRemotePreferences = false;
+        $syncMenuSettingsFromRemote = false;
+        alert('Main menu preferences loaded from remote database')
     }
-    const toggleSaveRemotePreferences = (toggle) => {
-        if(toggle){
-            if($syncGameSettingsToRemote || $syncAppSettingsToRemote || $syncMenuSettingsToRemote){
-                $savePreferencesToRemote = true;
-                updateRemotePreferences();
-            } else $savePreferencesToRemote = false;
-            localStorage.setItem('savePreferencesToRemote', $savePreferencesToRemote.toString());
-            localStorage.setItem('syncMenuSettingsToRemote', $syncMenuSettingsToRemote.toString());
-        }
-    }
-    async function toggleLoadRemotePreferences(toggle) {
-        if(toggle){
-            if($syncGameSettingsFromRemote || $syncMenuSettingsFromRemote || $syncAppSettingsFromRemote){
-                $loadPreferencesFromRemote = true;
-                await syncPreferencesFromFirestore();
-            } else $loadPreferencesFromRemote = false;
-            localStorage.setItem('loadPreferencesFromRemote', $loadPreferencesFromRemote.toString());
-            localStorage.setItem('syncMenuSettingsFromRemote', $syncMenuSettingsFromRemote.toString());
-        }
-    }
-    const handleToggleSaveRemotePreferences = debounce((toggle) => handleToggle(toggle), 1500);
-    const handleToggleLoadRemotePreferences = debounce((toggle) => handleToggleLoad(toggle), 1500);
+
+    const handleClickLoadRemotePreferences = debounce(loadRemotePreferences, 1500);
+    const handleClickSaveRemotePreferences = debounce(saveRemotePreferences, 1500);
 </script>
 
 <div class="main-menu-title-wrapper">
     <h2>Main menu</h2>
     {#if USE_FIREBASE && $isLoggedIn && $user && $useRemoteDb}
-        <div class="remote-preferences-btn-wrapper">
-            <SliderInput 
-                bind:value={$syncMenuSettingsToRemote}
-                label={"Save preferences remotely"}
-                on:change={handleToggleSaveRemotePreferences}
-            />
-            <SliderInput 
-                bind:value={$syncMenuSettingsFromRemote}
-                label={"Load preferences remotely"}
-                on:change={handleToggleLoadRemotePreferences}
-            />
+        <div class='remote-preferences-btn-wrapper'>
+            <button class="save-remote-preferences-btn" on:click={handleClickSaveRemotePreferences}>
+                {#if loadingSaveRemotePreferences}
+                    <span class="loading"></span> Saving preferences to remote...
+                {:else}
+                    <Fa icon={faCloudUpload} />
+                    Save preferences to remote
+                {/if}
+            </button>
+            <button class="load-remote-preferences-btn" on:click={handleClickLoadRemotePreferences}>
+                {#if loadingLoadRemotePreferences}
+                    <span class="loading"></span> Loading preferences from remote...
+                {:else}
+                    <Fa icon={faCloudDownload} />
+                    Load preferences from remote
+                {/if}
+            </button>
         </div>
     {/if}
 </div>
@@ -158,30 +162,76 @@
         padding-top: 12px;
         padding-bottom: 12px;
     }
-    @media (max-width: 600px) {
-        .game-mode-extras{
-            flex-direction: column;
-            align-items: flex-start;
-        }
+    .remote-preferences-btn-wrapper{
+        display: flex;
+        gap: 10px;
     }
     .main-menu-title-wrapper{
         display: flex;
         gap: 80px;
         align-items: center;
     }
-    .remote-preferences-btn-wrapper{
-        display: flex;
-        gap: 10px;
-    }
     @media (max-width: 600px) {
+        .game-mode-extras{
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        button.save-remote-preferences-btn,
+        button.load-remote-preferences-btn{
+            width: 220px;
+        }
+        .remote-preferences-btn-wrapper{
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
         .main-menu-title-wrapper{
             display: flex;
             flex-direction: column;
             gap: 10px;
             align-items: flex-start;
         }
-        .remote-preferences-btn-wrapper{
-            margin-bottom: 30px;
+    }
+    @media (min-width: 600px) and (max-width: 1024px) {
+        button.save-remote-preferences-btn,
+        button.load-remote-preferences-btn{
+            width: 230px;
+        }
+    }
+    @media (min-width: 1024px){
+        button.save-remote-preferences-btn,
+        button.load-remote-preferences-btn{
+            width: 300px;
+        }
+    }
+    button.save-remote-preferences-btn,
+    button.load-remote-preferences-btn{
+        background-color: beige;
+        border-radius: 10px;
+        padding: 10px;
+        text-align: center;
+    }
+    button.save-remote-preferences-btn:hover,
+    button.load-remote-preferences-btn:hover{
+        background-color: #e6e6e6;
+    }
+    button.save-remote-preferences-btn:focus,
+    button.load-remote-preferences-btn:focus{
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.2);
+    }
+    .loading {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        border-top-color: #000;
+        animation: spin 1s ease-in-out infinite;
+    }
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
         }
     }
 </style>

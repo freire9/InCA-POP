@@ -1,7 +1,7 @@
 <script>
     import { ActionButton, TrainerButton } from "inca-utils";
     import { faExpand } from '@fortawesome/free-solid-svg-icons';
-    import { isIphone, speechExitGame } from "../stores";
+    import { appSettings, isIphone, speechExitGame } from "../stores";
     import { Fa }  from "inca-utils";
     import { createEventDispatcher, onMount } from "svelte";
 	import { goto } from "$app/navigation";
@@ -19,7 +19,7 @@
     }
 
     function handleExitClick(event){
-        playCustomExitGame();
+        if($appSettings.enableCustomSpeeches) playCustomExitGame();
         event.stopPropagation();
         dispatch('exit');
         goto('/');

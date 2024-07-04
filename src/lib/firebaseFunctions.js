@@ -49,10 +49,7 @@ export async function updateRemotePreferences({defaultSettings = false} = {}){
                         }
 
     const userDocRef = doc(db, dbUsersCollectionName, user_value.uid);
-    await setDoc(userDocRef, {
-        incaPopPreferences: { ...updatedPreferences }
-    }, {merge: true});
-    console.log('Settings updated');
+    
     unsubscribeLoggedIn();
     unsubscribeUser();
     unsubscribAappSettings();
@@ -61,6 +58,25 @@ export async function updateRemotePreferences({defaultSettings = false} = {}){
     unsuscribeSyncAppToRemote();
     unsuscribeSyncGameToRemote();
     unsuscribeSyncMenuToRemote();
+
+    console.log('Updating settings')
+    
+    const docSnapshot = await getDoc(userDocRef);
+    const userData = docSnapshot.data();
+
+    //if user has no preferences, update database with default settings
+    if (!userData || !userData.hasOwnProperty('incaPopPreferences') || !userData.incaPopPreferences.hasOwnProperty('appSettings') || !userData.incaPopPreferences.hasOwnProperty('menuSettings') || !userData.incaPopPreferences.hasOwnProperty('gameSettings')){
+        updatedPreferences.appSettings = syncAppSettings_value ? deepCopy(appSettings_value) : deepCopy(appSettingsDEFAULT);
+        updatedPreferences.gameSettings = syncGameSettings_value ? deepCopy(gameSettings_value) : deepCopy(gameSettingsDEFAULT);
+        updatedPreferences.menuSettings = syncMenuSettings_value ? deepCopy(menuSettings_value) : deepCopy(menuSettingsDEFAULT);
+    }
+    if(Object.keys(updatedPreferences).length === 0) return;
+    
+    await setDoc(userDocRef, {
+        incaPopPreferences: { ...updatedPreferences }
+    }, {merge: true});
+
+    console.log('Settings updated');
 }
 
 export function syncPreferencesToStores(userData) {

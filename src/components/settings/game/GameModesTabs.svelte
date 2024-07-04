@@ -1,15 +1,19 @@
 <script>
 	import { USE_FIREBASE } from "$lib/firebaseConfig";
     import { syncPreferencesFromFirestore, updateRemotePreferences } from "$lib/firebaseFunctions";
+	import { updateLocalPreferences } from "$lib/localPreferences";
 	import { capitalizeFirstLetter } from "$lib/utils";
-	import { availableGameModes, isLoggedIn, loadPreferencesFromRemote, savePreferencesToRemote, syncAppSettingsFromRemote, syncAppSettingsToRemote, syncGameSettingsFromRemote, syncGameSettingsToRemote, syncMenuSettingsFromRemote, syncMenuSettingsToRemote, user, useRemoteDb } from "../../../stores";
-	import SliderInput from "../SliderInput.svelte";
+	import { Fa } from "inca-utils";
+	import { availableGameModes, isLoggedIn, loadPreferencesFromRemote, savePreferencesToRemote, syncGameSettingsFromRemote, syncGameSettingsToRemote, user, useRemoteDb } from "../../../stores";
     import Game from "./Game.svelte";
+    import { faCloudDownload, faCloudUpload } from '@fortawesome/free-solid-svg-icons';
     import lodash from 'lodash';
 
     const { debounce } = lodash;
 
     let activeTabValue = 1;
+    let loadingSaveRemotePreferences = false;
+    let loadingLoadRemotePreferences = false;
 
     const handleClick = tabValue => () => (activeTabValue = tabValue);
     
@@ -22,52 +26,53 @@
         mode: mode
     }));
     
-    function handleToggle(checked) {
-        if (checked) toggleSaveRemotePreferences(true);
-        else toggleSaveRemotePreferences(false);
+    async function saveRemotePreferences(){
+        loadingSaveRemotePreferences = true;
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        $savePreferencesToRemote = true; // Flag to save the game settings to remote
+        $syncGameSettingsToRemote = true; // Flag to sync the game settings to remote
+        updateRemotePreferences();
+        $savePreferencesToRemote = false; // Flag to save the game settings to remote
+        $syncGameSettingsToRemote = false; // Flag to sync the game settings to remote
+        loadingSaveRemotePreferences = false;
+        alert('Game modes preferences saved to remote database')
     }
-    function handleToggleLoad(checked) {
-        if (checked) toggleLoadRemotePreferences(true);
-        else toggleLoadRemotePreferences(false);
+    async function loadRemotePreferences(){
+        loadingLoadRemotePreferences = true;
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        $syncGameSettingsFromRemote = true; // Flag to sync the game settings from remote
+        await syncPreferencesFromFirestore();
+        updateLocalPreferences();
+        $syncGameSettingsFromRemote = false; // Flag to sync the game settings from remote
+        loadingLoadRemotePreferences = false;
+        alert('Game modes preferences loaded from remote database')
+
     }
-    const toggleSaveRemotePreferences = (toggle) => {
-        if(toggle){
-            if($syncGameSettingsToRemote || $syncAppSettingsToRemote || $syncMenuSettingsToRemote){
-                $savePreferencesToRemote = true;
-                updateRemotePreferences();
-            } else $savePreferencesToRemote = false;
-            localStorage.setItem('savePreferencesToRemote', $savePreferencesToRemote.toString());
-            localStorage.setItem('syncGameSettingsToRemote', $syncGameSettingsToRemote.toString());
-        }
-    }
-    async function toggleLoadRemotePreferences(toggle) {
-        if(toggle){
-            if($syncGameSettingsFromRemote || $syncMenuSettingsFromRemote || $syncAppSettingsFromRemote){
-                $loadPreferencesFromRemote = true;
-                await syncPreferencesFromFirestore();
-            } else $loadPreferencesFromRemote = false;
-            localStorage.setItem('loadPreferencesFromRemote', $loadPreferencesFromRemote.toString());
-            localStorage.setItem('syncGameSettingsFromRemote', $syncGameSettingsFromRemote.toString());
-        }
-    }
-    const handleToggleSaveRemotePreferences = debounce((toggle) => handleToggle(toggle), 1500);
-    const handleToggleLoadRemotePreferences = debounce((toggle) => handleToggleLoad(toggle), 1500);
+
+    const handleClickLoadRemotePreferences = debounce(loadRemotePreferences, 1500);
+    const handleClickSaveRemotePreferences = debounce(saveRemotePreferences, 1500);
 </script>
 
 <div class='game-modes-title-wrapper'>
     <h2>Game modes</h2>
     {#if USE_FIREBASE && $isLoggedIn && $user && $useRemoteDb}
         <div class='remote-preferences-btn-wrapper'>
-            <SliderInput 
-                bind:value={$syncGameSettingsToRemote}
-                label={"Save preferences remotely"}
-                on:change={handleToggleSaveRemotePreferences}
-            />
-            <SliderInput
-                bind:value={$syncGameSettingsFromRemote}
-                label={"Load preferences remotely"}
-                on:change={handleToggleLoadRemotePreferences}
-            />
+            <button class="save-remote-preferences-btn" on:click={handleClickSaveRemotePreferences}>
+                {#if loadingSaveRemotePreferences}
+                    <span class="loading"></span> Saving preferences to remote...
+                {:else}
+                    <Fa icon={faCloudUpload} />
+                    Save preferences to remote
+                {/if}
+            </button>
+            <button class="load-remote-preferences-btn" on:click={handleClickLoadRemotePreferences}>
+                {#if loadingLoadRemotePreferences}
+                    <span class="loading"></span> Loading preferences from remote...
+                {:else}
+                    <Fa icon={faCloudDownload} />
+                    Load preferences from remote
+                {/if}
+            </button>
         </div>
     {/if}
 </div>
@@ -166,10 +171,59 @@
         .remote-preferences-btn-wrapper{
             margin-bottom: 30px;
         }
+        button.save-remote-preferences-btn,
+        button.load-remote-preferences-btn{
+            width: 220px;
+        }
+        .remote-preferences-btn-wrapper{
+            flex-direction: column;
+            gap: 10px;
+        }
     }
     @media (min-width: 600px) and (max-width: 1024px) {
         ul{
             flex-wrap: unset;
+        }
+        button.save-remote-preferences-btn,
+        button.load-remote-preferences-btn{
+            width: 230px;
+        }
+    }
+    
+    @media (min-width: 1024px){
+        button.save-remote-preferences-btn,
+        button.load-remote-preferences-btn{
+            width: 300px;
+        }
+    }
+    button.save-remote-preferences-btn,
+    button.load-remote-preferences-btn{
+        background-color: beige;
+        border-radius: 10px;
+        padding: 10px;
+        text-align: center;
+    }
+    button.save-remote-preferences-btn:hover,
+    button.load-remote-preferences-btn:hover{
+        background-color: #e6e6e6;
+    }
+    button.save-remote-preferences-btn:focus,
+    button.load-remote-preferences-btn:focus{
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.2);
+    }
+    .loading {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        border-top-color: #000;
+        animation: spin 1s ease-in-out infinite;
+    }
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
         }
     }
 </style>

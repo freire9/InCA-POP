@@ -443,7 +443,7 @@
     }
 
     async function handleBackgroundClick(event){
-        playCustomGameBackgroundTouched();
+        if($appSettings.enableCustomSpeeches) playCustomGameBackgroundTouched();
         restartInactivityTracking();
         addLog(backgroundClickLogs(event));
     }
@@ -461,10 +461,11 @@
         window.speechSynthesis.speak($speechGameEndedByInactivity);
     }
     async function handleGameEnd(condition){
-        condition === endGameConditionsOpts.INACTIVITY ? playCustomGameEndedByInactivity() : playCustomGameEndedByCondition();
+        if($appSettings.enableCustomSpeeches){
+            condition === endGameConditionsOpts.INACTIVITY ? playCustomGameEndedByInactivity() : playCustomGameEndedByCondition();
+        }
         clearInterval(endGameTimer);
         addLog(endGameLogs(condition), {isExitEndLog: true});
-        goto('/');
     }
 
     async function handleBackgroundKeyboard(event){
@@ -559,6 +560,8 @@
 
         if (timeSinceLastInteraction >= timeForInactivityEndGame) {
             handleGameEnd(endGameConditionsOpts.INACTIVITY);
+            goto('/');
+            return;
         }
 
         if(timeForNextPopElmnt >= popElmntInterval){

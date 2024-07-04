@@ -99,7 +99,7 @@ export const popElmntSizeOpts = {
 const dfltPopElmntInterColors = [ "#ff0000", "#e61a00", "#cc3300", "#b34d00", "#996600", "#808000", "#669900", "#4db300", "#33cc00", "#1ae600" ];
 const dfltInnerFigInterpColors = [ "#000000", "#1a1a1a", "#333333", "#4d4d4d", "#666666", "#808080", "#999999", "#b3b3b3", "#cccccc", "#e6e6e6" ];
 
-export const speechSettings = writable({
+export const speechSettingsDEFAULT = {
     speechCorrect: 'Correct!',
     speechExcellent: 'Excellent!',
     speechGameModeStarted: 'Game mode {gameMode} started!',
@@ -113,7 +113,10 @@ export const speechSettings = writable({
     rate: 1,
     pitch: 1,
     volume: 1,
-});
+};
+export const speechSettings = writable(deepCopy(speechSettingsDEFAULT));
+export const speechIsBeingRestored = writable(false);
+
 const isClient = !import.meta.env.SSR;
 
 export let speechCorrect;
