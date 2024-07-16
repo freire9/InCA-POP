@@ -70,6 +70,9 @@
                 Find the open-source code <a href="https://github.com/freire9/InCA-POP">here</a>.
             </li>
             <li>
+                Check the logs files attributes description and more in the project <a href="https://github.com/freire9/InCA-POP/wiki">wiki</a>.
+            </li>
+            <li>
                 Find other InCA apps <a href="https://buho.dcc.uchile.cl/~inca/">here</a>.
             </li>
         </ul>
